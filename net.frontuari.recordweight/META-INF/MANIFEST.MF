@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-Category: idempiere-plugin
+Bundle-ManifestVersion: 2
+Bundle-Name: Record Weight
+Bundle-SymbolicName: net.frontuari.recordweight;singleton:=true
+Bundle-Version: 7.1.0.qualifier
+Bundle-Vendor: FRONTUARI <https://www.frontuari.net>
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.apache.commons.lang3,
+ org.adempiere.base,
+ org.adempiere.plugin.utils,
+ org.adempiere.ui.zk,
+ zcommon,
+ zel,
+ zhtml,
+ zk,
+ zkbind,
+ zkplus,
+ zul,
+ zweb,
+ slf4j.api,
+ org.adempiere.ui
+Import-Package: org.apache.ecs.xhtml,
+ org.compiere.grid,
+ org.compiere.minigrid,
+ org.compiere.print,
+ org.osgi.service.event
+Service-Component: OSGI-INF/ModelFactory.xml,OSGI-INF/EventFactory.xml,OSGI-INF/CalloutFactory.xml,OSGI-INF/ProcessFactory.xml,OSGI-INF/FormFactory.xml,
+ OSGI-INF/CreteFromFactory.xml
+Bundle-ClassPath: .,
+ lib/velocity-engine-core.jar
+Bundle-Activator: org.adempiere.plugin.utils.Incremental2PackActivator
+Export-Package: net.frontuari.recordweight.form,
+ net.frontuari.recordweight.model

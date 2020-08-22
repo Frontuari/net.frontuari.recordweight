@@ -1,0 +1,204 @@
+package net.frontuari.recordweight.process;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+
+import org.compiere.model.MClientInfo;
+import org.compiere.model.MDocType;
+import org.compiere.model.MTree;
+import org.compiere.model.MTree_Base;
+import org.compiere.model.MTree_Node;
+import org.compiere.process.ProcessInfoParameter;
+import org.compiere.util.DB;
+import org.compiere.util.Msg;
+
+import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.model.MFTUBillOfLading;
+import net.frontuari.recordweight.model.MFTUBillOfLadingLine;
+import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTULoadOrder;
+import net.frontuari.recordweight.model.X_FTU_BillOfLading;
+
+public class FTUGenerateFreightCost extends FTUProcess{
+	String p_FTU_ZeroCost;
+	String p_FTU_AdjustPrice;
+	
+	BigDecimal FTU_Capacity;
+	BigDecimal FTU_Diference;
+	@Override
+	protected void prepare() {
+		// TODO Auto-generated method stub
+		for (ProcessInfoParameter para:getParameter()){
+			String name = para.getParameterName();
+			if (para.getParameter() == null);
+			else if(name.equals("FTU_ZeroCost"))
+				p_FTU_ZeroCost = para.getParameterAsString();
+			else if(name.equals("FTU_AdjustPrice"))
+				p_FTU_AdjustPrice = para.getParameterAsString();
+		}
+	}
+
+	@Override
+	protected String doIt() throws Exception {
+		
+		BigDecimal totalW = BigDecimal.ZERO;
+		BigDecimal grandTotal = BigDecimal.ZERO;
+		BigDecimal maxPrice = BigDecimal.ZERO;
+		
+		int SalesRegionParent_ID = 0;
+		
+		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
+		
+		if(!lo.get_ValueAsBoolean("IsDelivered"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));
+		
+		if(getQtyFreightCostByLoadOrder(lo.get_ID()) > 0)
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgExistsFreightCostCompleted"));
+		
+		MFTUBillOfLading bol = new MFTUBillOfLading(getCtx(), 0, null);
+		MDocType dt = new MDocType(getCtx(),lo.getC_DocType_ID() , get_TrxName());
+		
+		bol.setAD_Org_ID(lo.getAD_Org_ID());
+		bol.setFTU_LoadOrder_ID(lo.get_ID());
+		bol.setC_DocType_ID(dt.get_ValueAsInt("C_DocTypeBillOfLading_ID"));
+		bol.setFTU_EntryTicket_ID(lo.getFTU_EntryTicket_ID());
+		if(lo.getM_Shipper_ID() == 0) {
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), lo.getFTU_EntryTicket_ID(), null);
+			bol.setM_Shipper_ID(et.getM_Shipper_ID());
+		}else {
+			bol.setM_Shipper_ID(lo.getM_Shipper_ID());
+		}
+		bol.setFTU_Driver_ID(lo.getFTU_Driver_ID());
+		bol.setFTU_Vehicle_ID(lo.getFTU_Vehicle_ID());
+		bol.setDateDoc(new Timestamp(System.currentTimeMillis()));
+		bol.saveEx();
+		
+		String sql = "SELECT " + 
+				"	il.C_Invoice_ID," + 
+				"	miol.M_InOut_ID," + 
+				"	bl.C_SalesRegion_ID," + 
+				"	sum(lol.Weight) as Weight," + 
+				"	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel " + 
+				"	from FTU_LoadOrderLine as lol" + 
+				"	inner join M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID" + 
+				"	inner join M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)" + 
+				"	inner join C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)" + 
+				"	left join C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) " + 
+				"	where lol.FTU_LoadOrder_ID = ?" + 
+				"	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID";
+		
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			ps = DB.prepareStatement(sql.toString(), get_TrxName());
+			ps.setInt(1, getRecord_ID());
+			BigDecimal price = BigDecimal.ZERO;
+			BigDecimal costs = BigDecimal.ZERO;
+			rs = ps.executeQuery();
+			//	
+			while(rs.next()){
+				MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
+				boll.setAD_Org_ID(bol.getAD_Org_ID());
+				boll.setFTU_BillOfLading_ID(bol.get_ID());
+				boll.setC_SalesRegion_ID(rs.getInt("C_SalesRegion_ID"));
+				boll.setC_Invoice_ID(rs.getInt("C_Invoice_ID"));
+				boll.setM_InOut_ID(rs.getInt("M_InOut_ID"));
+				boll.setWeight(rs.getBigDecimal("Weight"));
+				// Calculate Cost Freight
+				// get Price for Trip
+				price = DB.getSQLValueBD(get_TrxName(), "SELECT Price FROM FTU_PriceForTrip pft JOIN FTU_AssignedRegions ar ON pft.FTU_AssignedRegions_ID = ar.FTU_AssignedRegions_ID \n" + 
+						"	WHERE ar.C_SalesRegion_ID = ? AND ar.M_Shipper_ID = ? AND ? BETWEEN pft.ValueMin::numeric AND pft.ValueMax::numeric", 
+						rs.getInt("C_SalesRegion_ID"), bol.getM_Shipper_ID(), rs.getBigDecimal("QtyTravel"));
+				
+				if(price == null)
+				{
+					price = BigDecimal.ZERO;
+				}else {
+					if(price.doubleValue() > maxPrice.doubleValue()) {
+						maxPrice = price;
+					}
+				}
+				// set costs
+				if(p_FTU_ZeroCost.equals("N")) {
+					costs = rs.getBigDecimal("Weight").multiply(price);
+				}
+				boll.setCosts(costs.setScale(2, RoundingMode.HALF_UP));
+				
+				boll.saveEx(get_TrxName());
+				
+				totalW = totalW.add(rs.getBigDecimal("Weight"));
+				grandTotal = grandTotal.add(costs);
+				
+				SalesRegionParent_ID = getSalesRegionParent(rs.getInt("C_SalesRegion_ID"));
+				
+			}
+		} catch(Exception ex) {
+			log.severe("getLinesForInOut() Error: " + ex.getMessage());
+		} finally {
+			  DB.close(rs, ps);
+		      rs = null; ps = null;
+		}
+		
+		if(p_FTU_AdjustPrice.equals("Y")) {
+			
+			MClientInfo mci = new MClientInfo(getCtx(), 0, get_TrxName());
+			
+			mci = MClientInfo.get(getCtx());
+			
+			FTU_Capacity = getVehicleLoadCapacity(lo.getFTU_EntryTicket_ID());
+			FTU_Diference = FTU_Capacity.subtract(totalW);
+			
+			MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
+			boll.setAD_Org_ID(bol.getAD_Org_ID());
+			boll.setFTU_BillOfLading_ID(bol.get_ID());
+			System.out.println(mci.getC_ChargeFreight_ID());
+			boll.set_ValueOfColumn("C_Charge_ID", mci.getC_ChargeFreight_ID());
+			boll.setWeight(FTU_Diference);
+			boll.setCosts(maxPrice.multiply(FTU_Diference));
+			boll.saveEx();
+			
+		}
+		
+		// Update Parent Sales Region
+		bol.setC_SalesRegion_ID(SalesRegionParent_ID);
+		// Update Totals
+		bol.setWeight(totalW);
+		bol.setGrandTotal(grandTotal);
+		bol.setDocStatus(X_FTU_BillOfLading.DOCSTATUS_Completed);
+		bol.saveEx(get_TrxName());
+		
+		return null;
+	}
+
+	private int getSalesRegionParent(int TreeNode)
+	{
+		int TreeID = MTree.getDefaultAD_Tree_ID(getAD_Client_ID(), "C_SalesRegion_ID");
+		
+		MTree_Base tbase = new MTree_Base(getCtx(), TreeID, get_TrxName());
+		
+		MTree_Node tn = MTree_Node.get(tbase, TreeNode);
+		
+		int parentID = 0;
+		if(tn.getParent_ID() == 0)
+			parentID = tn.getNode_ID();
+		else
+			parentID = getSalesRegionParent(tn.getParent_ID());
+		
+		return parentID;
+		
+		
+	}
+	
+	private BigDecimal getVehicleLoadCapacity(int FTU_EntryTicket_ID) {
+		return DB.getSQLValueBD(null, "SELECT v.LoadCapacity FROM FTU_Vehicle AS v "
+				+ "INNER JOIN FTU_EntryTicket AS et ON (et.FTU_Vehicle_ID = v.FTU_Vehicle_ID) "
+				+ "WHERE et.FTU_EntryTicket_ID = ?", FTU_EntryTicket_ID);
+	}
+	
+	private int getQtyFreightCostByLoadOrder(int FTU_Load_Order_ID) {
+		return DB.getSQLValue(get_TrxName(), "SELECT count(*) FROM FTU_BillOfLading WHERE FTU_LoadOrder_ID = ? and DocStatus = 'CO'", FTU_Load_Order_ID);
+	}
+
+}

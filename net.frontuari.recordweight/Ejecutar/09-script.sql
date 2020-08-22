@@ -1,0 +1,1 @@
+UPDATE AD_WF_Node SET IsApproved = 'Y' WHERE AD_WF_Node_UU='a905e647-c426-4b0e-9c49-da05cd72402f';
