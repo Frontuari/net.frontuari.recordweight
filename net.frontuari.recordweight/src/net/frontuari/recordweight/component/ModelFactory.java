@@ -62,6 +62,7 @@ import net.frontuari.recordweight.model.X_FTU_SerialPortConfig;
 import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
 import net.frontuari.recordweight.model.X_HRS_QualityParameter;
+import net.frontuari.recordweight.model.X_I_EntryTicket;
 
 /**
  * Model Factory
@@ -100,6 +101,7 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(I_HRS_Analysis.Table_Name, MHRSAnalysis.class);
 		registerModel(I_HRS_QualityParameter.Table_Name, MHRSQualityParameter.class);
 		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);
+		registerModel(X_I_EntryTicket.Table_Name, X_I_EntryTicket.class);
 	}
 
 }
