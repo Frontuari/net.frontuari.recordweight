@@ -29,6 +29,6 @@ Service-Component: OSGI-INF/ModelFactory.xml,OSGI-INF/EventFactory.xml,OSGI-INF/
  OSGI-INF/CreteFromFactory.xml
 Bundle-ClassPath: .,
  lib/velocity-engine-core.jar
-Bundle-Activator: org.adempiere.plugin.utils.Incremental2PackActivator
+Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
 Export-Package: net.frontuari.recordweight.form,
  net.frontuari.recordweight.model

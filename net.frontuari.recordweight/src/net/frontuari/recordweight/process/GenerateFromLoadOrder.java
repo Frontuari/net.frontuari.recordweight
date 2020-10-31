@@ -231,11 +231,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Create Shipment From Order
 				m_Current_Shipment = new MInOut(order, p_C_DocType_ID, p_MovementDate);
 				m_Current_Shipment.setDateAcct(p_MovementDate);
-				m_Current_Shipment.setAD_Org_ID(warehouse.getAD_Org_ID());
+				//m_Current_Shipment.setAD_Org_ID(warehouse.getAD_Org_ID());
 				m_Current_Shipment.setAD_OrgTrx_ID(warehouse.getAD_Org_ID());
 				m_Current_Shipment.setC_BPartner_ID(m_Current_BPartner_ID);
 				// Set Warehouse
-				m_Current_Shipment.setM_Warehouse_ID(m_Current_Warehouse_ID);
+				//m_Current_Shipment.setM_Warehouse_ID(m_Current_Warehouse_ID);
 				m_Current_Shipment.setDocStatus(X_M_InOut.DOCSTATUS_Drafted);
 				// Set Record Weight Reference
 				if (m_FTU_RecordWeight_ID > 0) {
@@ -256,6 +256,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MInOutLine shipmentLine = new MInOutLine(getCtx(), 0, get_TrxName());
 				// Get Order Line
 				MOrderLine oLine = (MOrderLine) m_FTU_LoadOrderLine.getC_OrderLine();
+				
+				
+				m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
+				m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
+				
 				// Instance MProduct
 				MProduct product = MProduct.get(getCtx(), m_FTU_LoadOrderLine.getM_Product_ID());
 				// Rate Convert
@@ -298,11 +303,16 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					m_CumulatedWeightAll = m_CumulatedWeightAll.add(m_CumulatedWeightLine);
 				}
 				// Set Values for Lines
-				shipmentLine.setAD_Org_ID(m_Current_Shipment.getAD_Org_ID());
+				
+				//shipmentLine.setAD_Org_ID(m_Current_Shipment.getAD_Org_ID());
+				
+				shipmentLine.setAD_Org_ID(oLine.getAD_Org_ID());
+				
 				shipmentLine.setM_InOut_ID(m_Current_Shipment.getM_InOut_ID());
 				// Quantity and Product
 				shipmentLine.setM_Product_ID(product.getM_Product_ID());
-				shipmentLine.setM_Warehouse_ID(m_Current_Shipment.getM_Warehouse_ID());
+				//shipmentLine.setM_Warehouse_ID(m_Current_Shipment.getM_Warehouse_ID());
+				shipmentLine.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
 				// References
 				shipmentLine.setC_OrderLine_ID(m_FTU_LoadOrderLine.getC_OrderLine_ID());
 				// Quantity

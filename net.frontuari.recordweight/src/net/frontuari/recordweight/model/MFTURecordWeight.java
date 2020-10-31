@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.apache.velocity.runtime.parser.node.GetExecutor;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
@@ -41,7 +42,6 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
-
 /**
  *
  */
@@ -228,6 +228,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	public boolean rejectIt() {
 		log.info("rejectIt - " + toString());
+		
+		MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+		
+		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
+			setVoidItToMMovmenete(et);
+		}
+		
 		setIsApproved(false);
 		return true;
 	} // rejectIt
@@ -300,6 +307,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}*/
 		
+		boolean withDDOrder = false;		
 		
 		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
@@ -325,7 +333,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
-
+		
+		/* Add by Carlos Vargas */
+		if (getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)) {
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.get_ValueAsInt("DD_Order_ID") > 0) {
+				withDDOrder = true;
+				if(createMMovement(et) != null) {
+					throw new AdempiereException("Error al Generar el Movimiento!!");
+				}
+			}
+		}
+		
 		boolean isGenerateInOut = MSysConfig.getBooleanValue("FTU_GENERATE_INOUT", false, getAD_Client_ID());
 		boolean isGenerateMovement = MSysConfig.getBooleanValue("FTU_GENERATE_MOVEMENT", false, getAD_Client_ID());
 
@@ -333,7 +352,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				// || getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
-				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut) {
+				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
 			// Generate Material Receipt
 			String msg = createInOut();
 			//
@@ -547,9 +566,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return false;
 		} else if (getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)) {
 			// Valid QualityAnalysis Reference
-			m_processMsg = validQAReference();
+			
+			//Valid form exists QA Carlos Vargas
+			
+			/*m_processMsg = validQAReference();
 			if (m_processMsg != null)
-				return false;
+				return false;*/
 		}
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
@@ -573,6 +595,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_VOID);
 		if (m_processMsg != null)
 			return false;
+		
+		MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+		
+		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
+			setVoidItToMMovmenete(et);
+		}
 
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
@@ -677,6 +705,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_REACTIVATE);
 		if (m_processMsg != null)
 			return false;
+		
+		MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+		
+		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
+			setVoidItToMMovmenete(et);
+		}
 
 		setFTU_RW_ApprovalMotive_ID(-1);
 		// setHRS_Analysis_ID(0);
@@ -1678,6 +1712,92 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			return super.getImportWeight();
 		// Payment Weight
 		return super.getPayWeight();
+	}
+	
+	public String createMMovement(MFTUEntryTicket et) {
+		
+		
+			MDDOrder ddo = new MDDOrder(getCtx(), et.get_ValueAsInt("DD_Order_ID"), get_TrxName());
+			MDocType dt = new MDocType(getCtx(), ddo.getC_DocType_ID(), get_TrxName());
+			
+			System.out.println(dt.get_Value("IsMovementAutomatic"));
+			
+			if(dt.get_Value("IsMovementAutomatic").equals(true)) {
+				
+				MMovement mv = new MMovement(getCtx() , 0, get_TrxName());
+				mv.setAD_Org_ID(ddo.getAD_Org_ID());
+				mv.set_ValueOfColumn("DD_Order_ID", ddo.get_ID());
+				mv.setMovementDate(new Timestamp(System.currentTimeMillis()));
+				mv.set_ValueOfColumn("FTU_RecordWeight_ID", get_ID());
+				mv.setC_DocType_ID(dt.get_ValueAsInt("C_DocTypeMovement_ID"));
+				mv.saveEx(get_TrxName());
+				
+				if(et.get_ValueAsInt("DD_OrderLine_ID") > 0) {
+					
+					MDDOrderLine ddol = new MDDOrderLine(getCtx(), et.get_ValueAsInt("DD_OrderLine_ID"), get_TrxName());
+					
+					MMovementLine mml = new MMovementLine(getCtx(), 0, get_TrxName());
+					mml.setM_Movement_ID(mv.get_ID());
+					mml.setAD_Org_ID(ddol.getAD_Org_ID());
+					mml.setLine(ddol.getLine());
+					mml.setM_Product_ID(ddol.getM_Product_ID());
+					mml.setM_Locator_ID(ddol.getM_Locator_ID());
+					
+					System.out.println(getFTU_Chute_ID());
+					
+					if(getFTU_Chute_ID() > 0) {
+						mml.setM_LocatorTo_ID(getFTU_Chute().getM_Locator_ID());
+					}else {
+						mml.setM_LocatorTo_ID(ddol.getM_LocatorTo_ID());
+					}
+					
+					mml.setMovementQty(getNetWeight());
+					mml.saveEx(get_TrxName());
+					
+					double currentQty = ddol.getQtyDelivered().doubleValue();
+					currentQty = (currentQty + getNetWeight().doubleValue());
+					
+					ddol.setQtyDelivered(new BigDecimal(currentQty));
+					
+					ddol.saveEx(get_TrxName());
+					
+					
+				}
+			
+				if  (!mv.processIt(DOCACTION_Complete))
+				{
+					return mv.getProcessMsg();
+				}else {
+					m_processMsg = "Movimiento Creado con el Nro: "+mv.getDocumentNo();
+				}
+				
+			}
+		
+		
+		return null;
+	}
+	
+	public String setVoidItToMMovmenete(MFTUEntryTicket et) {
+		
+		StringBuilder sql = new StringBuilder();
+		int M_Movement_ID = 0;
+		sql.append("SELECT M_Movement_ID FROM M_Movement WHERE FTU_RecordWeight_ID = ? AND DocStatus = ?");
+		M_Movement_ID = DB.getSQLValue(get_TrxName(), sql.toString(), getFTU_RecordWeight_ID(), DOCSTATUS_Completed);
+		
+		MMovement mm = new MMovement(getCtx(), M_Movement_ID, get_TrxName());
+		if(!mm.processIt(DOCACTION_Void)) {
+			return mm.getProcessMsg();
+		}else {
+			if(et.get_ValueAsInt("DD_OrderLine_ID") > 0) {
+				MDDOrderLine ddol = new MDDOrderLine(getCtx(), et.get_ValueAsInt("DD_OrderLine_ID"), get_TrxName());
+				double newQtyDelivered = (ddol.getQtyDelivered().doubleValue() - getNetWeight().doubleValue());
+				ddol.setQtyDelivered(new BigDecimal(newQtyDelivered));
+			}
+			m_processMsg = "Registro de Peso "+getDocumentNo()+" y el movimiento de inventario "+mm.getDocumentNo()+" Anulados!!";
+		}
+		
+		return null;
+		
 	}
 
 }
