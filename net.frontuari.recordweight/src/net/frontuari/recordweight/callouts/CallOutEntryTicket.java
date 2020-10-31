@@ -3,9 +3,13 @@
  */
 package net.frontuari.recordweight.callouts;
 
+import java.util.Optional;
+
 import org.compiere.model.MOrder;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.eevolution.model.MDDOrder;
+import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
@@ -61,6 +65,26 @@ public class CallOutEntryTicket extends FTUCallout {
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "N");
 			else
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "Y");
+		} else if ("DD_Order_ID".equals(getColumnName())) {
+			
+			int DD_Order_ID = Optional.ofNullable((Integer) getValue())
+					.orElse(0);
+			
+			if (DD_Order_ID == 0)
+				return "";
+			
+			MDDOrder ddOrder = new MDDOrder(getCtx(), DD_Order_ID, null);
+			setValue(I_FTU_EntryTicket.COLUMNNAME_C_BPartner_ID, ddOrder.getC_BPartner_ID());
+		} else if ("DD_OrderLine_ID".equals(getColumnName())) {
+			
+			int DD_OrderLine_ID = Optional.ofNullable((Integer) getValue())
+					.orElse(0);
+			
+			if (DD_OrderLine_ID == 0)
+				return "";
+			
+			MDDOrderLine ddOLine = new MDDOrderLine(getCtx(), DD_OrderLine_ID, null);
+			setValue(I_FTU_EntryTicket.COLUMNNAME_M_Product_ID, ddOLine.getM_Product_ID());
 		}
 		
 		return "";

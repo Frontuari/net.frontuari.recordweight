@@ -64,6 +64,8 @@ public class CalloutFactory extends FTUCalloutFactory {
 		registerCallout(I_HRS_Analysis.Table_Name, I_HRS_Analysis.COLUMNNAME_PP_Order_ID, CalloutAnalysis.class);
 		registerCallout(I_HRS_Analysis.Table_Name, I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID, CalloutAnalysis.class);
 		registerCallout(I_HRS_Analysis.Table_Name, "M_InOutLine_ID", CalloutAnalysis.class);
+		registerCallout(I_FTU_EntryTicket.Table_Name, "DD_Order_ID", CallOutEntryTicket.class);
+		registerCallout(I_FTU_EntryTicket.Table_Name, "DD_OrderLine_ID", CallOutEntryTicket.class);
 	}
 
 }

@@ -266,13 +266,51 @@ public class ImportEntryTicket extends FTUProcess {
 		
 		sql = new StringBuffer("UPDATE I_EntryTicket")
 				.append(" SET I_IsImported = 'E'")
-				.append(", I_ErrorMsg = I_ErrorMsg || 'ERR=Invalid Vehicle'")
+				.append(", I_ErrorMsg = I_ErrorMsg || 'ERR=Invalid Vehicle, '")
 				.append(" WHERE FTU_Vehicle_ID IS NULL AND VehiclePlate IS NOT NULL AND I_IsImported <> 'Y'")
 				.append(clientCheck);
 		no = DB.executeUpdate(sql.toString(), get_TrxName());
 		
 		if (no != 0)
 			log.warning("Invalid Vehicle= " + no);
+		
+		//Update DD_Order
+		sql = new StringBuffer("UPDATE I_EntryTicket et")
+				.append(" SET DD_Order_ID = (SELECT MAX(DD_Order_ID) FROM DD_Order ddo WHERE ddo.DocumentNo = et.DD_OrderDocumentNo")
+				.append(" AND ddo.C_BPartner_ID = et.C_BPartner_ID AND ddo.AD_Client_ID = et.AD_Client_ID)")
+				.append(" WHERE DD_Order_ID IS NULL AND DD_OrderDocumentNo IS NOT NULL AND I_IsImported <> 'Y'")
+				.append(clientCheck);
+		no = DB.executeUpdate(sql.toString(), get_TrxName());
+		if (log.isLoggable(Level.FINE)) log.fine("SET DD_Order= " + no);
+		
+		sql = new StringBuffer("UPDATE I_EntryTicket")
+				.append(" SET I_IsImported = 'E'")
+				.append(", I_ErrorMsg = I_ErrorMsg || 'ERR=Invalid DD_Order, '")
+				.append(" WHERE DD_Order_ID IS NULL AND DD_OrderDocumentNo IS NOT NULL AND I_IsImported <> 'Y'")
+				.append(clientCheck);
+		no = DB.executeUpdate(sql.toString(), get_TrxName());
+		
+		if (no != 0)
+			log.warning("Invalid DD_Order= " + no);
+		
+		//Update DD_OrderLine
+		sql = new StringBuffer("UPDATE I_EntryTicket et")
+				.append(" SET DD_OrderLine_ID = (SELECT MAX(DD_OrderLine_ID) FROM DD_OrderLine ddl WHERE ddl.DD_Order_ID = et.DD_Order_ID")
+				.append(" AND ddl.M_Product_ID = et.M_Product_ID)")
+				.append(" WHERE DD_OrderLine_ID IS NULL AND DD_Order_ID IS NOT NULL AND M_Product_ID IS NOT NULL")
+				.append(" AND I_IsImported <> 'Y'").append(clientCheck);
+		no = DB.executeUpdate(sql.toString(), get_TrxName());
+		if (log.isLoggable(Level.FINE)) log.fine("SET DD_OrderLine= " + no);
+		
+		sql = new StringBuffer("UPDATE I_EntryTicket")
+				.append(" SET I_IsImported = 'E'")
+				.append(", I_ErrorMsg = I_ErrorMsg || 'ERR=Invalid DD_OrderLine'")
+				.append(" WHERE DD_OrderLine_ID IS NULL AND DD_Order_ID IS NOT NULL AND M_Product_ID IS NOT NULL")
+				.append(" AND I_IsImported <> 'Y'").append(clientCheck);
+		no = DB.executeUpdate(sql.toString(), get_TrxName());
+		
+		if (no != 0)
+			log.warning("Invalid DD_OrderLine= " + no);
 		
 		commitEx();
 		
