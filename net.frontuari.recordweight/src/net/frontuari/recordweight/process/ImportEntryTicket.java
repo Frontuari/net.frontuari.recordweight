@@ -346,6 +346,7 @@ public class ImportEntryTicket extends FTUProcess {
 				entryTicket.setTrailerPlate(imp.getTrailerPlate());
 				entryTicket.set_ValueOfColumn(X_I_EntryTicket.COLUMNNAME_DD_Order_ID, imp.getDD_Order_ID());
 				entryTicket.set_ValueOfColumn(X_I_EntryTicket.COLUMNNAME_DD_OrderLine_ID, imp.getDD_OrderLine_ID());
+				entryTicket.set_ValueOfColumn(X_I_EntryTicket.COLUMNNAME_DriverValue, imp.getDriverValue());
 				entryTicket.saveEx();
 				
 				imp.setFTU_EntryTicket_ID(entryTicket.get_ID());
