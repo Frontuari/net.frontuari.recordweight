@@ -31,7 +31,7 @@ public class X_I_EntryTicket extends PO implements I_I_EntryTicket, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20201030L;
+	private static final long serialVersionUID = 20201102L;
 
     /** Standard Constructor */
     public X_I_EntryTicket (Properties ctx, int I_EntryTicket_ID, String trxName)
@@ -70,34 +70,6 @@ public class X_I_EntryTicket extends PO implements I_I_EntryTicket, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
-
-	/** Set BP Name.
-		@param BPName BP Name	  */
-	public void setBPName (String BPName)
-	{
-		set_ValueNoCheck (COLUMNNAME_BPName, BPName);
-	}
-
-	/** Get BP Name.
-		@return BP Name	  */
-	public String getBPName () 
-	{
-		return (String)get_Value(COLUMNNAME_BPName);
-	}
-
-	/** Set BP Name2.
-		@param BPName2 BP Name2	  */
-	public void setBPName2 (String BPName2)
-	{
-		set_ValueNoCheck (COLUMNNAME_BPName2, BPName2);
-	}
-
-	/** Get BP Name2.
-		@return BP Name2	  */
-	public String getBPName2 () 
-	{
-		return (String)get_Value(COLUMNNAME_BPName2);
-	}
 
 	/** Set BP Search Key.
 		@param BPValue 
@@ -243,6 +215,70 @@ public class X_I_EntryTicket extends PO implements I_I_EntryTicket, I_Persistent
 	public Timestamp getDateDoc () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_DateDoc);
+	}
+
+	/** Set Distribution Order Document Number.
+		@param DD_OrderDocumentNo Distribution Order Document Number	  */
+	public void setDD_OrderDocumentNo (String DD_OrderDocumentNo)
+	{
+		set_Value (COLUMNNAME_DD_OrderDocumentNo, DD_OrderDocumentNo);
+	}
+
+	/** Get Distribution Order Document Number.
+		@return Distribution Order Document Number	  */
+	public String getDD_OrderDocumentNo () 
+	{
+		return (String)get_Value(COLUMNNAME_DD_OrderDocumentNo);
+	}
+
+	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException
+    {
+		return (org.eevolution.model.I_DD_Order)MTable.get(getCtx(), org.eevolution.model.I_DD_Order.Table_Name)
+			.getPO(getDD_Order_ID(), get_TrxName());	}
+
+	/** Set Distribution Order.
+		@param DD_Order_ID Distribution Order	  */
+	public void setDD_Order_ID (int DD_Order_ID)
+	{
+		if (DD_Order_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_DD_Order_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_DD_Order_ID, Integer.valueOf(DD_Order_ID));
+	}
+
+	/** Get Distribution Order.
+		@return Distribution Order	  */
+	public int getDD_Order_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_DD_Order_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.eevolution.model.I_DD_OrderLine getDD_OrderLine() throws RuntimeException
+    {
+		return (org.eevolution.model.I_DD_OrderLine)MTable.get(getCtx(), org.eevolution.model.I_DD_OrderLine.Table_Name)
+			.getPO(getDD_OrderLine_ID(), get_TrxName());	}
+
+	/** Set Distribution Order Line.
+		@param DD_OrderLine_ID Distribution Order Line	  */
+	public void setDD_OrderLine_ID (int DD_OrderLine_ID)
+	{
+		if (DD_OrderLine_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_DD_OrderLine_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_DD_OrderLine_ID, Integer.valueOf(DD_OrderLine_ID));
+	}
+
+	/** Get Distribution Order Line.
+		@return Distribution Order Line	  */
+	public int getDD_OrderLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_DD_OrderLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Description.
@@ -654,5 +690,19 @@ public class X_I_EntryTicket extends PO implements I_I_EntryTicket, I_Persistent
 	public String getTrailerPlate () 
 	{
 		return (String)get_Value(COLUMNNAME_TrailerPlate);
+	}
+
+	/** Set Vehicle Plate.
+		@param VehiclePlate Vehicle Plate	  */
+	public void setVehiclePlate (String VehiclePlate)
+	{
+		set_ValueNoCheck (COLUMNNAME_VehiclePlate, VehiclePlate);
+	}
+
+	/** Get Vehicle Plate.
+		@return Vehicle Plate	  */
+	public String getVehiclePlate () 
+	{
+		return (String)get_Value(COLUMNNAME_VehiclePlate);
 	}
 }

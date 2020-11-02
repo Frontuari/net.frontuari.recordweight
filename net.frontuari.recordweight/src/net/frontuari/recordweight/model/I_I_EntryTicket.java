@@ -64,24 +64,6 @@ public interface I_I_EntryTicket
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name BPName */
-    public static final String COLUMNNAME_BPName = "BPName";
-
-	/** Set BP Name	  */
-	public void setBPName (String BPName);
-
-	/** Get BP Name	  */
-	public String getBPName();
-
-    /** Column name BPName2 */
-    public static final String COLUMNNAME_BPName2 = "BPName2";
-
-	/** Set BP Name2	  */
-	public void setBPName2 (String BPName2);
-
-	/** Get BP Name2	  */
-	public String getBPName2();
-
     /** Column name BPValue */
     public static final String COLUMNNAME_BPValue = "BPValue";
 
@@ -183,6 +165,37 @@ public interface I_I_EntryTicket
 	  * Date of the Document
 	  */
 	public Timestamp getDateDoc();
+
+    /** Column name DD_OrderDocumentNo */
+    public static final String COLUMNNAME_DD_OrderDocumentNo = "DD_OrderDocumentNo";
+
+	/** Set Distribution Order Document Number	  */
+	public void setDD_OrderDocumentNo (String DD_OrderDocumentNo);
+
+	/** Get Distribution Order Document Number	  */
+	public String getDD_OrderDocumentNo();
+
+    /** Column name DD_Order_ID */
+    public static final String COLUMNNAME_DD_Order_ID = "DD_Order_ID";
+
+	/** Set Distribution Order	  */
+	public void setDD_Order_ID (int DD_Order_ID);
+
+	/** Get Distribution Order	  */
+	public int getDD_Order_ID();
+
+	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException;
+
+    /** Column name DD_OrderLine_ID */
+    public static final String COLUMNNAME_DD_OrderLine_ID = "DD_OrderLine_ID";
+
+	/** Set Distribution Order Line	  */
+	public void setDD_OrderLine_ID (int DD_OrderLine_ID);
+
+	/** Get Distribution Order Line	  */
+	public int getDD_OrderLine_ID();
+
+	public org.eevolution.model.I_DD_OrderLine getDD_OrderLine() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -449,4 +462,13 @@ public interface I_I_EntryTicket
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name VehiclePlate */
+    public static final String COLUMNNAME_VehiclePlate = "VehiclePlate";
+
+	/** Set Vehicle Plate	  */
+	public void setVehiclePlate (String VehiclePlate);
+
+	/** Get Vehicle Plate	  */
+	public String getVehiclePlate();
 }
