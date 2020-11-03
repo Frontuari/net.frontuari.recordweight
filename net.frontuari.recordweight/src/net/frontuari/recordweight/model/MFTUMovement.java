@@ -120,6 +120,12 @@ public class MFTUMovement extends MMovement{
 	{
 		if (log.isLoggable(Level.INFO)) log.info(toString());
 		// Before reverseCorrect
+		
+		if(get_ValueAsInt("FTU_RecordWeight_ID") > 0) {
+			m_processMsg = "No puedes Reversar este movimiento, tiene un registro de peso Asociado";
+			return false;
+		}
+		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSECORRECT);
 		if (m_processMsg != null)
 			return false;
@@ -135,12 +141,35 @@ public class MFTUMovement extends MMovement{
 		if (m_processMsg != null)
 			return false;
 		
+		return true;
+	}	//	reverseCorrectionIt/	rejectIt
+	
+	@Override
+	public boolean reverseAccrualIt()
+	{
+		if (log.isLoggable(Level.INFO)) log.info(toString());
+		// Before reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+		
 		if(get_ValueAsInt("FTU_RecordWeight_ID") > 0) {
 			m_processMsg = "No puedes Reversar este movimiento, tiene un registro de peso Asociado";
 			return false;
 		}
 		
+		MMovement reversal = reverse(true);
+		if (reversal == null)
+			return false;
+		
+		m_processMsg = reversal.getDocumentNo();
+		
+		// After reverseAccrual
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
+		if (m_processMsg != null)
+			return false;
+		
 		return true;
-	}	//	reverseCorrectionIt/	rejectIt
+	}	//	reverseAccrualIt
 
 }

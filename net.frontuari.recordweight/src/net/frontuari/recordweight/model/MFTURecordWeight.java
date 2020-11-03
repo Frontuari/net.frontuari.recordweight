@@ -339,8 +339,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
 			if(et.get_ValueAsInt("DD_Order_ID") > 0) {
 				withDDOrder = true;
-				if(createMMovement(et) != null) {
-					throw new AdempiereException("Error al Generar el Movimiento!!");
+				String result = createMMovement(et);
+				if( result != null) {
+					throw new AdempiereException(result);
 				}
 			}
 		}
@@ -1716,7 +1717,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	
 	public String createMMovement(MFTUEntryTicket et) {
 		
-		
+			String message = null;
+			
 			MDDOrder ddo = new MDDOrder(getCtx(), et.get_ValueAsInt("DD_Order_ID"), get_TrxName());
 			MDocType dt = new MDocType(getCtx(), ddo.getC_DocType_ID(), get_TrxName());
 			
@@ -1764,9 +1766,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					
 				}
 			
-				if  (!mv.processIt(DOCACTION_Complete))
+				if (!mv.processIt(DOCACTION_Complete))
 				{
-					return mv.getProcessMsg();
+					message =  mv.getProcessMsg();
 				}else {
 					m_processMsg = "Movimiento Creado con el Nro: "+mv.getDocumentNo();
 				}
@@ -1774,7 +1776,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		
 		
-		return null;
+		return message;
 	}
 	
 	public String setVoidItToMMovmenete(MFTUEntryTicket et) {
@@ -1790,8 +1792,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}else {
 			if(et.get_ValueAsInt("DD_OrderLine_ID") > 0) {
 				MDDOrderLine ddol = new MDDOrderLine(getCtx(), et.get_ValueAsInt("DD_OrderLine_ID"), get_TrxName());
-				double newQtyDelivered = (ddol.getQtyDelivered().doubleValue() - getNetWeight().doubleValue());
+				double currentQty = (ddol.getQtyDelivered().doubleValue() - getNetWeight().doubleValue());
+				double newQtyDelivered = currentQty;
 				ddol.setQtyDelivered(new BigDecimal(newQtyDelivered));
+				ddol.saveEx(get_TrxName());
 			}
 			m_processMsg = "Registro de Peso "+getDocumentNo()+" y el movimiento de inventario "+mm.getDocumentNo()+" Anulados!!";
 		}
