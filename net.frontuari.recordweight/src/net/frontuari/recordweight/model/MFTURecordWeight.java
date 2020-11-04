@@ -362,7 +362,23 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			else
 				m_processMsg = msg;
 		}
-
+		
+		if (OPERATIONTYPE_DeliveryFinishedProduct.equals(getOperationType()))
+		{
+			 MFTULoadOrder loadOrder = (MFTULoadOrder) getFTU_LoadOrder();
+			 
+			 if (loadOrder.isImmediateDelivery())
+			 {
+				 MInOut [] inouts = loadOrder.getInOutFromLoadOrder(loadOrder.get_ID());
+				 
+				 for (MInOut inout: inouts)
+				 {
+					 inout.set_ValueNoCheck(COLUMNNAME_FTU_RecordWeight_ID, get_ID());
+					 inout.saveEx();
+				 } 
+			 }
+		}
+		
 		// Add support for generating inventory movements
 		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) && isGenerateMovement) {
 			String msg = createMovement();
@@ -1724,7 +1740,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			
 			System.out.println(dt.get_Value("IsMovementAutomatic"));
 			
-			if(dt.get_Value("IsMovementAutomatic").equals(true)) {
+			if(dt.get_ValueAsBoolean("IsMovementAutomatic")) {
 				
 				MMovement mv = new MMovement(getCtx() , 0, get_TrxName());
 				mv.setAD_Org_ID(ddo.getAD_Org_ID());
@@ -1753,17 +1769,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						mml.setM_LocatorTo_ID(ddol.getM_LocatorTo_ID());
 					}
 					
-					mml.setMovementQty(getNetWeight());
+					//Add Support for UOM Conversion by Argenis Rodríguez
+					BigDecimal rate = MUOMConversion.getProductRateFrom(getCtx(), ddol.getM_Product_ID(), getC_UOM_ID());
+					
+					if (rate == null)
+						return "@NoUOMConversion@";
+					
+					BigDecimal movementQty = rate.multiply(getNetWeight());
+					
+					mml.setMovementQty(movementQty);
 					mml.saveEx(get_TrxName());
+					//End by Argenis Rodríguez
 					
-					double currentQty = ddol.getQtyDelivered().doubleValue();
-					currentQty = (currentQty + getNetWeight().doubleValue());
+					//ddol.setQtyDelivered(new BigDecimal(currentQty));
 					
-					ddol.setQtyDelivered(new BigDecimal(currentQty));
-					
-					ddol.saveEx(get_TrxName());
-					
-					
+					//ddol.saveEx(get_TrxName());
 				}
 			
 				if (!mv.processIt(DOCACTION_Complete))

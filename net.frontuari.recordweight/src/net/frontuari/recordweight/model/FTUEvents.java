@@ -1,5 +1,9 @@
 package net.frontuari.recordweight.model;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.adempiere.base.event.IEventTopics;
 import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_M_InOut;
@@ -12,6 +16,7 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.base.FTUModelEvents;
 
@@ -87,7 +92,32 @@ public class FTUEvents extends FTUModelEvents {
 			}
 			
 		}
+		//Add Support for Set Qty Delivered
+		else if (IEventTopics.DOC_AFTER_COMPLETE.equals(getEventType())
+				 && getPO().get_TableName().equals(MMovement.Table_Name))
+			setQtyDelivered();		
+	}
+	
+	/**
+	 * @author Argenis Rodríguez
+	 */
+	private void setQtyDelivered() {
 		
+		MMovement movement = (MMovement) getPO();
+		MMovementLine [] lines = movement.getLines(true);
+		
+		Arrays
+			.stream(lines)
+			.filter(line -> line.getDD_OrderLine_ID() != 0)
+			.forEach(line -> {
+				MDDOrderLine ddOrderLine = (MDDOrderLine) line.getDD_OrderLine();
+				
+				BigDecimal qtyDelivered = Optional.ofNullable(ddOrderLine.getQtyDelivered())
+						.orElse(BigDecimal.ZERO);
+				
+				ddOrderLine.setQtyDelivered(qtyDelivered.add(line.getMovementQty()));
+				ddOrderLine.saveEx();
+			});
 	}
 
 }

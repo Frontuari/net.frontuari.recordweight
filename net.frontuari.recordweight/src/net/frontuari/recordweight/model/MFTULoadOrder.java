@@ -865,11 +865,20 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public MInOut[] getInOutFromLoadOrder(int p_FTU_LoadOrder_ID ) {
 		//	SQL
-		String sql = new String("SELECT io.* "
+		/*String sql = new String("SELECT io.* "
 				+ " FROM FTU_LoadOrderLine lol "
 				+ " INNER JOIN M_InOutLine iol ON (lol.M_InOutLine_ID = iol.M_InOutLine_ID)"
 				+ " INNER JOIN M_InOut io ON (io.M_InOut_ID = iol.M_InOut_ID )"
-				+ " WHERE lol.FTU_LoadOrder_ID = ?");
+				+ " WHERE lol.FTU_LoadOrder_ID = ?");*/
+		
+		String sql = "SELECT io.*"
+				+ " FROM M_Inout io"
+				+ " WHERE EXISTS("
+				+ " SELECT 1 FROM FTU_LoadOrderLine lol"
+				+ " INNER JOIN M_InoutLine iol ON iol.M_InoutLine_ID = lol.M_InoutLine_ID"
+				+ " WHERE iol.M_Inout_ID = io.M_Inout_ID AND lol.FTU_LoadOrder_ID = ?"
+				+ ")";
+		
 		//	Get
 		PreparedStatement ps = null;
 		ResultSet rs = null;

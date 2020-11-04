@@ -22,6 +22,7 @@ import org.adempiere.base.event.IEventTopics;
 import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_M_InOut;
 import org.compiere.model.I_M_Movement;
+import org.compiere.model.MMovement;
 
 import net.frontuari.recordweight.base.FTUEventFactory;
 import net.frontuari.recordweight.model.FTUEvents;
@@ -54,6 +55,9 @@ public class EventFactory extends FTUEventFactory {
 		registerEvent(IEventTopics.DOC_AFTER_REVERSECORRECT, I_C_Invoice.Table_Name, FTUEvents.class);
 		registerEvent(IEventTopics.DOC_AFTER_REVERSEACCRUAL, I_C_Invoice.Table_Name, FTUEvents.class);
 		
+		//Add Event After Complete Movement for Update Qty Delivered in Distribution Order Line By Argenis Rodríguez
+		registerEvent(IEventTopics.DOC_AFTER_COMPLETE, MMovement.Table_Name, FTUEvents.class);
+		//End By Argenis Rodríguez
 	}
 
 }

@@ -210,6 +210,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				m_Qty = m_NetWeight.multiply(rate);
 				// Set Total Quantity
 				m_TotalQty = m_Qty;
+			} else if (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_FTU_LoadOrder.getOperationType())
+					&& m_FTU_LoadOrder.isHandleRecordWeight() && m_FTU_LoadOrder.isWeightRegister())
+			{
+				MFTURecordWeight recordWeight = m_FTU_LoadOrder.getRecordWeight();
+				
+				m_FTU_RecordWeight_ID = recordWeight.get_ID();
 			}
 			// Valid Null
 			if (m_Qty == null)
