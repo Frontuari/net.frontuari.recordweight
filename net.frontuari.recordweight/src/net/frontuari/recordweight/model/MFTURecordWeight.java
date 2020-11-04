@@ -1810,13 +1810,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if(!mm.processIt(DOCACTION_Void)) {
 			return mm.getProcessMsg();
 		}else {
-			if(et.get_ValueAsInt("DD_OrderLine_ID") > 0) {
+			/*if(et.get_ValueAsInt("DD_OrderLine_ID") > 0) {
 				MDDOrderLine ddol = new MDDOrderLine(getCtx(), et.get_ValueAsInt("DD_OrderLine_ID"), get_TrxName());
 				double currentQty = (ddol.getQtyDelivered().doubleValue() - getNetWeight().doubleValue());
 				double newQtyDelivered = currentQty;
 				ddol.setQtyDelivered(new BigDecimal(newQtyDelivered));
 				ddol.saveEx(get_TrxName());
-			}
+			}*/
 			m_processMsg = "Registro de Peso "+getDocumentNo()+" y el movimiento de inventario "+mm.getDocumentNo()+" Anulados!!";
 		}
 		
