@@ -221,7 +221,7 @@ public class ImportEntryTicket extends FTUProcess {
 		//Search Order Line
 		sql = new StringBuffer("UPDATE I_EntryTicket et")
 				.append(" SET C_OrderLine_ID = (SELECT MAX(C_OrderLine_ID) FROM C_OrderLine ol WHERE ol.C_Order_ID = et.C_Order_ID")
-				.append(" AND ol.M_Product_ID = et.M_Product_ID AND ol.QtyOrdered < ol.QtyDelivered)")
+				.append(" AND ol.M_Product_ID = et.M_Product_ID AND ol.QtyOrdered > ol.QtyDelivered)")
 				.append(" WHERE C_OrderLine_ID IS NULL AND C_Order_ID IS NOT NULL AND M_Product_ID IS NOT NULL")
 				.append(" AND I_IsImported <> 'Y'").append(clientCheck);
 		no = DB.executeUpdate(sql.toString(), get_TrxName());
@@ -296,7 +296,7 @@ public class ImportEntryTicket extends FTUProcess {
 		//Update DD_OrderLine
 		sql = new StringBuffer("UPDATE I_EntryTicket et")
 				.append(" SET DD_OrderLine_ID = (SELECT MAX(DD_OrderLine_ID) FROM DD_OrderLine ddl WHERE ddl.DD_Order_ID = et.DD_Order_ID")
-				.append(" AND ddl.M_Product_ID = et.M_Product_ID AND ddl.QtyOrdered < ddl.QtyDelivered)")
+				.append(" AND ddl.M_Product_ID = et.M_Product_ID AND ddl.QtyOrdered > ddl.QtyDelivered)")
 				.append(" WHERE DD_OrderLine_ID IS NULL AND DD_Order_ID IS NOT NULL AND M_Product_ID IS NOT NULL")
 				.append(" AND I_IsImported <> 'Y'").append(clientCheck);
 		no = DB.executeUpdate(sql.toString(), get_TrxName());
