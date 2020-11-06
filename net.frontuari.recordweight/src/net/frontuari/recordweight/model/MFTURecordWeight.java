@@ -1760,6 +1760,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					mml.setLine(ddol.getLine());
 					mml.setM_Product_ID(ddol.getM_Product_ID());
 					mml.setM_Locator_ID(ddol.getM_Locator_ID());
+					mml.setDD_OrderLine_ID(ddol.get_ID());
 					
 					System.out.println(getFTU_Chute_ID());
 					
