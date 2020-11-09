@@ -315,7 +315,8 @@ public class ImportEntryTicket extends FTUProcess {
 		commitEx();
 		
 		sql = new StringBuffer("SELECT * FROM I_EntryTicket")
-				.append(" WHERE I_IsImported = 'N'");
+				.append(" WHERE I_IsImported = 'N'")
+				.append(clientCheck);
 		
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
