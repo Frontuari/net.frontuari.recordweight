@@ -480,8 +480,11 @@ public class FTULoadOrder {
 					"			ELSE 0 " +
 					"		END, 0)" +
 					") QtyLoc, " +
-					//"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " +
-					"(COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - " +
+					( (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType) ?
+							"(COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - "
+					:
+						"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - ")+
+					
 					"	SUM(" +
 					"		COALESCE(CASE " +
 					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
@@ -512,6 +515,7 @@ public class FTULoadOrder {
 					"																AND s.M_Warehouse_ID = lord.M_Warehouse_ID) ")
 					//"																AND s.M_Warehouse_ID = lord.M_Warehouse_ID " +
 					//"																AND lord.M_AttributeSetInstance_ID = s.M_AttributeSetInstance_ID) ")
+					)
 					.append("WHERE pro.IsStocked = 'Y' ")
 					.append("AND ")
 					.append(sqlWhere).append(" ");
@@ -524,8 +528,9 @@ public class FTULoadOrder {
 					"pro.C_UOM_ID, uomp.UOMSymbol, lord.QtyOrdered, lord.QtyReserved, " + 
 					"lord.QtyDelivered, lord.QtyInvoiced, pro.Weight, pro.Volume, ord.DeliveryRule, s.QtyOnHand").append(" ");
 			//	Having
-			sql.append(//"HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
-					"HAVING (COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - " +
+			sql.append((X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType)
+							? "HAVING (COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - "
+							: "HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - ") +
 					"									SUM(" +
 					"										COALESCE(CASE " +
 					"											WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
