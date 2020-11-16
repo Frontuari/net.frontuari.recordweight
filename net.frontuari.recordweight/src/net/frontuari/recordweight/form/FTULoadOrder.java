@@ -480,7 +480,8 @@ public class FTULoadOrder {
 					"			ELSE 0 " +
 					"		END, 0)" +
 					") QtyLoc, " +
-					"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " +
+					//"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " +
+					"(COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - " +
 					"	SUM(" +
 					"		COALESCE(CASE " +
 					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
@@ -523,7 +524,8 @@ public class FTULoadOrder {
 					"pro.C_UOM_ID, uomp.UOMSymbol, lord.QtyOrdered, lord.QtyReserved, " + 
 					"lord.QtyDelivered, lord.QtyInvoiced, pro.Weight, pro.Volume, ord.DeliveryRule, s.QtyOnHand").append(" ");
 			//	Having
-			sql.append("HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
+			sql.append(//"HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
+					"HAVING (COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - " +
 					"									SUM(" +
 					"										COALESCE(CASE " +
 					"											WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
