@@ -287,7 +287,10 @@ public class FTULoadOrder {
 					"reg.Name, cit.Name, loc.Address1, loc.Address2, loc.Address3, loc.Address4, ord.C_BPartner_Location_ID ");
 		
 			//	Having
-			sql.append("HAVING (SUM(COALESCE(lord.QtyOrdered, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
+			if (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType))
+				sql.append("HAVING (SUM(COALESCE(lord.QtyInvoiced, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
+			else
+				sql.append("HAVING (SUM(COALESCE(lord.QtyOrdered, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
 			
 			
 			//	Order By
