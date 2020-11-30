@@ -6,6 +6,7 @@ package net.frontuari.recordweight.process;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClientInfo;
@@ -26,6 +27,7 @@ import org.compiere.model.MWarehouse;
 import org.compiere.model.X_C_Invoice;
 import org.compiere.model.X_M_InOut;
 import org.compiere.model.X_M_Movement;
+import org.compiere.process.ProcessInfo;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.DB;
@@ -64,6 +66,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	private int m_Created = 0;
 	/** Print Document */
 	private ArrayList<Integer> m_IDs = new ArrayList<Integer>();
+	/** Print Log*/
+	private ArrayList<String> m_DocShipNs = new ArrayList<String>();
+	/** Print Log*/
+	private ArrayList<String> m_DocInvNs = new ArrayList<String>();
 	/** Print Document */
 	private ArrayList<Integer[]> m_ArrayIDs = new ArrayList<Integer[]>();
 
@@ -123,6 +129,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			message.append(createShipments());
 			m_Current_BPartner_ID = -1;m_Created = 0;msg = new StringBuilder();
 			message.append(createInvoices());
+			
 			return  message.toString() ;
 		} else if (p_IsGenerateDocument.equals(GENERATE_ONLY_MOVEMENT)) {
 			// Return
@@ -250,7 +257,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				m_Current_Shipment.saveEx(get_TrxName());
 				// Initialize Message
 				if (msg.length() > 0)
-					msg.append(" - " + m_Current_Shipment.getDocumentNo());
+					msg.append(Env.NL + m_Current_Shipment.getDocumentNo());
 				else
 					msg.append(m_Current_Shipment.getDocumentNo());
 			}
@@ -362,7 +369,18 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		// Commit Transaction
 
 		// Info
-		return "@M_InOut_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+	/*	if (m_Current_Shipment!=null) {
+		/*	for(int x = 0; x < m_DocShipNs.size(); x++) {
+				addLog(0, new Timestamp(System.currentTimeMillis()), null,m_DocShipNs.get(x),m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
+			}
+			addBufferLog(m_Current_Shipment.getM_InOut_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
+		//addLog(0, new Timestamp(System.currentTimeMillis()), null, msg+": "+m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
+		//return "@M_InOut_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		}else {
+			addLog("Error creando entrega");
+		}*/
+		
+		return "";
 	}
 
 	/**
@@ -375,20 +393,25 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Shipment.setDocAction(p_DocAction);
 			m_Current_Shipment.processIt(p_DocAction);
 			m_Current_Shipment.saveEx();
-			addLog(m_Current_Shipment.getM_InOut_ID(), m_Current_Shipment.getDateAcct(), null,
+			if (m_Current_Shipment.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
+				throw new AdempiereException(m_Current_Shipment.getProcessMsg());
+			}
+			/*addLog(m_Current_Shipment.getM_InOut_ID(), m_Current_Shipment.getDateAcct(), null,
 					m_Current_Shipment.getDocumentNo() + (m_Current_Shipment.getProcessMsg() != null
 							&& m_Current_Shipment.getProcessMsg().length() != 0
 									? ": Error " + m_Current_Shipment.getProcessMsg()
-									: " --> @OK@"));
-			if (m_Current_Shipment.getDocStatus() != X_M_InOut.DOCSTATUS_Completed)
-				throw new AdempiereException(m_Current_Shipment.getProcessMsg());
+									: " --> @OK@"));*/
+			
 			// Created
 			m_Created++;
 			// Is Printed?
 			if (m_Current_Shipment.getDocStatus().equals(X_M_InOut.DOCSTATUS_Completed)
 					&& m_Current_IsImmediateDelivery) {
 				m_IDs.add(m_Current_Shipment.getM_InOut_ID());
+				//log.log(Level.FINE, m_Current_Shipment.getDocumentNo());
+				//addBufferLog(m_Current_Shipment.getM_InOut_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
 			}
+			addBufferLog(m_Current_Shipment.getM_InOut_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
 		}
 	}
 
@@ -545,7 +568,17 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 		completeInvoice();
 		// Info
-		return "@C_Invoice_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		/*if (m_Current_Invoice!=null) {
+		
+				for(int x = 0; x < m_DocInvNs.size(); x++) {
+					addLog(0, new Timestamp(System.currentTimeMillis()), null,m_DocInvNs.get(x),m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
+				}
+		//addLog(m_Current_Invoice.get_ID(), new Timestamp(System.currentTimeMillis()), null, msg+": ", m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
+		//return "@C_Invoice_ID@ @Created@ = " + msg.toString();
+		//return "@C_Invoice_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		}else {
+		addLog("Error creando factura");*/		
+		return "";
 	}
 
 	/**
@@ -561,11 +594,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();
 			m_Current_Invoice.load(get_TrxName());
-			addLog(m_Current_Invoice.getC_Invoice_ID(), m_Current_Invoice.getDateAcct(), null,
+			if (m_Current_Invoice.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
+				throw new AdempiereException(m_Current_Invoice.getProcessMsg());
+			}
+			/*addLog(m_Current_Invoice.getC_Invoice_ID(), m_Current_Invoice.getDateAcct(), null,
 					m_Current_Invoice.getDocumentNo() + (m_Current_Invoice.getProcessMsg() != null
 							&& m_Current_Invoice.getProcessMsg().length() != 0
 									? ": Error " + m_Current_Invoice.getProcessMsg()
-									: " --> @OK@"));
+									: " --> @OK@"));*/
 			// Initialize Message
 			if (msg.length() > 0)
 				msg.append(" - " + m_Current_Invoice.getDocumentNo());
@@ -576,7 +612,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			// Is Printed?
 			if (m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Completed)) {
 				m_IDs.add(m_Current_Invoice.getC_Invoice_ID());
+				//log.log(Level.FINE, m_Current_Invoice.getDocumentNo());
+				addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 			}
+			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 		}
 	}
 
@@ -687,7 +726,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		// Complete Shipment
 		completeMovement();
 		// Info
-		return "@M_Movement_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		if (m_Current_Movement!=null) {
+		log.log(Level.SEVERE, m_Current_Movement.getDocumentNo());
+		
+		//return "@M_Movement_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		}else {
+		addLog("Error creando movimiento");
+		}
+		return "";
 	}
 
 	/**
@@ -700,11 +746,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Movement.setDocAction(p_DocAction);
 			m_Current_Movement.processIt(p_DocAction);
 			m_Current_Movement.saveEx();
-			addLog(m_Current_Movement.getM_Movement_ID(), m_Current_Movement.getDateReceived(), null,
+			if (m_Current_Movement.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
+				throw new AdempiereException(m_Current_Movement.getProcessMsg());
+			}
+			/*addLog(m_Current_Movement.getM_Movement_ID(), m_Current_Movement.getDateReceived(), null,
 					m_Current_Movement.getDocumentNo() + (m_Current_Movement.getProcessMsg() != null
 							&& m_Current_Movement.getProcessMsg().length() != 0
 									? ": Error " + m_Current_Movement.getProcessMsg()
-									: " --> @OK@"));
+									: " --> @OK@"));*/
 			// Created
 			m_Created++;
 			// Is Printed?
@@ -713,6 +762,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				m_ArrayIDs.add(
 						new Integer[] { m_Current_Movement.getM_Movement_ID(), m_Current_Movement.getC_DocType_ID() });
 			}
+			addBufferLog(m_Current_Movement.get_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Movement.getDocumentNo(), m_Current_Movement.get_Table_ID(), m_Current_Movement.get_ID());
 		}
 	}
 

@@ -276,11 +276,11 @@ public class WFTULoadOrder extends FTULoadOrder
 		
 		gLoadOrderButton.addActionListener(this);
 		//	Weight Difference
-		weightDiffLabel.setText(Msg.translate(Env.getCtx(), "DiffWeight"));
+		weightDiffLabel.setText("Diferencia de Peso");
 		weightDiffField = new NumberBox(true);
 		weightDiffField.setValue(Env.ZERO);
 		//	Volume Difference
-		volumeDiffLabel.setText(Msg.translate(Env.getCtx(), "DiffVolume"));
+		volumeDiffLabel.setText("Diferencia de Volumen");
 		volumeDiffField = new NumberBox(true);
 		volumeDiffField.setValue(Env.ZERO);
 		
@@ -621,7 +621,7 @@ public class WFTULoadOrder extends FTULoadOrder
 		statusBar.setStatusDB("");
 		
 	}   //  dynInit
-	
+ 
 	/**
 	 * Set Capacity for Weight and Volume
 	 * @return void
@@ -803,7 +803,7 @@ public class WFTULoadOrder extends FTULoadOrder
 		if(m_C_UOM_Weight_ID != 0) {
 			MUOM uom = MUOM.get(Env.getCtx(), m_C_UOM_Weight_ID);
 			m_UOM_Weight_Symbol = uom.getUOMSymbol();
-			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffWeight@ (" + m_UOM_Weight_Symbol + ")"));
+			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@Diferencia de Peso@ (" + m_UOM_Weight_Symbol + ")"));
 		}
 		//	Volume Symbol
 //		if(m_C_UOM_Volume_ID != 0) {
@@ -1053,12 +1053,25 @@ public class WFTULoadOrder extends FTULoadOrder
 			cmd_search();
 		} else if(arg0.getTarget().equals(selectAllButton)) {
 			int rows = w_orderLineTable.getRowCount();
+			int selected = 0;
+			
 			for (int i = 0; i < rows; i++) {
 				if(!((Boolean)w_orderLineTable.getValueAt(i, SELECT))) {
-					w_orderLineTable.setValueAt(true, i, SELECT);
+					//w_orderLineTable.setValueAt(true, i, SELECT);
+				}else {
+					selected ++;
 				}
-			}	
-		} else if(arg0.getTarget().equals(gLoadOrderButton)) {
+			}
+		for (int x = 0; x < rows; x++) {
+			if (selected < rows) {				
+					
+						w_orderLineTable.setValueAt(true, x, SELECT);
+					}else {
+						w_orderLineTable.setValueAt(false, x, SELECT);
+					}
+				}
+	}	
+		 else if(arg0.getTarget().equals(gLoadOrderButton)) {
 			if(validData()) {
 				
 				FDialog.ask(m_WindowNo, form, Msg.translate(Env.getCtx(), "GenerateOrder"), new Callback<Boolean>() {
