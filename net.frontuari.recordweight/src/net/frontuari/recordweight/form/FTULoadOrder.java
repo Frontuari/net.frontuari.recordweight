@@ -1076,8 +1076,8 @@ public class FTULoadOrder {
 	 */
 	protected KeyNamePair[] getDataDocumentType() {
 		
-		if(m_OperationType == null)
-			return null;
+		/*if(m_OperationType == null)
+			return null;*/
 		
 		String docBaseType = (m_OperationType.equals("MOM")? "DOO": "SOO");
 		
@@ -1087,7 +1087,7 @@ public class FTULoadOrder {
 				"AND doc.IsActive = 'Y' " +
 				"AND doc.AD_Org_ID = " + m_AD_Org_ID + " " + 
 				"AND doc.DocBaseType = '" + docBaseType + "' " +
-				"AND doc.OperationType = '" + m_OperationType + "'" + 
+				//"AND doc.OperationType = '" + m_OperationType + "'" + 
 				"AND (doc.DocSubTypeSO IS NULL OR doc.DocSubTypeSO NOT IN('RM', 'OB')) " +
 				"ORDER BY doc.Name", "doc", MRole.SQL_FULLYQUALIFIED, MRole.SQL_RW);		
 		return DB.getKeyNamePairs(null, sql, false, new Object[]{});
