@@ -741,7 +741,10 @@ public class WFTULoadOrder extends FTULoadOrder
 		m_SalesRep_ID = ((Integer)(value != null? value: -1)).intValue();
 		//	Warehouse
 		value = warehouseSearch.getSelectedItem().getValue();
-		m_M_Warehouse_ID = Optional.ofNullable((Integer) value).orElse(0);
+		if (value instanceof Integer)
+			m_M_Warehouse_ID = Optional.ofNullable((Integer) value).orElse(0);
+		else
+			m_M_Warehouse_ID = 0;
 		//	Operation Type
 		value = operationTypePick.getValue();
 		m_OperationType = (String)value;
@@ -1106,7 +1109,11 @@ public class WFTULoadOrder extends FTULoadOrder
 				}*/
 			}
 		}else if(arg0.getTarget().equals(docTypeSearch)) {
-			m_C_DocType_ID = docTypeSearch.getSelectedIndex();
+			Object value = docTypeSearch.getValue();
+			if (value instanceof Integer)
+				m_C_DocType_ID = Optional.ofNullable((Integer) value).orElse(0);
+			else
+				m_C_DocType_ID = 0;
 			clearData();
 		} else if(arg0.getTarget().equals(warehouseSearch)) {
 			m_M_Warehouse_ID = warehouseSearch.getSelectedIndex();
