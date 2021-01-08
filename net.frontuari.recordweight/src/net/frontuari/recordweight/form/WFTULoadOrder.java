@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.Vector;
 
 import org.adempiere.util.Callback;
@@ -47,6 +48,7 @@ import org.compiere.model.MUOM;
 import org.compiere.model.PrintInfo;
 import org.compiere.model.X_C_Order;
 import org.compiere.print.MPrintFormat;
+import org.compiere.print.ReportCtl;
 import org.compiere.print.ReportEngine;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
@@ -738,7 +740,8 @@ public class WFTULoadOrder extends FTULoadOrder
 		value = salesRepSearch.getValue();
 		m_SalesRep_ID = ((Integer)(value != null? value: -1)).intValue();
 		//	Warehouse
-		m_M_Warehouse_ID = warehouseSearch.getSelectedIndex();
+		value = warehouseSearch.getSelectedItem().getValue();
+		m_M_Warehouse_ID = Optional.ofNullable((Integer) value).orElse(0);
 		//	Operation Type
 		value = operationTypePick.getValue();
 		m_OperationType = (String)value;
@@ -1417,8 +1420,8 @@ public class WFTULoadOrder extends FTULoadOrder
 			ReportEngine re = new ReportEngine(Env.getCtx(), f, q, i, null);
 			//	Print
 			//	Direct Print
-			//re.print();
-			//ReportCtl.preview(re);
+			re.print();
+			ReportCtl.preview(re);
 		}
 	}
 	/**

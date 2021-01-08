@@ -23,7 +23,6 @@ Require-Bundle: org.apache.commons.lang3,
 Import-Package: org.apache.ecs.xhtml,
  org.compiere.grid,
  org.compiere.minigrid,
- org.compiere.print,
  org.osgi.service.event
 Service-Component: OSGI-INF/ModelFactory.xml,OSGI-INF/EventFactory.xml,OSGI-INF/CalloutFactory.xml,OSGI-INF/ProcessFactory.xml,OSGI-INF/FormFactory.xml,
  OSGI-INF/CreteFromFactory.xml
