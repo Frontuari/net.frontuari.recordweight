@@ -17,9 +17,11 @@
 /** Generated Model - DO NOT CHANGE */
 package net.frontuari.recordweight.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.Env;
 
 /** Generated Model for HRS_QualityParameter
  *  @author iDempiere (generated) 
@@ -30,7 +32,7 @@ public class X_HRS_QualityParameter extends PO implements I_HRS_QualityParameter
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20210120L;
 
     /** Standard Constructor */
     public X_HRS_QualityParameter (Properties ctx, int HRS_QualityParameter_ID, String trxName)
@@ -125,53 +127,53 @@ public class X_HRS_QualityParameter extends PO implements I_HRS_QualityParameter
 
 	/** Set Factor1.
 		@param Factor1 Factor1	  */
-	public void setFactor1 (int Factor1)
+	public void setFactor1 (BigDecimal Factor1)
 	{
-		set_Value (COLUMNNAME_Factor1, Integer.valueOf(Factor1));
+		set_Value (COLUMNNAME_Factor1, Factor1);
 	}
 
 	/** Get Factor1.
 		@return Factor1	  */
-	public int getFactor1 () 
+	public BigDecimal getFactor1 () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_Factor1);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Factor1);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Factor2.
 		@param Factor2 Factor2	  */
-	public void setFactor2 (int Factor2)
+	public void setFactor2 (BigDecimal Factor2)
 	{
-		set_Value (COLUMNNAME_Factor2, Integer.valueOf(Factor2));
+		set_Value (COLUMNNAME_Factor2, Factor2);
 	}
 
 	/** Get Factor2.
 		@return Factor2	  */
-	public int getFactor2 () 
+	public BigDecimal getFactor2 () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_Factor2);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Factor2);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Factor3.
 		@param Factor3 Factor3	  */
-	public void setFactor3 (int Factor3)
+	public void setFactor3 (BigDecimal Factor3)
 	{
-		set_Value (COLUMNNAME_Factor3, Integer.valueOf(Factor3));
+		set_Value (COLUMNNAME_Factor3, Factor3);
 	}
 
 	/** Get Factor3.
 		@return Factor3	  */
-	public int getFactor3 () 
+	public BigDecimal getFactor3 () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_Factor3);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Factor3);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Quality Parameter.
@@ -210,19 +212,19 @@ public class X_HRS_QualityParameter extends PO implements I_HRS_QualityParameter
 
 	/** Set Lower Limit.
 		@param LowerLimit Lower Limit	  */
-	public void setLowerLimit (int LowerLimit)
+	public void setLowerLimit (BigDecimal LowerLimit)
 	{
-		set_Value (COLUMNNAME_LowerLimit, Integer.valueOf(LowerLimit));
+		set_Value (COLUMNNAME_LowerLimit, LowerLimit);
 	}
 
 	/** Get Lower Limit.
 		@return Lower Limit	  */
-	public int getLowerLimit () 
+	public BigDecimal getLowerLimit () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_LowerLimit);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LowerLimit);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	public org.compiere.model.I_M_Attribute getM_Attribute() throws RuntimeException
@@ -320,19 +322,19 @@ public class X_HRS_QualityParameter extends PO implements I_HRS_QualityParameter
 
 	/** Set Upper Limit.
 		@param UpperLimit Upper Limit	  */
-	public void setUpperLimit (int UpperLimit)
+	public void setUpperLimit (BigDecimal UpperLimit)
 	{
-		set_Value (COLUMNNAME_UpperLimit, Integer.valueOf(UpperLimit));
+		set_Value (COLUMNNAME_UpperLimit, UpperLimit);
 	}
 
 	/** Get Upper Limit.
 		@return Upper Limit	  */
-	public int getUpperLimit () 
+	public BigDecimal getUpperLimit () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_UpperLimit);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_UpperLimit);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Search Key.

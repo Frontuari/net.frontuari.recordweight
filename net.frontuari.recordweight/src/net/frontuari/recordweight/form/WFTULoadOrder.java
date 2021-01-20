@@ -749,7 +749,11 @@ public class WFTULoadOrder extends FTULoadOrder
 		value = operationTypePick.getValue();
 		m_OperationType = (String)value;
 		//	Document Type
-		m_C_DocType_ID = docTypeSearch.getSelectedIndex();
+		value = docTypeSearch.getValue();
+		if (value instanceof Integer)
+			m_C_DocType_ID = (Integer) value;
+		else
+			m_C_DocType_ID = 0;
 		//	Document Type Target
 		value = docTypeTargetPick.getValue();
 		m_C_DocTypeTarget_ID = ((Integer)(value != null? value: -1)).intValue();
@@ -792,10 +796,10 @@ public class WFTULoadOrder extends FTULoadOrder
 			m_FTU_Vehicle_ID =  Integer.parseInt(vehicleSearch.getName());
 		else
 			m_FTU_Vehicle_ID = 0;
-		if(docTypeSearch.getName() != null)
+		/*if(docTypeSearch.getName() != null)
 			m_C_DocType_ID = Integer.parseInt(docTypeSearch.getName());
 		else
-			m_C_DocType_ID = -1;
+			m_C_DocType_ID = -1;*/
 		//	Capacity
 		m_LoadCapacity = new BigDecimal((loadCapacityField.getValue() != null ? loadCapacityField.getValue() : 0));
 		m_VolumeCapacity = new BigDecimal((volumeCapacityField.getValue() != null ? volumeCapacityField.getValue() : 0));

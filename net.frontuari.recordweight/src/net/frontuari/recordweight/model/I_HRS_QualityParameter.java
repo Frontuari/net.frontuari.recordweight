@@ -32,7 +32,7 @@ public interface I_HRS_QualityParameter
     /** TableName=HRS_QualityParameter */
     public static final String Table_Name = "HRS_QualityParameter";
 
-    /** AD_Table_ID=1000038 */
+    /** AD_Table_ID=1000043 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -115,28 +115,28 @@ public interface I_HRS_QualityParameter
     public static final String COLUMNNAME_Factor1 = "Factor1";
 
 	/** Set Factor1	  */
-	public void setFactor1 (int Factor1);
+	public void setFactor1 (BigDecimal Factor1);
 
 	/** Get Factor1	  */
-	public int getFactor1();
+	public BigDecimal getFactor1();
 
     /** Column name Factor2 */
     public static final String COLUMNNAME_Factor2 = "Factor2";
 
 	/** Set Factor2	  */
-	public void setFactor2 (int Factor2);
+	public void setFactor2 (BigDecimal Factor2);
 
 	/** Get Factor2	  */
-	public int getFactor2();
+	public BigDecimal getFactor2();
 
     /** Column name Factor3 */
     public static final String COLUMNNAME_Factor3 = "Factor3";
 
 	/** Set Factor3	  */
-	public void setFactor3 (int Factor3);
+	public void setFactor3 (BigDecimal Factor3);
 
 	/** Get Factor3	  */
-	public int getFactor3();
+	public BigDecimal getFactor3();
 
     /** Column name HRS_QualityParameter_ID */
     public static final String COLUMNNAME_HRS_QualityParameter_ID = "HRS_QualityParameter_ID";
@@ -173,10 +173,10 @@ public interface I_HRS_QualityParameter
     public static final String COLUMNNAME_LowerLimit = "LowerLimit";
 
 	/** Set Lower Limit	  */
-	public void setLowerLimit (int LowerLimit);
+	public void setLowerLimit (BigDecimal LowerLimit);
 
 	/** Get Lower Limit	  */
-	public int getLowerLimit();
+	public BigDecimal getLowerLimit();
 
     /** Column name M_Attribute_ID */
     public static final String COLUMNNAME_M_Attribute_ID = "M_Attribute_ID";
@@ -256,10 +256,10 @@ public interface I_HRS_QualityParameter
     public static final String COLUMNNAME_UpperLimit = "UpperLimit";
 
 	/** Set Upper Limit	  */
-	public void setUpperLimit (int UpperLimit);
+	public void setUpperLimit (BigDecimal UpperLimit);
 
 	/** Get Upper Limit	  */
-	public int getUpperLimit();
+	public BigDecimal getUpperLimit();
 
     /** Column name Value */
     public static final String COLUMNNAME_Value = "Value";

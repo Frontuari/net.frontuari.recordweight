@@ -36,6 +36,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	 * 
 	 */
 	private static final long serialVersionUID = 4930029951632955910L;
+	
+	public static final String COLUMNNAME_IsApprovedAnalysis = "IsApprovedAnalysis";
 
 	/**
 	 * @param ctx
@@ -81,6 +83,28 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		// setDocAction(DOCACTION_Prepare);
 		return true;
 	}
+	
+	/**
+	 * @author Argenis Rodríguez
+	 * @return Error Msg
+	 */
+	private String validateETReferenceDuplicated() {
+		
+		String referenceNo = DB.getSQLValueString(get_TrxName()
+				, "SELECT DocumentNo FROM HRS_Analysis"
+				 + " WHERE DocStatus NOT IN ('VO','RE')"
+				 + " AND FTU_EntryTicket_ID = ? AND HRS_Analysis_ID<>?"
+				, getFTU_EntryTicket_ID(), get_ID());
+		
+		if (referenceNo != null)
+		{
+			MFTUEntryTicket entryTicket = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			return "@SQLErrorReferenced@ @FTU_EntryTicket_ID@ " + entryTicket.getDocumentNo()
+					+ " @Generate@ @from@ @HRS_Analisys_ID@ " + referenceNo;
+		}
+		
+		return null;
+	}
 
 	@Override
 	public String prepareIt() {
@@ -91,6 +115,12 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 		//	ER [ 8 ]
+		//Add Validation by Argenis Rodríguez
+		m_processMsg = validateETReferenceDuplicated();
+		
+		if (m_processMsg != null)
+			return STATUS_Invalid;
+		//End By Argenis Rodríguez
 		
 		String valid = validateAnalysis();
 		String status = X_HRS_Analysis.STATUS_Completed;
@@ -195,8 +225,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				BigDecimal value = attributeInstance.getValueNumber();
 				
 				if(value != null) {
-					if(value.intValue() < qualityParameter.getLowerLimit() 
-							|| value.intValue() > qualityParameter.getUpperLimit()) {
+					if(value.compareTo(qualityParameter.getLowerLimit()) < 0 
+							|| value.compareTo(qualityParameter.getUpperLimit()) > 0) {
 						msg
 							.append( mAttribute.getName() )
 							.append(" = " )
@@ -420,7 +450,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				+ "WHERE "
 				+ "FTU_EntryTicket_ID = ? "
 				+ "AND DocStatus IN ('CO', 'IP') " 
-				+ "AND IsValidAnalysis = 'Y'";
+				+ "AND (IsValidAnalysis = 'Y' OR IsApprovedAnalysis = 'Y')";
 		return DB.getSQLValue(null, sql, p_FTU_EntryTicket_ID);
 	}
 

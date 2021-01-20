@@ -22,6 +22,7 @@ import net.frontuari.recordweight.base.FTUProcessFactory;
 import net.frontuari.recordweight.process.ChangePrintedStatus;
 import net.frontuari.recordweight.process.ChangePrintedStatusRecordWeight;
 import net.frontuari.recordweight.process.EntryTicketChange;
+import net.frontuari.recordweight.process.FTUApproveQualityAnalysis;
 import net.frontuari.recordweight.process.FTUGenerateFreightCost;
 import net.frontuari.recordweight.process.GenerateFromLoadOrder;
 import net.frontuari.recordweight.process.GenerateMovementFromAnalysis;
@@ -54,6 +55,7 @@ public class ProcessFactory extends FTUProcessFactory {
 		registerProcess(GenerateMovementFromAnalysis.class);
 		registerProcess(ImportEntryTicket.class);
 		registerProcess(ValidateDriver.class);
+		registerProcess(FTUApproveQualityAnalysis.class);
 	}
 
 }
