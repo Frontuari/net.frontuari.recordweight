@@ -316,7 +316,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ "			LEFT JOIN DD_OrderLine dol ON(dol.DD_OrderLine_ID = lc.DD_OrderLine_ID)) "
 				+ "		s ON(s.M_Product_ID = lol.M_Product_ID "
 				+ "				AND s.M_Warehouse_ID = lol.M_Warehouse_ID "
-				+ "				AND COALESCE(ol.M_AttributeSetInstance_ID, dol.M_AttributeSetInstance_ID, 0) = s.M_AttributeSetInstance_ID) "
+				+ "				AND COALESCE(ol.M_AttributeSetInstance_ID, dol.M_AttributeSetInstance_ID, 0) IN (s.M_AttributeSetInstance_ID, 0)) "
 				+ "WHERE lo.FTU_LoadOrder_ID = ? "
 				+ "GROUP BY lol.SeqNo, s.ProductName, lol.Qty, ol.QtyOrdered, dol.QtyOrdered, "
 				+ "ol.QtyDelivered, dol.QtyDelivered "
