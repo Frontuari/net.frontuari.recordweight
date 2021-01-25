@@ -1237,9 +1237,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 			}
 
-			BigDecimal qtyOnHand = MStorageOnHand.getQtyOnHandForLocator(product.getM_Product_ID(), m_M_Locator_ID, 0, get_TrxName());
+			/*BigDecimal qtyOnHand = MStorageOnHand.getQtyOnHandForLocator(product.getM_Product_ID(), m_M_Locator_ID, 0, get_TrxName());
 			if(qtyOnHand.add(m_MovementQty).compareTo(chute.getQty()) > 0 ) 
-				throw new AdempiereException("@FTU_Chute_ID@ @QtyQ="+ chute.getQty() +", < "+ qtyOnHand.add(m_MovementQty) );
+				throw new AdempiereException("@FTU_Chute_ID@ @QtyQ="+ chute.getQty() +", < "+ qtyOnHand.add(m_MovementQty) );*/
 			// Set Product
 			ioLine.setProduct(product);
 			ioLine.setC_OrderLine_ID(oLine.getC_OrderLine_ID());
@@ -1334,11 +1334,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				throw new AdempiereException("@M_Warehouse_ID@ @NotFound@");
 
 			BigDecimal m_MovementQty = getValidWeight(false).multiply(rate);
-			BigDecimal qtyOnHand = 
+			/*BigDecimal qtyOnHand = 
 					MStorageOnHand.getQtyOnHandForLocator(product.getM_Product_ID(),
-							m_M_Locator_ID, 0, get_TrxName());
-			if(qtyOnHand.add(m_MovementQty).compareTo(chute.getQty()) > 0 ) 
-				throw new AdempiereException("@FTU_Chute_ID@ @QtyQ="+ chute.getQty() +", < "+ m_MovementQty );
+							m_M_Locator_ID, 0, get_TrxName());*/
+			/*if(qtyOnHand.add(m_MovementQty).compareTo(chute.getQty()) > 0 ) 
+				throw new AdempiereException("@FTU_Chute_ID@ @QtyQ="+ chute.getQty() +", < "+ m_MovementQty );*/
 
 			// Set Product
 			ioLine.setProduct(product);
