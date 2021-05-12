@@ -813,7 +813,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
 		.setParameters(getFTU_LoadOrder_ID())
 		.list();
-
+		
 		m_lines = new MFTULoadOrderLine[list.size ()];
 		list.toArray (m_lines);
 		return m_lines;

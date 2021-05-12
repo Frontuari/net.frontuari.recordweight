@@ -15,6 +15,7 @@ import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MDocType;
 import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.X_C_Order;
 import org.compiere.util.CLogger;
@@ -82,7 +83,7 @@ public class FTULoadOrder {
 	protected int 				m_C_SalesRegion_ID = 0;
 	/**	Sales Rep			*/
 	protected int 				m_SalesRep_ID = 0;
-	/**	Warehouse			*/
+	/**	Warehouse			*/	
 	protected int 				m_M_Warehouse_ID = 0;
 	/**	Operation Type		*/
 	protected String 			m_OperationType = null;
@@ -146,7 +147,10 @@ public class FTULoadOrder {
 	
 	/**	Load Order			*/
 	protected MFTULoadOrder m_FTU_LoadOrder = null;
-	
+	/** enviroment variable
+	 * defines if its necesary to have a completed invoice before creating the load order		*/
+	String RequiresInvoice =(String) (MSysConfig.getValue("RequiresInvoice", "N", Env.getAD_Client_ID(Env.getCtx())));	 
+	 
 	/**
 	 * Get Order data from parameters
 	 * @return Vector<Vector<Object>>
@@ -285,14 +289,14 @@ public class FTULoadOrder {
 			sql.append("GROUP BY wr.Name, ord.C_Order_ID, ord.DocumentNo, ord.DateOrdered, " +
 					"ord.DatePromised, ord.Weight, ord.Volume, sr.Name, cp.Name, bploc.Name, " +
 					"reg.Name, cit.Name, loc.Address1, loc.Address2, loc.Address3, loc.Address4, ord.C_BPartner_Location_ID ");
-		
+		if(!RequiresInvoice.equalsIgnoreCase("N")) {
 			//	Having
 			if (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType))
 				sql.append("HAVING (SUM(COALESCE(lord.QtyInvoiced, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
 			else
 				sql.append("HAVING (SUM(COALESCE(lord.QtyOrdered, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
 			
-			
+		}
 			//	Order By
 			sql.append("ORDER BY ord.C_Order_ID ASC");
 			
@@ -531,6 +535,7 @@ public class FTULoadOrder {
 					"pro.C_UOM_ID, uomp.UOMSymbol, lord.QtyOrdered, lord.QtyReserved, " + 
 					"lord.QtyDelivered, lord.QtyInvoiced, pro.Weight, pro.Volume, ord.DeliveryRule, s.QtyOnHand").append(" ");
 			//	Having
+			if(!RequiresInvoice.equalsIgnoreCase("N")) {
 			sql.append((X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType)
 							? "HAVING (COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - "
 							: "HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - ") +
@@ -542,6 +547,7 @@ public class FTULoadOrder {
 					"										END, 0)" +
 					"									)" +
 					"			) > 0").append(" ");
+			}
 			//	Order By
 			sql.append("ORDER BY lord.C_Order_ID ASC");
 			

@@ -466,6 +466,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Create Invoice From Order
 				m_Current_Invoice = new MInvoice(order, p_C_DocType_ID, p_MovementDate);
 				m_Current_Invoice.setDateAcct(p_MovementDate);
+				m_Current_Invoice.setC_Currency_ID(order.getC_Currency_ID());
+				m_Current_Invoice.setC_ConversionType_ID(order.getC_ConversionType_ID());
 				// Set DocStatus
 				m_Current_Invoice.setDocStatus(X_C_Invoice.DOCSTATUS_Drafted);
 				m_Current_Invoice.saveEx(get_TrxName());
@@ -594,14 +596,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();
 			m_Current_Invoice.load(get_TrxName());
-			if (m_Current_Invoice.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
-				throw new AdempiereException(m_Current_Invoice.getProcessMsg());
-			}
-			/*addLog(m_Current_Invoice.getC_Invoice_ID(), m_Current_Invoice.getDateAcct(), null,
-					m_Current_Invoice.getDocumentNo() + (m_Current_Invoice.getProcessMsg() != null
-							&& m_Current_Invoice.getProcessMsg().length() != 0
-									? ": Error " + m_Current_Invoice.getProcessMsg()
-									: " --> @OK@"));*/
+			//if (m_Current_Invoice.getDocStatus() != X_C_Invoice.DOCSTATUS_Completed) {
+			//	throw new AdempiereException(m_Current_Invoice.getProcessMsg());
+			//}
+			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentInfo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.getC_Invoice_ID());
 			// Initialize Message
 			if (msg.length() > 0)
 				msg.append(" - " + m_Current_Invoice.getDocumentNo());
@@ -613,9 +611,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			if (m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Completed)) {
 				m_IDs.add(m_Current_Invoice.getC_Invoice_ID());
 				//log.log(Level.FINE, m_Current_Invoice.getDocumentNo());
-				addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
+				//addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 			}
-			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
+			//addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 		}
 	}
 
