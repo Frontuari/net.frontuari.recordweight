@@ -27,7 +27,6 @@ import org.compiere.model.MWarehouse;
 import org.compiere.model.X_C_Invoice;
 import org.compiere.model.X_M_InOut;
 import org.compiere.model.X_M_Movement;
-import org.compiere.process.ProcessInfo;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.DB;
@@ -66,10 +65,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	private int m_Created = 0;
 	/** Print Document */
 	private ArrayList<Integer> m_IDs = new ArrayList<Integer>();
-	/** Print Log*/
-	private ArrayList<String> m_DocShipNs = new ArrayList<String>();
-	/** Print Log*/
-	private ArrayList<String> m_DocInvNs = new ArrayList<String>();
 	/** Print Document */
 	private ArrayList<Integer[]> m_ArrayIDs = new ArrayList<Integer[]>();
 
@@ -515,7 +510,27 @@ public class GenerateFromLoadOrder extends FTUProcess {
 							.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct)) {
 						invoiceLine.setQtyEntered(m_Qty.multiply(rate));
 						invoiceLine.setQtyInvoiced(m_Qty);
-					} else if (m_FTU_LoadOrder.getOperationType()
+					} else if(m_FTU_LoadOrder.getOperationType()
+							.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts))
+					{
+						BigDecimal rateWeight = MUOMConversion.getProductRateFrom(Env.getCtx(),
+								product.getM_Product_ID(), oLine.getC_UOM_ID());
+						// Validate Rate equals null
+						if (rateWeight == null) {
+							MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
+							MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
+							throw new AdempiereException(
+									"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+						}
+						//
+						BigDecimal m_QtyWeight = line.getConfirmedWeight();
+						BigDecimal m_QtyInvoced = m_QtyWeight.multiply(rateWeight);
+						BigDecimal m_QtyEntered = m_QtyInvoced.multiply(rate);
+
+						invoiceLine.setQtyEntered(m_QtyEntered);
+						invoiceLine.setQtyInvoiced(m_QtyInvoced);
+					}
+					else if (m_FTU_LoadOrder.getOperationType()
 							.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryBulkMaterial)) {
 						sql = "SELECT FTU_RecordWeight_ID " + "FROM FTU_RecordWeight "
 								+ "WHERE DocStatus IN('CO', 'CL') " + "AND FTU_LoadOrder_ID= ?";

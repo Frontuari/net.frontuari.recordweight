@@ -824,6 +824,8 @@ public class X_FTU_LoadOrder extends PO implements I_FTU_LoadOrder, I_Persistent
 	public static final String OPERATIONTYPE_DeliveryBulkMaterial = "DBM";
 	/** Delivery Finished Product = DFP */
 	public static final String OPERATIONTYPE_DeliveryFinishedProduct = "DFP";
+	/** Delivery Multiples Products = DMP */
+	public static final String OPERATIONTYPE_DeliveryMultiplesProducts = "DMP";
 	/** Material Input Movement = MIM */
 	public static final String OPERATIONTYPE_MaterialInputMovement = "MIM";
 	/** Material Output Movement = MOM */

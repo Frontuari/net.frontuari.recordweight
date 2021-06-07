@@ -17,6 +17,7 @@ import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
+import net.frontuari.recordweight.model.MFTURecordWeight;
 import net.frontuari.recordweight.model.MFTUWeightScale;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 import net.frontuari.recordweight.model.X_FTU_EntryTicket;
@@ -194,6 +195,30 @@ public class CalloutRecordWeight extends FTUCallout {
 				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Warehouse_ID, chute.getM_Warehouse_ID());
 			
 		}
+		//	Added by Jorge Colmenarez 2021-06-07 15:15
+		//	Set values from RW Selected
+		if(getColumnName().equals("FTU_RecordWeightSource_ID"))
+		{
+			if(getValue() == null)
+				return "";
+			
+			Integer rwSourceID = (Integer) getValue();
+			MFTURecordWeight rw = new MFTURecordWeight(getCtx(), rwSourceID, null);
+			setValue("FTU_EntryTicket_ID", rw.getFTU_EntryTicket_ID());
+			setValue("FTU_LoadOrder_ID", rw.getFTU_LoadOrder_ID());
+			setValue("M_Shipper_ID", rw.getM_Shipper_ID());
+			setValue("FTU_Driver_ID", rw.getFTU_Driver_ID());
+			setValue("FTU_Vehicle_ID", rw.getFTU_Vehicle_ID());
+			setValue("FTU_WeightScale_ID", rw.getFTU_WeightScale_ID());
+			setValue("M_Warehouse_ID", rw.getM_Warehouse_ID());
+			setValue("C_UOM_ID", rw.getC_UOM_ID());
+			setValue("TareWeight", rw.getGrossWeight());
+			setValue("NetWeight", rw.getGrossWeight().negate());
+			setValue("InDate", rw.getOutDate());
+			setValue("WeightStatus", "G");
+			
+		}
+		//	End Jorge Colmenarez
 		return "";
 	}
 

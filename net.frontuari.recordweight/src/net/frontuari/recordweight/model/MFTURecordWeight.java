@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.apache.velocity.runtime.parser.node.GetExecutor;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
@@ -23,7 +22,6 @@ import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
-import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
@@ -166,8 +164,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			return DocAction.STATUS_Invalid;
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
-
-		m_processMsg = validETReferenceDuplicated();
+		
+		if(!getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+			m_processMsg = validETReferenceDuplicated();
+		
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 			
@@ -405,24 +405,62 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 	/**
 	 * Update Values for Load Order
-	 * 
-	 * @return
+	 * @author Jorge Colmenarez, 2021-06-07 14:46, jcolmenarez@frontuari.net
+	 * Support for update Load Order when Operation Type it's DMP
 	 * @return String
 	 */
 	private String updateLoadOrder() {
 		// Valid Operation Type
 		if (!getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				&& !getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
-				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement))
+				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				//	Added by Jorge Colmenarez
+				&& !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 			return null;
 		// Get Orders From Load Order
 		MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
 		if (lo == null || lo.get_ID() <= 0) {
 			return "@FTU_LoadOrder_ID@ @NotFound@";
 		}
+		//	Added by Jorge Colmenarez
+		//	Apply validations by products
+		
+		BigDecimal confirmedWeight = getNetWeight();
+		
+		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+		{
+			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
+			{
+				if(confirmedWeight.compareTo(line.getWeight()) >= 0)
+				{
+					line.setConfirmedWeight(line.getWeight());
+					line.setIsConfirmed(true);
+					line.saveEx();
+					confirmedWeight = confirmedWeight.subtract(line.getWeight());
+				}
+				else
+				{
+					line.setConfirmedWeight(confirmedWeight);
+					line.setIsConfirmed(true);
+					line.saveEx();
+					confirmedWeight = BigDecimal.ZERO;
+				}
+			}
+		}
+		
 		//
-		lo.setIsWeightRegister(true);
-		lo.setConfirmedWeight(getNetWeight());
+		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+		{
+			MFTULoadOrderLine[] lines = lo.getLines(true, " IsConfirmed = 'N'");
+			if(lines.length == 0)
+				lo.setIsWeightRegister(true);
+			lo.setConfirmedWeight(lo.getConfirmedWeight().add(getNetWeight()));
+		}
+		else
+		{
+			lo.setIsWeightRegister(true);
+			lo.setConfirmedWeight(getNetWeight());
+		}
 		// Save
 		lo.saveEx(get_TrxName());
 		//
@@ -718,6 +756,27 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (m_processMsg != null)
 				return false;
 		}
+		
+		//	Added by Jorge Colmenarez, 2021-06-07 15:37
+		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+		{
+			MFTULoadOrder lo = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
+			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND M_Product_ID = "+getM_Product_ID()))
+			{
+				line.setConfirmedWeight(BigDecimal.ZERO);
+				line.setIsConfirmed(false);
+				line.saveEx(get_TrxName());
+			}
+			BigDecimal confirmedWeight = DB.getSQLValueBD(get_TrxName(), "SELECT SUM(confirmedWeight) FROM FTU_LoadOrderLine WHERE FTU_LoadOrder_ID = ? AND IsConfirmed = 'Y'", getFTU_LoadOrder_ID());
+			if(confirmedWeight == null)
+				confirmedWeight = BigDecimal.ZERO;
+			
+			lo.setConfirmedWeight(confirmedWeight);
+			lo.saveEx(get_TrxName());
+		}
+		//	End Jorge Colmenarez
+		
+		
 		// After reActivate
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_REACTIVATE);
 		if (m_processMsg != null)
@@ -961,13 +1020,14 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (getOperationType() == null)
 			msg = "@FTU_EntryTicket_ID@ @NotFound@";
 		// Valid Entry ticket
-		if (getFTU_EntryTicket() != null) {
+		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)) {
 			msg = validETReferenceDuplicated();
 		}
 		// Operation Type
 		else if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryFinishedProduct)
-				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement)) {
+				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)) {
 
 			/*
 			 * If Operation Type In Delivery Bulk Material, Delivery Finished Product Or
@@ -985,7 +1045,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			setIsSOTrx(false);
 		}else if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryFinishedProduct)
-				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement))
+				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 			setIsSOTrx(true);
 		
 		/*if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
