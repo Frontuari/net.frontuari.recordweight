@@ -487,7 +487,7 @@ public class FTULoadOrder {
 					"			ELSE 0 " +
 					"		END, 0)" +
 					") QtyLoc, " +
-					( (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType) ?
+					( (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType) && RequiresInvoice.equalsIgnoreCase("Y") ?
 							"(COALESCE(lord.QtyInvoiced, 0) - COALESCE(lord.QtyDelivered, 0) - "
 					:
 						"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - ")+
