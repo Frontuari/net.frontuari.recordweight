@@ -349,14 +349,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				shipmentLine.setMovementQty(m_ConfirmedWeight);
 				}else if (!product.get_ValueAsBoolean("isBulk")) {
 				shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
-				shipmentLine.setQty(m_Qty);
-				shipmentLine.setQtyEntered(m_Qty);
+				shipmentLine.setQty(oLine.getQtyEntered());
+				shipmentLine.setQtyEntered(oLine.getQtyEntered());
 				shipmentLine.setMovementQty(oLine.getQtyOrdered());
 				}
 				shipmentLine.setM_Locator_ID(m_Qty);
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
-				System.out.println(m_FTU_LoadOrderLine.getConfirmedWeight());
+				//System.out.println(m_FTU_LoadOrderLine.getConfirmedWeight());
 				// Manually Process Shipment
 				// Added
 				if (!m_Added) {
@@ -612,12 +612,13 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					}
 				}
 				invoiceLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());
-				if (!product.get_ValueAsBoolean("isBulk")) {
+				
+			/*	if (!product.get_ValueAsBoolean("isBulk")) {
 				invoiceLine.setPriceList(oLine.getPriceList());
 				invoiceLine.setPriceEntered(oLine.getPriceEntered());
 				invoiceLine.setPriceActual(oLine.getPriceActual());
-				}
-				else if (product.get_ValueAsBoolean("isBulk")) {
+				}*/
+	
 				BigDecimal rateWeight = line.getConfirmedWeight().divide(line.getQty(),2,RoundingMode.HALF_UP);
 				BigDecimal price = MConversionRate.convert(getCtx(), oLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
@@ -632,11 +633,15 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				BigDecimal priceActual = MConversionRate.convert(getCtx(), oLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
 				if (priceActual != null) {
+					if (product.get_ValueAsBoolean("isBulk")) {
 					invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
+						}else {
+							invoiceLine.setPriceActual(priceActual);
+						}
 					}else {
 					throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
 					}
-				}
+				
 				invoiceLine.setC_Tax_ID(oLine.getC_Tax_ID());
 				invoiceLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
 				invoiceLine.save(get_TrxName());

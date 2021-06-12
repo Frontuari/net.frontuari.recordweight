@@ -66,10 +66,14 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 				setVolume(m_Qty.multiply(m_Volume));
 			} else if(is_ValueChanged("ConfirmedQty")) {
 				BigDecimal m_ConfirmedQty = getConfirmedQty();
+				BigDecimal m_ConfirmedWeight = getConfirmedWeight();
 				//	Valid Quantity
 				if(m_ConfirmedQty == null)
 					m_ConfirmedQty = Env.ZERO;
 				//	Set Confirmed Weight
+				if(m_ConfirmedWeight == null)
+					m_ConfirmedWeight = Env.ZERO;
+				if (m_ConfirmedWeight.compareTo(Env.ZERO) == 0)
 				setConfirmedWeight(m_ConfirmedQty.multiply(m_Weight));
 			}	
 		}
