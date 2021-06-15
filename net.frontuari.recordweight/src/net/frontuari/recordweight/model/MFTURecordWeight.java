@@ -431,20 +431,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		{
 			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
 			{
-				if(confirmedWeight.compareTo(line.getWeight()) >= 0)
-				{
-					line.setConfirmedWeight(line.getWeight());
+			/*	if(confirmedWeight.compareTo(line.getWeight()) >= 0)
+				{*/
+					line.setConfirmedWeight(confirmedWeight);
 					line.setIsConfirmed(true);
 					line.saveEx();
+				
 					confirmedWeight = confirmedWeight.subtract(line.getWeight());
-				}
+			/*	}
 				else
 				{
 					line.setConfirmedWeight(confirmedWeight);
 					line.setIsConfirmed(true);
 					line.saveEx();
 					confirmedWeight = BigDecimal.ZERO;
-				}
+				}*/
 			}
 		}
 		
@@ -453,7 +454,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		{
 			MFTULoadOrderLine[] lines = lo.getLines(true, " IsConfirmed = 'N'");
 			if(lines.length == 0)
-				lo.setIsWeightRegister(true);
+			lo.setIsWeightRegister(true);
 			lo.setConfirmedWeight(lo.getConfirmedWeight().add(getNetWeight()));
 		}
 		else
@@ -464,6 +465,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Save
 		lo.saveEx(get_TrxName());
 		//
+		
+			
+		
 		return null;
 	}
 
