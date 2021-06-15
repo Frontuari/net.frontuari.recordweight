@@ -12,6 +12,7 @@ import org.compiere.model.MTree_Base;
 import org.compiere.model.MTree_Node;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 import net.frontuari.recordweight.base.FTUProcess;
@@ -29,7 +30,6 @@ public class FTUGenerateFreightCost extends FTUProcess{
 	BigDecimal FTU_Diference;
 	@Override
 	protected void prepare() {
-		// TODO Auto-generated method stub
 		for (ProcessInfoParameter para:getParameter()){
 			String name = para.getParameterName();
 			if (para.getParameter() == null);
@@ -50,9 +50,14 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		int SalesRegionParent_ID = 0;
 		
 		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
+		BigDecimal qtyVehicle = lo.getFTU_Vehicle().getLoadCapacity();
+		int CurrencyID = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 		
 		if(!lo.get_ValueAsBoolean("IsDelivered"))
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));
+		
+		if(!lo.get_ValueAsBoolean("IsInvoiced"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));
 		
 		if(getQtyFreightCostByLoadOrder(lo.get_ID()) > 0)
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgExistsFreightCostCompleted"));
@@ -82,10 +87,10 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				"	sum(lol.Weight) as Weight," + 
 				"	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel " + 
 				"	from FTU_LoadOrderLine as lol" + 
-				"	inner join M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID" + 
-				"	inner join M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)" + 
-				"	inner join C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)" + 
-				"	left join C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) " + 
+				"	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID" + 
+				"	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)" + 
+				"	JOIN C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)" + 
+				"	LEFT JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) " + 
 				"	where lol.FTU_LoadOrder_ID = ?" + 
 				"	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID";
 		
@@ -108,17 +113,18 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				boll.setWeight(rs.getBigDecimal("Weight"));
 				// Calculate Cost Freight
 				// get Price for Trip
-				price = DB.getSQLValueBD(get_TrxName(), "SELECT Price FROM FTU_PriceForTrip pft JOIN FTU_AssignedRegions ar ON pft.FTU_AssignedRegions_ID = ar.FTU_AssignedRegions_ID \n" + 
-						"	WHERE ar.C_SalesRegion_ID = ? AND ar.M_Shipper_ID = ? AND ? BETWEEN pft.ValueMin::numeric AND pft.ValueMax::numeric", 
-						rs.getInt("C_SalesRegion_ID"), bol.getM_Shipper_ID(), rs.getBigDecimal("QtyTravel"));
+				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
+						+ "	(CurrencyConvert(pft.Price,pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
+						+ " FROM FTU_PriceForTrip pft " 
+						+ " WHERE pft.C_SalesRegion_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),qtyVehicle, rs.getInt("C_SalesRegion_ID")});
 				
 				if(price == null)
 				{
 					price = BigDecimal.ZERO;
 				}else {
-					if(price.doubleValue() > maxPrice.doubleValue()) {
+					//if(price.doubleValue() > maxPrice.doubleValue()) {
 						maxPrice = price;
-					}
+					//}
 				}
 				// set costs
 				if(p_FTU_ZeroCost.equals("N")) {
@@ -153,7 +159,6 @@ public class FTUGenerateFreightCost extends FTUProcess{
 			MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
 			boll.setAD_Org_ID(bol.getAD_Org_ID());
 			boll.setFTU_BillOfLading_ID(bol.get_ID());
-			System.out.println(mci.getC_ChargeFreight_ID());
 			boll.set_ValueOfColumn("C_Charge_ID", mci.getC_ChargeFreight_ID());
 			boll.setWeight(FTU_Diference);
 			boll.setCosts(maxPrice.multiply(FTU_Diference));
