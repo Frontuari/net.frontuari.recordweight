@@ -208,23 +208,27 @@ public class WFTUGetWeightUI extends WFTUGetWeight implements EventListener {
 	private void loadButtons() throws Exception {
 		log.info("loadButtons()");
 		List<MFTUWeightScale> arrayWS = getArrayWeightScale();
-//		System.out.println(arrayWS.size()+"sd");
+		int p_FTU_WeightScale_ID = (int) getGridTab().getValue("FTU_WeightScale_ID");
 		if (arrayWS.size() == 0) {
 			closeWindow();
-//			throw new Exception(Msg.translate(Env.getCtx(), "@WeightScaleNotConfigForUser@"));
 		}
 		//
 		for (int i = 0; i < arrayWS.size(); i++) {
 			MFTUWeightScale weightScale = arrayWS.get(i);
-			Button aa = new Button(weightScale.getName());
-			aa.setLabel(weightScale.getName());
-			aa.setName(weightScale.getName());
-			aa.setId(String.valueOf(i));
-			confirmPanel.addButton(aa);
-			aa.addEventListener(Events.ON_CLICK, this);
-			aa.setName(String.valueOf(i));
-			aa.addActionListener(this);
-			log.fine("MFTUWeightScale " + weightScale.toString());
+			if(weightScale.get_ID() == p_FTU_WeightScale_ID)
+			{
+				Button aa = new Button(weightScale.getName());
+				aa.setLabel(weightScale.getName());
+				aa.setName(weightScale.getName());
+				aa.setId(String.valueOf(i));
+				confirmPanel.addButton(aa);
+				aa.addEventListener(Events.ON_CLICK, this);
+				aa.setName(String.valueOf(i));
+				aa.addActionListener(this);
+				log.fine("MFTUWeightScale " + weightScale.toString());
+			}
+			else
+				continue;
 		}
 
 	}

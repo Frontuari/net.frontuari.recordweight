@@ -134,11 +134,20 @@ public class WFTUGetWeight implements ICreateFrom {
 		//	User
 		int m_AD_Role_ID = Env.getAD_Role_ID(Env.getCtx());
 		arrayWS = MFTUWeightScaleRole.getWeightScaleOfRole(Env.getCtx(), m_AD_Role_ID, null); 
+		int p_FTU_WeightScale_ID = (int) getGridTab().getValue("FTU_WeightScale_ID");
 		//	Set Current Serial Port Configuration
 		if(arrayWS.size() != 0){
-			currentWeightScale = arrayWS.get(0);
-			currentSerialPortConfig = arrayWS.get(0).getSerialPortConfig();
-			currentScreenConfig = arrayWS.get(0).getScreenConfig();
+			for(MFTUWeightScale wsr : arrayWS)
+			{
+				if(wsr.get_ID()==p_FTU_WeightScale_ID)
+				{
+					currentWeightScale = wsr;
+					currentSerialPortConfig = wsr.getSerialPortConfig();
+					wsr.getScreenConfig();
+				}
+				else
+					continue;
+			}
 		}
 	}
 	
