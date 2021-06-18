@@ -261,8 +261,8 @@ public class FTULoadOrder {
 					"	LEFT JOIN FTU_LoadOrderLine lc ON(lc.C_OrderLine_ID = lord.C_OrderLine_ID) " +
 					"	LEFT JOIN FTU_LoadOrder c ON(c.FTU_LoadOrder_ID = lc.FTU_LoadOrder_ID) " +
 					"	WHERE lord.M_Product_ID IS NOT NULL " +
-					"	GROUP BY lord.C_Order_ID, lord.C_OrderLine_ID, lord.QtyOrdered " +
-					"	ORDER BY lord.C_OrderLine_ID ASC) qafl " +
+					"	AND (lord.QtyOrdered-lord.QtyDelivered) > 0" +
+					"	GROUP BY lord.C_OrderLine_ID) qafl " +
 					"	ON(qafl.C_OrderLine_ID = lord.C_OrderLine_ID) " +
 					"WHERE ord.IsSOTrx = 'Y' " +
 					"AND wr.IsActive = 'Y' " +
@@ -289,16 +289,16 @@ public class FTULoadOrder {
 			sql.append("GROUP BY wr.Name, ord.C_Order_ID, ord.DocumentNo, ord.DateOrdered, " +
 					"ord.DatePromised, ord.Weight, ord.Volume, sr.Name, cp.Name, bploc.Name, " +
 					"reg.Name, cit.Name, loc.Address1, loc.Address2, loc.Address3, loc.Address4, ord.C_BPartner_Location_ID ");
-		if(!RequiresInvoice.equalsIgnoreCase("N")) {
 			//	Having
 			if (X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct.equals(m_OperationType))
-				sql.append("HAVING (SUM(COALESCE(lord.QtyInvoiced, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
+				if(!RequiresInvoice.equalsIgnoreCase("N"))
+					sql.append("HAVING (SUM(COALESCE(lord.QtyInvoiced, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
+				else
+					sql.append("HAVING (SUM(COALESCE(lord.QtyOrdered, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
 			else
 				sql.append("HAVING (SUM(COALESCE(lord.QtyOrdered, 0)) - SUM(COALESCE(lord.QtyDelivered, 0))) > 0 ");
-			
-		}
 			//	Order By
-			sql.append("ORDER BY ord.C_Order_ID ASC");
+			sql.append("ORDER BY ord.DateOrdered DESC,ord.C_Order_ID ASC");
 			
 			// role security
 		}

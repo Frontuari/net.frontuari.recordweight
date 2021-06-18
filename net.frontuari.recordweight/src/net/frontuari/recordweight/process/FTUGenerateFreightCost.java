@@ -25,6 +25,7 @@ import net.frontuari.recordweight.model.X_FTU_BillOfLading;
 public class FTUGenerateFreightCost extends FTUProcess{
 	String p_FTU_ZeroCost;
 	String p_FTU_AdjustPrice;
+	BigDecimal p_qtyCalc;
 	
 	BigDecimal FTU_Capacity;
 	BigDecimal FTU_Diference;
@@ -37,6 +38,8 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				p_FTU_ZeroCost = para.getParameterAsString();
 			else if(name.equals("FTU_AdjustPrice"))
 				p_FTU_AdjustPrice = para.getParameterAsString();
+			else if(name.equals("qtyCalc"))
+				p_qtyCalc = para.getParameterAsBigDecimal();
 		}
 	}
 
@@ -50,7 +53,6 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		int SalesRegionParent_ID = 0;
 		
 		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
-		BigDecimal qtyVehicle = lo.getFTU_Vehicle().getLoadCapacity();
 		int CurrencyID = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 		
 		if(!lo.get_ValueAsBoolean("IsDelivered"))
@@ -116,7 +118,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
 						+ "	(CurrencyConvert(pft.Price,pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.C_SalesRegion_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),qtyVehicle, rs.getInt("C_SalesRegion_ID")});
+						+ " WHERE pft.C_SalesRegion_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("C_SalesRegion_ID")});
 				
 				if(price == null)
 				{
@@ -174,7 +176,9 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		bol.setDocStatus(X_FTU_BillOfLading.DOCSTATUS_Completed);
 		bol.saveEx(get_TrxName());
 		
-		return null;
+		addBufferLog(bol.get_ID(), new Timestamp(System.currentTimeMillis()), null, Msg.parseTranslation(getCtx(), "@FTU_BillOfLading_ID@")+": "+bol.getDocumentNo(), bol.get_Table_ID(), bol.get_ID());
+		
+		return "@OK@";
 	}
 
 	private int getSalesRegionParent(int TreeNode)

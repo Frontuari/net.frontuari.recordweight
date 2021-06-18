@@ -55,6 +55,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	private int m_Current_Warehouse_ID = 0;
 	/** Current Business Partner */
 	private int m_Current_BPartner_ID = 0;
+	/** Current Sales Order */
+	private int m_Current_Order_ID = 0;
 	/** Document Action */
 	private String p_DocAction = null;
 	/** Document Type */
@@ -87,6 +89,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	
 	private int p_C_DocTypeInv_ID = 0;
 	
+	/** Consolidate			*/
+	private boolean		p_ConsolidateDocument = false;
+	
 	private final static String GENERATE_ONLY_INVOICE = "GOI";
 	private final static String GENERATE_ONLY_SHIPMENT = "GOS";
 	private final static String GENERATE_ONLY_MOVEMENT = "GOM";
@@ -113,13 +118,16 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				p_DocAction = (String) para.getParameter();
 			else if (name.equals("IsGenerateDocument"))
 				p_IsGenerateDocument = (String) para.getParameter();
+			else if (name.equals("IsGenerateDocument"))
+				p_IsGenerateDocument = (String) para.getParameter();
 			else if (name.equals("C_Currency_ID"))
 				p_C_Currency_ID = para.getParameterAsInt();
 			else if (name.equals("C_ConversionType_ID"))
 				p_C_ConversionType_ID = para.getParameterAsInt();
 			else if (name.equalsIgnoreCase("C_DocType_ID"))
 				p_C_DocTypeInv_ID = para.getParameterAsInt();
-
+			else if (name.equals("ConsolidateDocument"))
+				p_ConsolidateDocument = "Y".equals(para.getParameter());
 		}
 	}
 
@@ -164,13 +172,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 		if (m_FTU_LoadOrder.isDelivered())
 			return "@FTU_LoadOrder_ID@ @IsDelivered@";
-		
-		/*if(!(m_FTU_LoadOrder.isHandleRecordWeight() && m_FTU_LoadOrder.isWeightRegister())
-				&& !m_FTU_LoadOrder.isImmediateDelivery())
-			return "@FTU_RecordWeight_ID@ @NotFound@";
-
-		if(!m_FTU_LoadOrder.isImmediateDelivery())
-			return "@FTU_LoadOrder_ID@ No @IsImmediateDelivery@";*/
 		
 		if (m_FTU_LoadOrder.isHandleRecordWeight() && !m_FTU_LoadOrder.isWeightRegister() 
 				&& !m_FTU_LoadOrder.isImmediateDelivery())
@@ -240,6 +241,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			// Valid Null
 			if (m_Qty == null)
 				m_Qty = Env.ZERO;
+			
+			//	Added by Jorge Colmenarez, 2021-06-18 08:50
+			//	Create new InOut by Order
+			if(!p_ConsolidateDocument && m_Current_Order_ID != m_C_Order_ID)
+				m_Current_BPartner_ID = 0;
+			//	End Jorge Colmenarez
 			//
 			if (m_Current_BPartner_ID != m_C_BPartner_ID || m_Current_Warehouse_ID != m_M_Warehouse_ID || m_Break) {
 				// Complete Previous Shipment
@@ -247,6 +254,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Initialize Order and
 				m_Current_Warehouse_ID = m_M_Warehouse_ID;
 				m_Current_BPartner_ID = m_C_BPartner_ID;
+				m_Current_Order_ID = m_C_Order_ID;
 				// Get Warehouse
 				MWarehouse warehouse = MWarehouse.get(getCtx(), m_Current_Warehouse_ID, get_TrxName());
 				// Valid Purchase Order and Business Partner
@@ -282,7 +290,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MInOutLine shipmentLine = new MInOutLine(getCtx(), 0, get_TrxName());
 				// Get Order Line
 				MOrderLine oLine = (MOrderLine) m_FTU_LoadOrderLine.getC_OrderLine();
-				
 				
 				m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
 				m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
@@ -329,34 +336,29 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					m_CumulatedWeightAll = m_CumulatedWeightAll.add(m_CumulatedWeightLine);
 				}
 				// Set Values for Lines
-				
-				//shipmentLine.setAD_Org_ID(m_Current_Shipment.getAD_Org_ID());
-				
 				shipmentLine.setAD_Org_ID(oLine.getAD_Org_ID());
 				
 				shipmentLine.setM_InOut_ID(m_Current_Shipment.getM_InOut_ID());
 				// Quantity and Product
 				shipmentLine.setM_Product_ID(product.getM_Product_ID());
-				//shipmentLine.setM_Warehouse_ID(m_Current_Shipment.getM_Warehouse_ID());
 				shipmentLine.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
 				// References
 				shipmentLine.setC_OrderLine_ID(m_FTU_LoadOrderLine.getC_OrderLine_ID());
 				// Quantity
 				if (product.get_ValueAsBoolean("isBulk")) {	
-				shipmentLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
-				shipmentLine.setQty(m_Qty);
-				shipmentLine.setQtyEntered(m_Qty);
-				shipmentLine.setMovementQty(m_ConfirmedWeight);
+					shipmentLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
+					shipmentLine.setQty(m_Qty);
+					shipmentLine.setQtyEntered(m_Qty);
+					shipmentLine.setMovementQty(m_ConfirmedWeight);
 				}else if (!product.get_ValueAsBoolean("isBulk")) {
-				shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
-				shipmentLine.setQty(oLine.getQtyEntered());
-				shipmentLine.setQtyEntered(oLine.getQtyEntered());
-				shipmentLine.setMovementQty(oLine.getQtyOrdered());
+					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
+					shipmentLine.setQty(oLine.getQtyEntered());
+					shipmentLine.setQtyEntered(oLine.getQtyEntered());
+					shipmentLine.setMovementQty(oLine.getQtyOrdered());
 				}
 				shipmentLine.setM_Locator_ID(m_Qty);
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
-				//System.out.println(m_FTU_LoadOrderLine.getConfirmedWeight());
 				// Manually Process Shipment
 				// Added
 				if (!m_Added) {
@@ -385,23 +387,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				m_Added = false;
 			}
 		}
-
 		// Complete Shipment
 		completeShipment();
 		// Commit Transaction
-
-		// Info
-	/*	if (m_Current_Shipment!=null) {
-		/*	for(int x = 0; x < m_DocShipNs.size(); x++) {
-				addLog(0, new Timestamp(System.currentTimeMillis()), null,m_DocShipNs.get(x),m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
-			}
-			addBufferLog(m_Current_Shipment.getM_InOut_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
-		//addLog(0, new Timestamp(System.currentTimeMillis()), null, msg+": "+m_Current_Shipment.getDocumentNo(), m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
-		//return "@M_InOut_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
-		}else {
-			addLog("Error creando entrega");
-		}*/
-		
 		return "";
 	}
 
@@ -418,12 +406,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			if (m_Current_Shipment.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
 				throw new AdempiereException(m_Current_Shipment.getProcessMsg());
 			}
-			/*addLog(m_Current_Shipment.getM_InOut_ID(), m_Current_Shipment.getDateAcct(), null,
-					m_Current_Shipment.getDocumentNo() + (m_Current_Shipment.getProcessMsg() != null
-							&& m_Current_Shipment.getProcessMsg().length() != 0
-									? ": Error " + m_Current_Shipment.getProcessMsg()
-									: " --> @OK@"));*/
-			
 			// Created
 			m_Created++;
 			// Is Printed?
@@ -474,31 +456,39 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 			// Valid Document Order and Business Partner
 			int m_C_BPartner_ID = order.getC_BPartner_ID();
+			int m_C_Order_ID = order.getC_Order_ID();
 			int m_C_OrderLine_ID = m_FTU_LoadOrderLine.getC_OrderLine_ID();
 			int m_C_Charge_ID = orderLine.getC_Charge_ID();
 			int m_M_Product_ID = orderLine.getM_Product_ID();
 
 			BigDecimal rate = Env.ZERO;
 			BigDecimal m_Qty = m_FTU_LoadOrderLine.getQty();
+			
+			//	Added by Jorge Colmenarez, 2021-06-18 08:50
+			//	Create new Invoice by Order
+			if(!p_ConsolidateDocument && m_Current_Order_ID != m_C_Order_ID)
+				m_Current_BPartner_ID = 0;
+			//	End Jorge Colmenarez
 			//
 			if (m_Current_BPartner_ID != m_C_BPartner_ID) {
 				// Complete Previous Invoice
 				completeInvoice();
 				m_Current_BPartner_ID = m_C_BPartner_ID;
+				m_Current_Order_ID	= m_C_Order_ID;
 				// Create Invoice From Order
 				m_Current_Invoice = new MInvoice(order, p_C_DocTypeInv_ID, p_MovementDate);
 				m_Current_Invoice.setDateAcct(p_MovementDate);
 				
 				if (p_C_Currency_ID > 0) {
-				m_Current_Invoice.setC_Currency_ID(p_C_Currency_ID);
+					m_Current_Invoice.setC_Currency_ID(p_C_Currency_ID);
 				}else if (p_C_Currency_ID <= 0) {
-				m_Current_Invoice.setC_Currency_ID(order.getC_Currency_ID());	
+					m_Current_Invoice.setC_Currency_ID(order.getC_Currency_ID());	
 				}
 				
 				if (p_C_ConversionType_ID > 0) {
-				m_Current_Invoice.setC_ConversionType_ID(p_C_ConversionType_ID);
+					m_Current_Invoice.setC_ConversionType_ID(p_C_ConversionType_ID);
 				}else if (p_C_ConversionType_ID <= 0) {
-				m_Current_Invoice.setC_ConversionType_ID(order.getC_ConversionType_ID());
+					m_Current_Invoice.setC_ConversionType_ID(order.getC_ConversionType_ID());
 				}
 				
 				// Set DocStatus
@@ -561,19 +551,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 									"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
 						}
 						//
-						/*BigDecimal m_QtyWeight = line.getConfirmedWeight();
-						BigDecimal m_QtyInvoced = m_QtyWeight.multiply(rateWeight);
-						BigDecimal m_QtyEntered = m_QtyInvoced.multiply(rate);*/
 						if (invoiceLine.getM_Product() != null) {
 							if (product.get_ValueAsBoolean("IsBulk")) {
-							invoiceLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
-							invoiceLine.setQtyEntered(line.getQty());
-							//System.out.println(line.getQty());
-							invoiceLine.setQtyInvoiced(line.getConfirmedWeight());
-							//System.out.println(line.getConfirmedWeight());	
+								invoiceLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
+								invoiceLine.setQtyEntered(line.getQty());
+								invoiceLine.setQtyInvoiced(line.getConfirmedWeight());
 							}else if (!product.get_ValueAsBoolean("IsBulk")) {
-							invoiceLine.setQtyEntered(oLine.getQtyEntered());
-							invoiceLine.setQtyInvoiced(oLine.getQtyOrdered());
+								invoiceLine.setQtyEntered(oLine.getQtyEntered());
+								invoiceLine.setQtyInvoiced(oLine.getQtyOrdered());
 							}
 						}
 						
@@ -612,12 +597,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					}
 				}
 				invoiceLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());
-				
-			/*	if (!product.get_ValueAsBoolean("isBulk")) {
-				invoiceLine.setPriceList(oLine.getPriceList());
-				invoiceLine.setPriceEntered(oLine.getPriceEntered());
-				invoiceLine.setPriceActual(oLine.getPriceActual());
-				}*/
 	
 				BigDecimal rateWeight = line.getConfirmedWeight().divide(line.getQty(),2,RoundingMode.HALF_UP);
 				BigDecimal price = MConversionRate.convert(getCtx(), oLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
@@ -632,18 +611,24 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 				BigDecimal priceActual = MConversionRate.convert(getCtx(), oLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+				//	Added By Jorge Colmenarez, 2021-06-17 15:11
+				//	Set value isconverted
+				if(oLine.getC_Currency_ID()!=m_Current_Invoice.getC_Currency_ID())
+					invoiceLine.set_ValueOfColumn("IsConverted", "Y");
+				//	End Jorge Colmenarez
 				if (priceActual != null) {
 					if (product.get_ValueAsBoolean("isBulk")) {
-					invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
-						}else {
-							invoiceLine.setPriceActual(priceActual);
-						}
+						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
 					}else {
-					throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
+						invoiceLine.setPriceActual(priceActual);
 					}
+				}else {
+					throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
+				}
 				
 				invoiceLine.setC_Tax_ID(oLine.getC_Tax_ID());
 				invoiceLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
+				
 				invoiceLine.save(get_TrxName());
 				//
 				if (line.getFTU_LoadOrder_ID() != 0) {
@@ -660,16 +645,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 		completeInvoice();
 		// Info
-		/*if (m_Current_Invoice!=null) {
-		
-				for(int x = 0; x < m_DocInvNs.size(); x++) {
-					addLog(0, new Timestamp(System.currentTimeMillis()), null,m_DocInvNs.get(x),m_Current_Shipment.get_Table_ID(), m_Current_Shipment.get_ID());
-				}
-		//addLog(m_Current_Invoice.get_ID(), new Timestamp(System.currentTimeMillis()), null, msg+": ", m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
-		//return "@C_Invoice_ID@ @Created@ = " + msg.toString();
-		//return "@C_Invoice_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
-		}else {
-		addLog("Error creando factura");*/		
 		return "";
 	}
 
@@ -686,9 +661,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();
 			m_Current_Invoice.load(get_TrxName());
-			//if (m_Current_Invoice.getDocStatus() != X_C_Invoice.DOCSTATUS_Completed) {
-			//	throw new AdempiereException(m_Current_Invoice.getProcessMsg());
-			//}
+			
 			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentInfo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.getC_Invoice_ID());
 			// Initialize Message
 			if (msg.length() > 0)
@@ -700,10 +673,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			// Is Printed?
 			if (m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Completed)) {
 				m_IDs.add(m_Current_Invoice.getC_Invoice_ID());
-				//log.log(Level.FINE, m_Current_Invoice.getDocumentNo());
-				//addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 			}
-			//addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentNo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.get_ID());
 		}
 	}
 
@@ -837,11 +807,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			if (m_Current_Movement.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
 				throw new AdempiereException(m_Current_Movement.getProcessMsg());
 			}
-			/*addLog(m_Current_Movement.getM_Movement_ID(), m_Current_Movement.getDateReceived(), null,
-					m_Current_Movement.getDocumentNo() + (m_Current_Movement.getProcessMsg() != null
-							&& m_Current_Movement.getProcessMsg().length() != 0
-									? ": Error " + m_Current_Movement.getProcessMsg()
-									: " --> @OK@"));*/
 			// Created
 			m_Created++;
 			// Is Printed?
