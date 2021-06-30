@@ -251,6 +251,33 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (!DocAction.STATUS_InProgress.equals(status))
 				return status;
 		}
+		
+		//	Added by Jorge Colmenarez, 2021-06-30 10:36
+		//	Support for Validate NetWeigth Tolerance
+		int tolerance = MSysConfig.getIntValue("FTU_RW_TOLERANCE", 0,getAD_Client_ID());
+		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt) && !isApproved())
+		{
+			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
+			BigDecimal difference = getNetWeight().subtract(oNetWeight);
+			difference = difference.subtract(BigDecimal.valueOf(tolerance));
+			if(difference.compareTo(BigDecimal.ZERO) > 0)
+			{
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+" se requiere una autorizacion.";
+				return DocAction.STATUS_WaitingConfirmation;
+			}
+		}
+		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryFinishedProduct) && !isApproved())
+		{
+			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
+			BigDecimal difference = getNetWeight().subtract(oNetWeight);
+			difference = difference.subtract(BigDecimal.valueOf(tolerance));
+			if(difference.compareTo(BigDecimal.ZERO) > 0)
+			{
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+" se requiere una autorizacion.";
+				return DocAction.STATUS_WaitingConfirmation;
+			}
+		}
+		//	End Jorge Colmenarez
 
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 		if (m_processMsg != null)
@@ -311,8 +338,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
-			
-			System.out.println(getFTU_LoadOrder().getM_Product());
 			
 			//if(getHRS_Analysis_ID() <= 0) {
 				if(getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
@@ -997,6 +1022,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
 				options[index++] = DocumentEngine.ACTION_Prepare;
 			}
+			else if(docStatus.equals(DocumentEngine.STATUS_WaitingConfirmation))
+			{
+				options[index++] = DocumentEngine.ACTION_Complete;
+				options[index++] = DocumentEngine.ACTION_Reject;
+			}
 			// Complete .. CO
 			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
 				options[index++] = DocumentEngine.ACTION_Void;
@@ -1294,7 +1324,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 			boolean validateOrderedQty = MSysConfig.getBooleanValue(MSysConfig.VALIDATE_MATCHING_TO_ORDERED_QTY, true,
 					Env.getAD_Client_ID(Env.getCtx()));
-			if (!validateOrderedQty) {
+			if (validateOrderedQty) {
 				BigDecimal qtyOrdered = oLine.getQtyDelivered().add(oLine.getQtyReserved());
 				if (m_MovementQty.compareTo(qtyOrdered) > 0) {
 					throw new IllegalStateException("Total matched delivered qty > ordered qty. MatchedDeliveredQty="
