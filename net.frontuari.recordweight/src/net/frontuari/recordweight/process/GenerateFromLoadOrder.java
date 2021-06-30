@@ -5,12 +5,14 @@ package net.frontuari.recordweight.process;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClientInfo;
+import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
@@ -36,6 +38,7 @@ import org.compiere.util.Env;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
 
+import net.frontuari.recordweight.util.ProcessBuilder;
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
@@ -423,8 +426,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	 * Create Invoice From Liquidations
 	 * 
 	 * @return String
+	 * @throws SQLException 
 	 */
-	private String createInvoices() {
+	private String createInvoices() throws SQLException {
 
 		MFTULoadOrder m_FTU_LoadOrder = new MFTULoadOrder(getCtx(), p_FTU_LoadOrder_ID, get_TrxName());
 		Timestamp now = DB.getSQLValueTS(get_TrxName(), "Select now()");
@@ -625,6 +629,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				}else {
 					throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
 				}
+				//	Added by Jorge Colmenarez, 2021-06-29 16:42
+				//	Set price list from order
+				BigDecimal priceList = MConversionRate.convert(getCtx(), oLine.getPriceList(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
+						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+				invoiceLine.setPriceList(priceList);
+				//	End Jorge Colmenarez
 				
 				invoiceLine.setC_Tax_ID(oLine.getC_Tax_ID());
 				invoiceLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
@@ -654,15 +664,31 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 8/12/2014,
 	 *         22:49:19
 	 * @return void
+	 * @throws SQLException 
 	 */
-	private void completeInvoice() {
+	private void completeInvoice() throws SQLException {
 		if (m_Current_Invoice != null && m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Drafted)) {
+			commitEx();
+			int AD_Process_ID = getProcessDocActionId(m_Current_Invoice);
 			m_Current_Invoice.setDocAction(p_DocAction);
-			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();
-			m_Current_Invoice.load(get_TrxName());
-			
-			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentInfo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.getC_Invoice_ID());
+			ProcessBuilder builder = ProcessBuilder.build(AD_Process_ID)
+					.setTable_ID(MInvoice.Table_ID)
+					.setRecord_ID(m_Current_Invoice.get_ID())
+					.withTrxName(m_Current_Invoice.get_TrxName());
+			boolean success = builder.execute();
+			if (!success)
+			{
+				log.warning("completeInvoice - failed: " + m_Current_Invoice);
+				addBufferLog(0, null, null,"completeInvoice - failed: " + m_Current_Invoice,m_Current_Invoice.get_Table_ID(),m_Current_Invoice.getC_Invoice_ID()); // Elaine 2008/11/25
+				throw new IllegalStateException("Invoice Process Failed: " + m_Current_Invoice + " - " + builder.getProcessMsg());
+			}
+			else
+			{
+				m_Current_Invoice.save();
+				m_Current_Invoice.load(get_TrxName());
+				addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentInfo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.getC_Invoice_ID());
+			}
 			// Initialize Message
 			if (msg.length() > 0)
 				msg.append(" - " + m_Current_Invoice.getDocumentNo());
@@ -817,6 +843,21 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 			addBufferLog(m_Current_Movement.get_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Movement.getDocumentNo(), m_Current_Movement.get_Table_ID(), m_Current_Movement.get_ID());
 		}
+	}
+	
+	/**
+	 * @author Jorge Colmenarez, 2021-06-29 19:52
+	 * @param inv
+	 * @return
+	 */
+	private static int getProcessDocActionId(MInvoice inv) {
+		if (inv == null)
+			return -1;
+		
+		MColumn column = MColumn.get(inv.getCtx(), MInvoice.Table_Name, MInvoice.COLUMNNAME_DocAction);
+		int AD_Process_ID = column.getAD_Process_ID();
+		
+		return AD_Process_ID;
 	}
 
 }
