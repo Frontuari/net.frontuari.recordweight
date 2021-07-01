@@ -353,12 +353,24 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					shipmentLine.setQty(m_Qty);
 					shipmentLine.setQtyEntered(m_Qty);
 					shipmentLine.setMovementQty(m_ConfirmedWeight);
-				}else if (!product.get_ValueAsBoolean("isBulk")) {
+				}
+				//	Modified by Jorge Colmenarez, 2021-07-01 18:04
+				//	Separate events DMP from DFP
+				else if (!product.get_ValueAsBoolean("isBulk") 
+						&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts.equals(m_FTU_LoadOrder.getOperationType())) {
 					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
 					shipmentLine.setQty(oLine.getQtyEntered());
 					shipmentLine.setQtyEntered(oLine.getQtyEntered());
 					shipmentLine.setMovementQty(oLine.getQtyOrdered());
 				}
+				else
+				{
+					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
+					shipmentLine.setQty(m_Qty);
+					shipmentLine.setQtyEntered(m_Qty);
+					shipmentLine.setMovementQty(MUOMConversion.convertProductFrom(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+				}
+				//	End Jorge Colmenarez
 				shipmentLine.setM_Locator_ID(m_Qty);
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());

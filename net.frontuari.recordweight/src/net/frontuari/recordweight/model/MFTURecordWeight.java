@@ -259,10 +259,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		{
 			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			difference = difference.subtract(BigDecimal.valueOf(tolerance));
-			if(difference.compareTo(BigDecimal.ZERO) > 0)
+			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
+					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
 			{
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+" se requiere una autorizacion.";
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
 			}
 		}
@@ -270,10 +270,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		{
 			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			difference = difference.subtract(BigDecimal.valueOf(tolerance));
-			if(difference.compareTo(BigDecimal.ZERO) > 0)
+			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
+					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
 			{
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+" se requiere una autorizacion.";
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
 			}
 		}
