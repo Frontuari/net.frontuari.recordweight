@@ -82,19 +82,31 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		bol.setDateDoc(new Timestamp(System.currentTimeMillis()));
 		bol.saveEx();
 		
-		String sql = "SELECT " + 
-				"	il.C_Invoice_ID," + 
-				"	miol.M_InOut_ID," + 
-				"	bl.C_SalesRegion_ID," + 
-				"	sum(lol.Weight) as Weight," + 
-				"	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel " + 
-				"	from FTU_LoadOrderLine as lol" + 
-				"	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID" + 
-				"	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)" + 
-				"	JOIN C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)" + 
-				"	LEFT JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) " + 
-				"	where lol.FTU_LoadOrder_ID = ?" + 
-				"	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID";
+		String sql = "SELECT "
+				+ "	il.C_Invoice_ID,"
+				+ "	miol.M_InOut_ID,"
+				+ "	bl.C_SalesRegion_ID,"
+				+ "	sum(lol.Weight) as Weight,"
+				+ "	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel"
+				+ "	, coalesce((select max(pft.ftu_pricefortrip_id) from ftu_pricefortrip pft "
+				+ "	join c_bpartner_location bploc on pft.c_salesregion_id = bploc.c_salesregion_id "
+				+ "	join m_inout io on bploc.c_bpartner_location_id = io.c_bpartner_location_id"
+				+ "	join m_inoutline iol on io.m_inout_id=iol.m_inout_id"
+				+ "	join ftu_loadorderline flol on iol.m_inoutline_id = flol.m_inoutline_id"
+				+ "	where flol.ftu_loadorder_id = lol.ftu_loadorder_id "
+				+ "	and pft.distance = (select max(distance) from ftu_pricefortrip pft "
+				+ "	join c_bpartner_location bploc on pft.c_salesregion_id = bploc.c_salesregion_id "
+				+ "	join m_inout io on bploc.c_bpartner_location_id = io.c_bpartner_location_id"
+				+ "	join m_inoutline iol on io.m_inout_id=iol.m_inout_id"
+				+ "	join ftu_loadorderline flol on iol.m_inoutline_id = flol.m_inoutline_id"
+				+ "	where flol.ftu_loadorder_id = lol.ftu_loadorder_id)),0) as FTU_PriceForTrip_ID"
+				+ "	from FTU_LoadOrderLine as lol"
+				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID"
+				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)"
+				+ "	JOIN C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)"
+				+ "	LEFT JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
+				+ "	where lol.FTU_LoadOrder_ID = ?"
+				+ "	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID,lol.ftu_loadorder_id ";
 		
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -118,7 +130,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
 						+ "	(CurrencyConvert(pft.Price,pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.C_SalesRegion_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("C_SalesRegion_ID")});
+						+ " WHERE pft.FTU_PriceForTrip_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_PriceForTrip_ID")});
 				
 				if(price == null)
 				{
