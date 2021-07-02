@@ -85,28 +85,15 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		String sql = "SELECT "
 				+ "	il.C_Invoice_ID,"
 				+ "	miol.M_InOut_ID,"
-				+ "	bl.C_SalesRegion_ID,"
-				+ "	sum(lol.Weight) as Weight,"
-				+ "	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel"
-				+ "	, coalesce((select max(pft.ftu_pricefortrip_id) from ftu_pricefortrip pft "
-				+ "	join c_bpartner_location bploc on pft.c_salesregion_id = bploc.c_salesregion_id "
-				+ "	join m_inout io on bploc.c_bpartner_location_id = io.c_bpartner_location_id"
-				+ "	join m_inoutline iol on io.m_inout_id=iol.m_inout_id"
-				+ "	join ftu_loadorderline flol on iol.m_inoutline_id = flol.m_inoutline_id"
-				+ "	where flol.ftu_loadorder_id = lol.ftu_loadorder_id "
-				+ "	and pft.distance = (select max(distance) from ftu_pricefortrip pft "
-				+ "	join c_bpartner_location bploc on pft.c_salesregion_id = bploc.c_salesregion_id "
-				+ "	join m_inout io on bploc.c_bpartner_location_id = io.c_bpartner_location_id"
-				+ "	join m_inoutline iol on io.m_inout_id=iol.m_inout_id"
-				+ "	join ftu_loadorderline flol on iol.m_inoutline_id = flol.m_inoutline_id"
-				+ "	where flol.ftu_loadorder_id = lol.ftu_loadorder_id)),0) as FTU_PriceForTrip_ID"
-				+ "	from FTU_LoadOrderLine as lol"
-				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID"
-				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)"
-				+ "	JOIN C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)"
-				+ "	LEFT JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
-				+ "	where lol.FTU_LoadOrder_ID = ?"
-				+ "	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID,lol.ftu_loadorder_id ";
+				+ "	lol.FTU_DeliveryRute_ID,"
+				+ "	SUM(lol.Weight) as Weight,"
+				+ "	SUM(COUNT(distinct mio.m_inout_id)) over (partition by lol.FTU_DeliveryRute_ID) AS QtyTravel "
+				+ "	FROM FTU_LoadOrderLine as lol"
+				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID "
+				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID) "
+				+ "	JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
+				+ "	WHERE lol.FTU_LoadOrder_ID = ? "
+				+ "	GROUP BY miol.M_InOut_ID,il.C_Invoice_ID,lol.FTU_DeliveryRute_ID";
 		
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -121,24 +108,23 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
 				boll.setAD_Org_ID(bol.getAD_Org_ID());
 				boll.setFTU_BillOfLading_ID(bol.get_ID());
-				boll.setC_SalesRegion_ID(rs.getInt("C_SalesRegion_ID"));
+				//	Search Sales Region
+				int SalesRegionID = DB.getSQLValue(get_TrxName(), "SELECT C_SalesRegion_ID FROM C_BPartner_Location bpl JOIN M_InOut io ON bpl.C_BPartner_Location_ID = io.C_BPartner_Location_ID WHERE io.M_InOut_ID = ?", rs.getInt("M_InOut_ID"));
+				boll.setC_SalesRegion_ID(SalesRegionID);
+				boll.set_ValueOfColumn("FTU_DeliveryRute_ID", rs.getInt("FTU_DeliveryRute_ID"));
 				boll.setC_Invoice_ID(rs.getInt("C_Invoice_ID"));
 				boll.setM_InOut_ID(rs.getInt("M_InOut_ID"));
 				boll.setWeight(rs.getBigDecimal("Weight"));
 				// Calculate Cost Freight
 				// get Price for Trip
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
-						+ "	(CurrencyConvert(pft.Price,pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
+						+ "	(CurrencyConvert((CASE WHEN ? >= ValueMax::numeric THEN pft.PriceActual ELSE pft.Price END),pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.FTU_PriceForTrip_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_PriceForTrip_ID")});
+						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
 				
 				if(price == null)
 				{
 					price = BigDecimal.ZERO;
-				}else {
-					//if(price.doubleValue() > maxPrice.doubleValue()) {
-						maxPrice = price;
-					//}
 				}
 				// set costs
 				if(p_FTU_ZeroCost.equals("N")) {
@@ -151,7 +137,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				totalW = totalW.add(rs.getBigDecimal("Weight"));
 				grandTotal = grandTotal.add(costs);
 				
-				SalesRegionParent_ID = getSalesRegionParent(rs.getInt("C_SalesRegion_ID"));
+				SalesRegionParent_ID = getSalesRegionParent(SalesRegionID);
 				
 			}
 		} catch(Exception ex) {
