@@ -303,8 +303,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				if (rate == null) {
 					MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
 					MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
+					if (product.getC_UOM_ID() == oLine.getC_UOM_ID()) {
+						rate = Env.ONE;
+					}else {
 					throw new AdempiereException(
 							"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+					}
 				}
 				//
 				if (m_BreakValue > 0 && m_FTU_LoadOrder.isImmediateDelivery()) {
@@ -430,7 +434,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		Timestamp now = DB.getSQLValueTS(get_TrxName(), "Select now()");
 		if (m_FTU_LoadOrder.isInvoiced())
 			return "@FTU_LoadOrder_ID@ @IsInvoiced@";
-
+		MDocType docTypeLoadOrder = (MDocType) m_FTU_LoadOrder.getC_DocType();
+		
+		Boolean isCreateShipment = docTypeLoadOrder.get_ValueAsBoolean("isCreateShipment");
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
@@ -460,7 +466,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			int m_C_OrderLine_ID = m_FTU_LoadOrderLine.getC_OrderLine_ID();
 			int m_C_Charge_ID = orderLine.getC_Charge_ID();
 			int m_M_Product_ID = orderLine.getM_Product_ID();
-
+			// validate order has charges already created
+			int orderWithCharges = 0;
 			BigDecimal rate = Env.ZERO;
 			BigDecimal m_Qty = m_FTU_LoadOrderLine.getQty();
 			
@@ -508,7 +515,41 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MProduct product = MProduct.get(getCtx(), m_M_Product_ID);
 
 				MOrderLine oLine = new MOrderLine(getCtx(), m_C_OrderLine_ID, get_TrxName());
-
+				
+				//add charges to invoice david castillo 22/06/2021
+				if (orderWithCharges != m_Current_Order_ID) {
+				for (MOrderLine SalesOrderLine : order.getLines()) {
+					if (SalesOrderLine.getC_Charge_ID() > 0) {
+				MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
+				ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
+				ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
+				ChargeInvLine.setQtyInvoiced(oLine.getQtyOrdered());
+				ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
+				ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
+				BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
+						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
+								, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+				if (price != null) {				
+					ChargeInvLine.setPrice(price);
+					ChargeInvLine.setPriceEntered(price);
+						}
+				
+				BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
+						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+				 if (priceActual != null) {				
+					 ChargeInvLine.setPriceActual(priceActual);
+						}
+				 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
+				 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
+				 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
+				 ChargeInvLine.saveEx();
+						}//only charges
+					}//all order lines
+				orderWithCharges = m_Current_Order_ID;
+				}
+				
+				//end charges
+				
 				if (oLine.getM_Product_ID() != 0) {
 					// Rate Convert
 					rate = MUOMConversion.getProductRateTo(Env.getCtx(), product.getM_Product_ID(),
@@ -543,6 +584,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					{
 						BigDecimal rateWeight = MUOMConversion.getProductRateFrom(Env.getCtx(),
 								product.getM_Product_ID(), m_FTU_LoadOrder.getC_UOM_Weight_ID());
+						
 						// Validate Rate equals null
 						if (rateWeight == null) {
 							MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
@@ -552,10 +594,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						}
 						//
 						if (invoiceLine.getM_Product() != null) {
-							if (product.get_ValueAsBoolean("IsBulk")) {
+							
+							if (product.get_ValueAsBoolean("IsBulk") & !isCreateShipment) {
 								invoiceLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
 								invoiceLine.setQtyEntered(line.getQty());
 								invoiceLine.setQtyInvoiced(line.getConfirmedWeight());
+							}else if (product.get_ValueAsBoolean("IsBulk") & isCreateShipment) {
+								invoiceLine.setQtyEntered(line.getConfirmedQty());
+								invoiceLine.setQtyInvoiced(line.getConfirmedWeight());							
 							}else if (!product.get_ValueAsBoolean("IsBulk")) {
 								invoiceLine.setQtyEntered(oLine.getQtyEntered());
 								invoiceLine.setQtyInvoiced(oLine.getQtyOrdered());
@@ -599,17 +645,22 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				invoiceLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());
 	
 				BigDecimal rateWeight = line.getConfirmedWeight().divide(line.getQty(),2,RoundingMode.HALF_UP);
-				BigDecimal price = MConversionRate.convert(getCtx(), oLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
+				
+				BigDecimal price = MConversionRate.convert(getCtx(), oLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
 								, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
 				if (price != null) {
+					if (isCreateShipment) {
+					invoiceLine.setPrice(price.multiply(line.getConfirmedWeight()));	
+					}else {
 					invoiceLine.setPrice(price);
 					invoiceLine.setPriceEntered(price);
+					}
 				}else {
 				throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
 				}
 				
-				BigDecimal priceActual = MConversionRate.convert(getCtx(), oLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), now , 
+				BigDecimal priceActual = MConversionRate.convert(getCtx(), oLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
 				//	Added By Jorge Colmenarez, 2021-06-17 15:11
 				//	Set value isconverted
@@ -617,10 +668,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					invoiceLine.set_ValueOfColumn("IsConverted", "Y");
 				//	End Jorge Colmenarez
 				if (priceActual != null) {
-					if (product.get_ValueAsBoolean("isBulk")) {
-						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
-					}else {
+					if (product.get_ValueAsBoolean("isBulk") & isCreateShipment) {
 						invoiceLine.setPriceActual(priceActual);
+					}else if (product.get_ValueAsBoolean("isBulk") & !isCreateShipment){
+						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));		
+					}else {
+						invoiceLine.setPriceActual(priceActual);	
 					}
 				}else {
 					throw new AdempiereException("No existe tasa de cambio para la fecha: " + now.toString());
@@ -657,10 +710,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	 */
 	private void completeInvoice() {
 		if (m_Current_Invoice != null && m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Drafted)) {
+			System.out.println(m_Current_Invoice.get_ValueAsBoolean("isCreditApproved"));
 			m_Current_Invoice.setDocAction(p_DocAction);
 			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();
 			m_Current_Invoice.load(get_TrxName());
+		
+			//m_Current_Invoice.processIt(p_DocAction);
+			//m_Current_Invoice.saveEx();
 			
 			addBufferLog(m_Current_Invoice.getC_Invoice_ID(), new Timestamp(System.currentTimeMillis()), null, m_Current_Invoice.getDocumentInfo(), m_Current_Invoice.get_Table_ID(), m_Current_Invoice.getC_Invoice_ID());
 			// Initialize Message
@@ -670,6 +727,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				msg.append(m_Current_Invoice.getDocumentNo());
 			// Created
 			m_Created++;
+			
 			// Is Printed?
 			if (m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Completed)) {
 				m_IDs.add(m_Current_Invoice.getC_Invoice_ID());

@@ -40,6 +40,8 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+
+
 /**
  *
  */
@@ -319,12 +321,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						&& getFTU_LoadOrder().getM_Product().getM_AttributeSet_ID() <= 0) {
 					
 				} else {
+				
+			boolean requiresAnalysys = MSysConfig.getBooleanValue("FTU_REQUIRES_ANALYSIS", false, getAD_Client_ID());
+			if(requiresAnalysys) {
 					int p_HRS_Analysis_ID = MHRSAnalysis.getByEntryTicket(getFTU_EntryTicket_ID());
 					System.out.println(p_HRS_Analysis_ID);
 					if(p_HRS_Analysis_ID > 0) {
 						setHRS_Analysis_ID(p_HRS_Analysis_ID);
 					}else {
 						throw new AdempiereException("No Existe un Analisis Valido Asociado al Ticket de Entrada!!");
+						}
 					}
 				}
 			//}
@@ -353,8 +359,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				// || getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
+				// added by david castillo new support for INPORCA 17/06/2021
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
-			// Generate Material Receipt
+			// Generate Material Recei	pt
 			String msg = createInOut();
 			//
 			if (m_processMsg != null)
@@ -426,7 +434,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//	Apply validations by products
 		
 		BigDecimal confirmedWeight = getNetWeight();
-		
+		Boolean firstUpdate = false;
 		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 		{
 			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
@@ -436,17 +444,20 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					line.setConfirmedWeight(confirmedWeight);
 					line.setIsConfirmed(true);
 					line.saveEx();
+				firstUpdate = true;
+				//	confirmedWeight = confirmedWeight.subtract(line.getWeight());
+				//}
 				
-					confirmedWeight = confirmedWeight.subtract(line.getWeight());
-			/*	}
-				else
-				{
-					line.setConfirmedWeight(confirmedWeight);
-					line.setIsConfirmed(true);
-					line.saveEx();
-					confirmedWeight = BigDecimal.ZERO;
-				}*/
 			}
+			if (!firstUpdate) {
+			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND ConfirmedWeight > 0 AND M_Product_ID = "+getM_Product_ID()))
+			{		//line.setConfirmedQty(line.getConfirmedQty().add());
+					line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
+					line.saveEx();
+					firstUpdate = false;
+			}
+			}
+			
 		}
 		
 		//
@@ -1217,7 +1228,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (validInOutReference() != null)
 			return "";
 		//
-
+		MDocType LoadOrderDocType  = (MDocType) getFTU_LoadOrder().getC_DocType();
+		Boolean isCreateShipment = LoadOrderDocType.get_ValueAsBoolean("isCreateShipment");
 		// DocumentNo
 		String l_DocumentNo = "";
 		// Create Material Receipt or Shipment by Operation Type
@@ -1294,7 +1306,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 			boolean validateOrderedQty = MSysConfig.getBooleanValue(MSysConfig.VALIDATE_MATCHING_TO_ORDERED_QTY, true,
 					Env.getAD_Client_ID(Env.getCtx()));
-			if (!validateOrderedQty) {
+			if (validateOrderedQty) {
 				BigDecimal qtyOrdered = oLine.getQtyDelivered().add(oLine.getQtyReserved());
 				if (m_MovementQty.compareTo(qtyOrdered) > 0) {
 					throw new IllegalStateException("Total matched delivered qty > ordered qty. MatchedDeliveredQty="
@@ -1572,8 +1584,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			lo.save(get_TrxName());
 		}
 		// Delivery Finished Product
-		else if (getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)) {
+		
+		else if (getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct) || 
+				(getOperationType().contentEquals(OPERATIONTYPE_DeliveryMultiplesProducts) && isCreateShipment)) {
 			// Crate Shipments
+		
+		
 			l_DocumentNo = createShipments();
 		}
 		return l_DocumentNo;
@@ -1676,24 +1692,49 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				shipmentLine.setM_InOut_ID(m_Current_Shipment.getM_InOut_ID());
 				// Quantity and Product
 				shipmentLine.setM_Product_ID(product.getM_Product_ID());
+				if (getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+				shipmentLine.setM_Warehouse_ID(getFTU_Chute().getM_Warehouse_ID());
+				//System.out.println(getFTU_Chute().getM_Warehouse_ID() + " - " + getFTU_Chute().getM_Locator_ID());
+				shipmentLine.setM_Locator_ID(getFTU_Chute().getM_Locator_ID());
+				//shipmentLine.setDescription();
+				BigDecimal qtyCount = (BigDecimal) get_Value("qtyCount");
+				BigDecimal ConfirmedQty = (BigDecimal) line.get_Value("ConfirmedQty");
+				if (ConfirmedQty == null)
+					ConfirmedQty = Env.ZERO;
+				
+				if (qtyCount == null)
+					throw new AdempiereException("No Introdujo Cantidad Contada");
+				if (qtyCount.compareTo(Env.ZERO) <= 0)
+					throw new AdempiereException("Cantidad Contada no puede ser menor o igual a 0");
+				shipmentLine.setMovementQty(qtyCount);
+				shipmentLine.setQty(qtyCount);
+				shipmentLine.setQtyEntered(getNetWeight());
+				
+				shipmentLine.setC_UOM_ID(product.getC_UOM_ID());
+				
+				line.setConfirmedQty(qtyCount.add(ConfirmedQty));
+				}else {
 				BigDecimal m_MovementQty = m_Qty.multiply(rate);
 				shipmentLine.setM_Warehouse_ID(m_Current_Shipment.getM_Warehouse_ID());
 				shipmentLine.setC_UOM_ID(product.getC_UOM_ID());
 				shipmentLine.setQty(line.getQty());
 				// References
 				shipmentLine.setM_Locator_ID(m_MovementQty);
+				line.setConfirmedQty(m_MovementQty);
+				}
 				shipmentLine.setC_OrderLine_ID(line.getC_OrderLine_ID());
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 
 				// Manually Process Shipment
-				line.setConfirmedQty(m_MovementQty);
+				
 				line.setM_InOutLine_ID(shipmentLine.get_ID());
 				line.saveEx();
 				// Set true Is Delivered and Is Weight Register
 				lo.setIsDelivered(true);
 				// Save
 				lo.saveEx(get_TrxName());
+				
 
 			} // End Invoice Line Created
 		} // End Invoice Generated
