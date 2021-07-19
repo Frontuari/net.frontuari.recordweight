@@ -558,8 +558,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					if (rate == null) {
 						MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
 						MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
+						if (product.getC_UOM_ID() == oLine.getC_UOM_ID()) {
+							rate = Env.ONE;
+						}else {
 						throw new AdempiereException(
 								"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+						}
 					}
 					invoiceLine.setM_Product_ID(product.getM_Product_ID());
 				} else if (oLine.getC_Charge_ID() != 0)
@@ -589,8 +593,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						if (rateWeight == null) {
 							MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
 							MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
+							if (product.getC_UOM_ID() == oLine.getC_UOM_ID()) {
+								rate = Env.ONE;
+							}else {
 							throw new AdempiereException(
 									"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+							}
 						}
 						//
 						if (invoiceLine.getM_Product() != null) {
