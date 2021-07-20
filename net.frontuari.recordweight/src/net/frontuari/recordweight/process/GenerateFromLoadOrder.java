@@ -173,10 +173,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		if (m_FTU_LoadOrder.isDelivered())
 			return "@FTU_LoadOrder_ID@ @IsDelivered@";
 		
-		if (m_FTU_LoadOrder.isHandleRecordWeight() && !m_FTU_LoadOrder.isWeightRegister() 
-				&& !m_FTU_LoadOrder.isImmediateDelivery())
-			return "@FTU_LoadOrder_ID@ no @isImmediateDelivery@ & no posee @isWeightRegister@";
-		
+		//if (m_FTU_LoadOrder.isHandleRecordWeight() && !m_FTU_LoadOrder.isWeightRegister() 
+		//		&& !m_FTU_LoadOrder.isImmediateDelivery())
+		//	return "@FTU_LoadOrder_ID@ no @isImmediateDelivery@ & no posee @isWeightRegister@";
+		//
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 
 		double m_BreakValue = MSysConfig.getDoubleValue("FTU_BREAK_SHIPMENT_WEIGHT", 0, getAD_Client_ID());

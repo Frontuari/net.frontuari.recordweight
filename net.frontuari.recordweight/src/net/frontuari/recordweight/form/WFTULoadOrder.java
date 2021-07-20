@@ -869,11 +869,11 @@ public class WFTULoadOrder extends FTULoadOrder
 			msg = validStock(stockTable);
 		}
 		//	
-		if(msg != null) {
-			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
-			calculate();
-			return false;
-		}
+		//if(msg != null) {
+		//	FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
+		//	calculate();
+		//	return false;
+		////}
 		return true;
 	}
 	

@@ -233,13 +233,13 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		if (lines.length == 0){
 			m_processMsg = "@NoLines@";
 			return DocAction.STATUS_Invalid;
-		} else {
+		}/* else {
 			//	Verify Error
 			m_processMsg = validStock();
 			if(m_processMsg != null) {
 				return DocAction.STATUS_Invalid;
 			}
-		}
+		}*/
 		//	Valid Entry Ticket
 		if(getFTU_EntryTicket_ID() == 0
 				&& !MFTUWeightScale.isWeightScaleOrg(getAD_Org_ID(), get_TrxName())) {
