@@ -335,17 +335,15 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}*/
 		
 		boolean withDDOrder = false;		
-		
+		/*
+		 * Commented by Jorge Colmenarez, 2021-07-20 14:56, request by Coposa
 		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
 			
 			//if(getHRS_Analysis_ID() <= 0) {
-				if(getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
-						&& getFTU_LoadOrder().getM_Product().getM_AttributeSet_ID() <= 0) {
-					
-				} else {
+				if(!getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
+						&& getFTU_LoadOrder().getM_Product().getM_AttributeSet_ID() > 0) {
 					int p_HRS_Analysis_ID = MHRSAnalysis.getByEntryTicket(getFTU_EntryTicket_ID());
-					System.out.println(p_HRS_Analysis_ID);
 					if(p_HRS_Analysis_ID > 0) {
 						setHRS_Analysis_ID(p_HRS_Analysis_ID);
 					}else {
@@ -354,7 +352,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 			//}
 			
-		}
+		}*/
 
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
