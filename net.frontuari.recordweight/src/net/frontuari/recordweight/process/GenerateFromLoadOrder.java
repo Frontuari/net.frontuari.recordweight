@@ -19,6 +19,7 @@ import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MLocator;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrder;
@@ -371,7 +372,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					shipmentLine.setMovementQty(MUOMConversion.convertProductFrom(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
 				}
 				//	End Jorge Colmenarez
-				shipmentLine.setM_Locator_ID(m_Qty);
+				//	Added By Jorge Colmenarez, 2021-07-20 16:11
+				//	Support for get Default Locator by Warehouse 
+				MWarehouse w = new MWarehouse(getCtx(), oLine.getM_Warehouse_ID(), get_TrxName());
+				MLocator l = w.getDefaultLocator();
+				shipmentLine.setM_Locator_ID(l.getM_Locator_ID());
+				//	End Jorge Colmenarez
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 				// Manually Process Shipment
