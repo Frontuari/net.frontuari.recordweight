@@ -1345,7 +1345,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			ioLine.setQty(m_MovementQty);
 			ioLine.saveEx(get_TrxName());
 			// Manually Process Shipment
-			m_Receipt.processIt(DocAction.ACTION_Complete);
+			//	Added By Jorge Colmenarez, 2021-07-22 11:59
+			//	Support for get DocAction from SysConfig Variable
+			String docAction = MSysConfig.getValue("DOCACTION_INOUT_FROM_RECORDWEIHT", X_M_InOut.DOCACTION_Complete, getAD_Client_ID());
+			m_Receipt.processIt(docAction);
+			//	End Jorge Colmenarez
 			m_Receipt.saveEx(get_TrxName());
 
 			l_DocumentNo = "@M_InOut_ID@: " + m_Receipt.getDocumentNo();
@@ -1447,7 +1451,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			ioLine.setQty(m_MovementQty);
 			ioLine.saveEx(get_TrxName());
 			// Manually Process Shipment
-			m_Receipt.processIt(DocAction.ACTION_Complete);
+			//	Added By Jorge Colmenarez, 2021-07-22 11:59
+			//	Support for get DocAction from SysConfig Variable
+			String docAction = MSysConfig.getValue("DOCACTION_INOUT_FROM_RECORDWEIHT", X_M_InOut.DOCACTION_Complete, getAD_Client_ID());
+			m_Receipt.processIt(docAction);
+			//	End Jorge Colmenarez
 			m_Receipt.saveEx(get_TrxName());
 
 			l_DocumentNo = "@M_InOut_ID@: " + m_Receipt.getDocumentNo();
@@ -1585,7 +1593,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				//
 				ioLine.saveEx(get_TrxName());
 				// Manually Process Shipment
-				m_Receipt.processIt(DocAction.ACTION_Complete);
+				//	Added By Jorge Colmenarez, 2021-07-22 11:59
+				//	Support for get DocAction from SysConfig Variable
+				String docAction = MSysConfig.getValue("DOCACTION_INOUT_FROM_RECORDWEIHT", X_M_InOut.DOCACTION_Complete, getAD_Client_ID());
+				m_Receipt.processIt(docAction);
+				//	End Jorge Colmenarez
 				m_Receipt.saveEx(get_TrxName());
 
 				lol[i].setConfirmedQty(m_MovementQty);
@@ -1740,8 +1752,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	private void completeShipment(MInOut m_Current_Shipment) {
 		if (m_Current_Shipment != null && m_Current_Shipment.getDocStatus().equals(X_M_InOut.DOCSTATUS_Drafted)) {
-			m_Current_Shipment.setDocAction(X_M_InOut.DOCACTION_Complete);
-			m_Current_Shipment.processIt(X_M_InOut.DOCACTION_Complete);
+			String docAction = MSysConfig.getValue("DOCACTION_INOUT_FROM_RECORDWEIHT", X_M_InOut.DOCACTION_Complete, getAD_Client_ID());
+			m_Current_Shipment.setDocAction(docAction);
+			m_Current_Shipment.processIt(docAction);
 			m_Current_Shipment.saveEx();
 		}
 	}
