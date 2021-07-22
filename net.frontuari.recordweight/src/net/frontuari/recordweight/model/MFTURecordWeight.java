@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -1629,6 +1630,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		StringBuffer msg = new StringBuffer();
 		int m_Created = 0;
 		//
+		if  (getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+			lines = getProductLine(lines);
+		}
 		for (MFTULoadOrderLine line : lines) {
 			// Valid Document Order and Business Partner
 			MOrderLine oLine = (MOrderLine) line.getC_OrderLine();
@@ -1929,6 +1933,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		return null;
 		
+	}
+	public MFTULoadOrderLine[] getProductLine (MFTULoadOrderLine[] allLines) {
+		ArrayList<MFTULoadOrderLine> prodLine = new ArrayList<MFTULoadOrderLine>();
+		for (int i = 0; i < allLines.length; i++) {
+			if(allLines[i].getM_Product_ID() == getM_Product_ID())
+			prodLine.add(allLines[i]);
+				
+			}
+		MFTULoadOrderLine[] newLines = new MFTULoadOrderLine[prodLine.size()];
+		prodLine.toArray(newLines);
+		return  newLines;
 	}
 
 }
