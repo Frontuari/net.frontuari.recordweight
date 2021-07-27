@@ -1133,9 +1133,9 @@ public class FTULoadOrder {
 				+ "AND lc.M_Warehouse_ID = ? "
 				+ "AND c.DocStatus = 'CO' "
 				+ "AND ("
-				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP')) "
+				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND lc.M_InOutLine_ID IS NULL) "
 				+ "			OR "
-				+ "			(c.IsMoved = 'N' AND c.OperationType = 'MOM')"
+				+ "			(c.IsMoved = 'N' AND c.OperationType = 'MOM' AND lc.M_MovementLine_ID IS NULL)"
 				+ "		)";
 		//	Query
 		BigDecimal m_QtyInTransit = DB.getSQLValueBD(null, sql, new Object[]{p_M_Product_ID, p_M_Warehouse_ID});
