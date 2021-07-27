@@ -438,7 +438,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		
 		Boolean isCreateShipment = docTypeLoadOrder.get_ValueAsBoolean("isCreateShipment");
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
-
+		int orderWithCharges = 0;
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
 
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
@@ -467,7 +467,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			int m_C_Charge_ID = orderLine.getC_Charge_ID();
 			int m_M_Product_ID = orderLine.getM_Product_ID();
 			// validate order has charges already created
-			int orderWithCharges = 0;
+			
 			BigDecimal rate = Env.ZERO;
 			BigDecimal m_Qty = m_FTU_LoadOrderLine.getQty();
 			
@@ -523,7 +523,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
 				ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
 				ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
-				ChargeInvLine.setQtyInvoiced(oLine.getQtyOrdered());
+				ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
 				ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
 				ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
 				BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
