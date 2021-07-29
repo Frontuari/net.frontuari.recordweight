@@ -431,7 +431,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	private String createInvoices() {
 
 		MFTULoadOrder m_FTU_LoadOrder = new MFTULoadOrder(getCtx(), p_FTU_LoadOrder_ID, get_TrxName());
-		Timestamp now = DB.getSQLValueTS(get_TrxName(), "Select now()");
+		Timestamp now = new Timestamp(System.currentTimeMillis());
 		if (m_FTU_LoadOrder.isInvoiced())
 			return "@FTU_LoadOrder_ID@ @IsInvoiced@";
 		MDocType docTypeLoadOrder = (MDocType) m_FTU_LoadOrder.getC_DocType();
@@ -518,36 +518,35 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 				//add charges to invoice david castillo 22/06/2021
 				if (orderWithCharges != m_Current_Order_ID) {
-				for (MOrderLine SalesOrderLine : order.getLines()) {
-					if (SalesOrderLine.getC_Charge_ID() > 0) {
-				MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
-				ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
-				ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
-				ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
-				ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
-				ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
-				BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
-						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
-								, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
-				if (price != null) {				
-					ChargeInvLine.setPrice(price);
-					ChargeInvLine.setPriceEntered(price);
-						}
-				
-				BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
-						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
-				 if (priceActual != null) {				
-					 ChargeInvLine.setPriceActual(priceActual);
-						}
-				 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
-				 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
-				 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
-				 ChargeInvLine.saveEx();
+					for (MOrderLine SalesOrderLine : order.getLines()) {
+						if (SalesOrderLine.getC_Charge_ID() > 0) {
+							MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
+							ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
+							ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
+							ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
+							ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
+							ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
+							BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
+									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
+											, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+							if (price != null) {			
+								ChargeInvLine.setPrice(price);
+								ChargeInvLine.setPriceEntered(price);
+							}
+							
+							BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
+									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+							 if (priceActual != null) {
+								 ChargeInvLine.setPriceActual(priceActual);
+							}
+							 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
+							 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
+							 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
+							 ChargeInvLine.saveEx();
 						}//only charges
 					}//all order lines
-				orderWithCharges = m_Current_Order_ID;
+					orderWithCharges = m_Current_Order_ID;
 				}
-				
 				//end charges
 				
 				if (oLine.getM_Product_ID() != 0) {
@@ -718,7 +717,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	 */
 	private void completeInvoice() {
 		if (m_Current_Invoice != null && m_Current_Invoice.getDocStatus().equals(X_C_Invoice.DOCSTATUS_Drafted)) {
-			System.out.println(m_Current_Invoice.get_ValueAsBoolean("isCreditApproved"));
 			m_Current_Invoice.setDocAction(p_DocAction);
 			m_Current_Invoice.processIt(p_DocAction);
 			m_Current_Invoice.saveEx();

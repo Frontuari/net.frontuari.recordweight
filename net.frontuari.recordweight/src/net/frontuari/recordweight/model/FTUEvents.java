@@ -41,7 +41,20 @@ public class FTUEvents extends FTUModelEvents {
 						MFTULoadOrderLine lin = 
 								new MFTULoadOrderLine(mInOutLine.getCtx(), p_FTU_LoadOrderLine_ID, mInOutLine.get_TrxName());
 						lin.setM_InOutLine_ID(0);
-						lin.setConfirmedQty(Env.ZERO);
+						//	Added by Jorge Colmenarez, 2021-07-29 14:14
+						//	Support for Substract QtyConfirmed when Operation Type it's DMP
+						if(lin.getFTU_LoadOrder().getOperationType().equalsIgnoreCase(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts))
+						{
+							MFTURecordWeight rw = new MFTURecordWeight(mInOutLine.getCtx(), inout.get_ValueAsInt("FTU_RecordWeight_ID"), mInOutLine.get_TrxName());
+							BigDecimal qtyCount = (BigDecimal) rw.get_Value("QtyCount");
+							if(qtyCount == null)
+								qtyCount = BigDecimal.ZERO;
+							BigDecimal newConfirmedQty = lin.getConfirmedQty().subtract(qtyCount);
+							lin.setConfirmedQty(newConfirmedQty);
+						}
+						else
+							lin.setConfirmedQty(Env.ZERO);
+						//	End Jorge Colmenarez
 						lin.saveEx();
 						
 						MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());

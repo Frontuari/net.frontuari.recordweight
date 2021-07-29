@@ -442,21 +442,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			{
 			/*	if(confirmedWeight.compareTo(line.getWeight()) >= 0)
 				{*/
-					line.setConfirmedWeight(confirmedWeight);
-					line.setIsConfirmed(true);
-					line.saveEx();
+				line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
+				line.setIsConfirmed(true);
+				line.saveEx();
 				firstUpdate = true;
 				//	confirmedWeight = confirmedWeight.subtract(line.getWeight());
 				//}
 				
 			}
 			if (!firstUpdate) {
-			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND ConfirmedWeight > 0 AND M_Product_ID = "+getM_Product_ID()))
-			{		//line.setConfirmedQty(line.getConfirmedQty().add());
-					line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
-					line.saveEx();
-					firstUpdate = false;
-			}
+				for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND ConfirmedWeight > 0 AND M_Product_ID = "+getM_Product_ID()))
+				{		//line.setConfirmedQty(line.getConfirmedQty().add());
+						line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
+						line.saveEx();
+						firstUpdate = false;
+				}
 			}
 			
 		}
@@ -779,7 +779,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			MFTULoadOrder lo = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
 			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND M_Product_ID = "+getM_Product_ID()))
 			{
-				line.setConfirmedWeight(BigDecimal.ZERO);
+				//	Added by Jorge Colmenarez, 2021-07-29 12:02
+				//	Support for Reactivate when has confirmend weight more that 0
+				BigDecimal newConfirmedWeight =line.getConfirmedWeight().subtract(getNetWeight());
+				if(newConfirmedWeight.compareTo(BigDecimal.ZERO)  <= 0)
+					newConfirmedWeight = BigDecimal.ZERO;
+				line.setConfirmedWeight(newConfirmedWeight);
+				//	End Jorge Colmenarez
 				line.setIsConfirmed(false);
 				line.saveEx(get_TrxName());
 			}
