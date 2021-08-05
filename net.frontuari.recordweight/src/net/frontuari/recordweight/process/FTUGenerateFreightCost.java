@@ -58,8 +58,8 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		if(!lo.get_ValueAsBoolean("IsDelivered"))
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));
 		
-		if(!lo.get_ValueAsBoolean("IsInvoiced"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));
+		/*if(!lo.get_ValueAsBoolean("IsInvoiced"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));*/
 		
 		if(getQtyFreightCostByLoadOrder(lo.get_ID()) > 0)
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgExistsFreightCostCompleted"));
@@ -91,7 +91,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				+ "	FROM FTU_LoadOrderLine as lol"
 				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID "
 				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID) "
-				+ "	JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
+				+ "	LEFT JOIN C_InvoiceLine as il on (il.C_OrderLine_ID = lol.C_OrderLine_ID) "
 				+ "	WHERE lol.FTU_LoadOrder_ID = ? "
 				+ "	GROUP BY miol.M_InOut_ID,il.C_Invoice_ID,lol.FTU_DeliveryRute_ID";
 		
