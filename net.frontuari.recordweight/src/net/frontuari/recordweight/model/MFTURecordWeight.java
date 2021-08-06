@@ -296,10 +296,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Valid Weight
 		boolean isValidWeight = true;
 		if (getOperationType().contentEquals(OPERATIONTYPE_OtherRecordWeight)) {
-			if (getNetWeight() == null 
-					|| getNetWeight().compareTo(Env.ZERO) < 0) {
+			if (getNetWeight() == null) {
 				isValidWeight = false;
-				m_processMsg = "@NetWeight@ <= 0";
+				m_processMsg = "@NetWeight@ null";
 				return DocAction.STATUS_Invalid;
 			}
 		}else {
@@ -308,7 +307,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			isValidWeight = false;
 			m_processMsg = "@NetWeight@ <= 0";
 			return DocAction.STATUS_Invalid;
-		}
+			}
 		}
 		
 
