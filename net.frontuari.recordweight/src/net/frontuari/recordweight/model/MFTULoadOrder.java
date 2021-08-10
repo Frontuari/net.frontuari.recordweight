@@ -8,19 +8,29 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MPeriod;
+import org.compiere.model.MQuery;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
+import org.compiere.model.PrintInfo;
 import org.compiere.model.Query;
+import org.compiere.print.MPrintFormat;
+import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
+import org.compiere.process.ProcessInfo;
+import org.compiere.process.ServerProcessCtl;
+import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 import org.compiere.util.Msg;
 
 /**
@@ -89,10 +99,25 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public File createPDF (File file)
 	{
-	//	ReportEngine re = ReportEngine.get (getCtx(), ReportEngine.INVOICE, getC_Invoice_ID());
-	//	if (re == null)
+		ReportEngine re = getDocumentPrintEngine (getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
+		if (re == null)
 			return null;
-	//	return re.getPDF(file);
+		MPrintFormat format = re.getPrintFormat();
+		// We have a Jasper Print Format
+		// ==============================
+		if(format.getJasperProcess_ID() > 0)
+		{
+			ProcessInfo pi = new ProcessInfo ("", format.getJasperProcess_ID());
+			pi.setRecord_ID ( getFTU_LoadOrder_ID());
+			pi.setIsBatch(true);
+			
+			ServerProcessCtl.process(pi, null);
+			
+			return pi.getPDFReport();
+		}
+		// Standard Print Format (Non-Jasper)
+		// ==================================
+		return re.getPDF(file);
 	}	//	createPDF
 
 	
@@ -1023,4 +1048,100 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		}
 		return true;
 	}//	End beforeSave
+	
+	/** Logger */
+	private static CLogger log = CLogger.getCLogger(MFTULoadOrder.class);
+	
+	/**************************************************************************
+	 * 	Get Document Print Engine for Withholding Document Type.
+	 *  @author Jorge Colmenarez, 2021-07-13 13:25, jcolmenarez@frontuari.net
+	 * 	@param ctx context
+	 * 	@param Record_ID id
+	 *  @param trxName
+	 * 	@return Report Engine or null
+	 */
+	public static ReportEngine getDocumentPrintEngine (Properties ctx, int Record_ID, String trxName)
+	{
+		if (Record_ID < 1)
+		{
+			log.log(Level.WARNING, "No PrintFormat for Record_ID=" + Record_ID);
+			return null;
+		}
+
+		int AD_PrintFormat_ID = 0;
+		int C_BPartner_ID = 0;
+		String DocumentNo = null;
+		int copies = 1;
+
+		//	Language
+		MClient client = MClient.get(ctx);
+		Language language = client.getLanguage();	
+		//	Get Document Info
+		StringBuilder sql = new StringBuilder("SELECT COALESCE(dt.AD_PrintFormat_ID, pf.AD_PrintFormat_ID),")
+				.append(" c.IsMultiLingualDocument,c.AD_Language,lo.DocumentNo ")
+				.append("FROM FTU_LoadOrder lo ")
+				.append(" INNER JOIN C_DocType dt ON (lo.C_DocType_ID=dt.C_DocType_ID)")
+				.append(" INNER JOIN AD_Client c ON (lo.AD_Client_ID=c.AD_Client_ID),")
+				.append(" AD_PrintFormat pf ")
+				.append("WHERE pf.AD_Client_ID IN (0,lo.AD_Client_ID)")
+				.append(" AND pf.AD_Table_ID="+Table_ID+" AND (pf.IsTableBased='N' OR pf.AD_PrintFormat_ID = dt.AD_PrintFormat_ID)")	//	from FTU_LoadOrder 
+				.append(" AND lo.FTU_LoadOrder_ID=? ")				//	Info from FTU_LoadOrder
+				.append("ORDER BY dt.AD_PrintFormat_ID, pf.AD_Client_ID DESC, pf.AD_Org_ID DESC");
+		//
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql.toString(), trxName);
+			pstmt.setInt(1, Record_ID);
+			rs = pstmt.executeQuery();
+			if (rs.next())	//	first record only
+			{
+				AD_PrintFormat_ID = rs.getInt(1);
+				copies = 1;
+				//	Set Language when enabled
+				String AD_Language = rs.getString(3);
+				if (AD_Language != null)// && "Y".equals(rs.getString(2)))	//	IsMultiLingualDocument
+					language = Language.getLanguage(AD_Language);
+				C_BPartner_ID = 0;
+				DocumentNo = rs.getString(4);
+			}
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Record_ID=" + Record_ID + ", SQL=" + sql, e);
+		}
+		finally {
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		if (AD_PrintFormat_ID == 0)
+		{
+			log.log(Level.SEVERE, "No PrintFormat found for Record_ID=" + Record_ID);
+			return null;
+		}
+
+		//	Get Format & Data
+		MPrintFormat format = MPrintFormat.get (ctx, AD_PrintFormat_ID, false);
+		format.setLanguage(language);		//	BP Language if Multi-Lingual
+		format.setTranslationLanguage(language);
+		//	query
+		MQuery query = new MQuery(format.getAD_Table_ID());
+		query.addRestriction("FTU_LoadOrder_ID", MQuery.EQUAL, Record_ID);
+		//
+		if (DocumentNo == null || DocumentNo.length() == 0)
+			DocumentNo = "DocPrint";
+		PrintInfo info = new PrintInfo(
+			DocumentNo,
+			Table_ID,
+			Record_ID,
+			C_BPartner_ID);
+		info.setCopies(copies);
+		info.setDocumentCopy(false);		//	true prints "Copy" on second
+		info.setPrinterName(format.getPrinterName());
+		
+		//	Engine
+		ReportEngine re = new ReportEngine(ctx, format, query, info, trxName);
+		return re;
+	}	//	getDocumentPrintEngine	
 }
