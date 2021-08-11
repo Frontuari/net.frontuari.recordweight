@@ -572,7 +572,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		} else if ((getTareWeight() == null || getTareWeight().compareTo(Env.ZERO) == 0) && !isI_IsImported()) {
 			m_processMsg = "@TareWeight@ = @0@";
 			return (!isSOTrx() ? DocAction.STATUS_InProgress : DocAction.STATUS_Invalid);
-		} else if (getNetWeight().compareTo(Env.ZERO) < 0) {
+		} else if (getNetWeight().compareTo(Env.ZERO) < 0 && !getOperationType().equalsIgnoreCase(OPERATIONTYPE_OtherRecordWeight)) {
 			m_processMsg = "@NetWeight@ < @0@";
 			return DocAction.STATUS_Invalid;
 		}
