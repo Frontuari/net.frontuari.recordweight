@@ -15,7 +15,6 @@ import org.compiere.model.MClientInfo;
 import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
-import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
@@ -41,6 +40,7 @@ import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.util.ProcessBuilder;
 import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.model.MFTUInOut;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTURecordWeight;
@@ -54,7 +54,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 	private int p_FTU_LoadOrder_ID = -1;
 	/** Current Shipment */
-	private MInOut m_Current_Shipment = null;
+	private MFTUInOut m_Current_Shipment = null;
 	/** Current Warehouse */
 	private int m_Current_Warehouse_ID = 0;
 	/** Current Business Partner */
@@ -267,7 +267,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				if (m_Current_BPartner_ID == 0)
 					throw new AdempiereException("@C_BPartner_ID@ @NotFound@");
 				// Create Shipment From Order
-				m_Current_Shipment = new MInOut(order, p_C_DocType_ID, p_MovementDate);
+				m_Current_Shipment = new MFTUInOut(order, p_C_DocType_ID, p_MovementDate);
 				m_Current_Shipment.setDateAcct(p_MovementDate);
 				//m_Current_Shipment.setAD_Org_ID(warehouse.getAD_Org_ID());
 				m_Current_Shipment.setAD_OrgTrx_ID(warehouse.getAD_Org_ID());

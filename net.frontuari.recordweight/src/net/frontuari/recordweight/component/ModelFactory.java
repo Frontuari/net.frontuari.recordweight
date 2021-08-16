@@ -43,6 +43,7 @@ import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUDriver;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTUInOut;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTUMobilizationGuide;
@@ -58,11 +59,8 @@ import net.frontuari.recordweight.model.MFTUWeightScale;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 import net.frontuari.recordweight.model.MHRSQualityParameter;
 import net.frontuari.recordweight.model.X_FTU_RW_ApprovalMotive;
-import net.frontuari.recordweight.model.X_FTU_ScreenConfig;
-import net.frontuari.recordweight.model.X_FTU_SerialPortConfig;
 import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
-import net.frontuari.recordweight.model.X_HRS_QualityParameter;
 import net.frontuari.recordweight.model.X_I_EntryTicket;
 
 /**
@@ -104,6 +102,7 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);
 		registerModel(X_I_EntryTicket.Table_Name, X_I_EntryTicket.class);
 		registerModel(MFTUMovement.Table_Name, MFTUMovement.class);
+		registerModel(MFTUInOut.Table_Name, MFTUInOut.class);
 	}
 
 }
