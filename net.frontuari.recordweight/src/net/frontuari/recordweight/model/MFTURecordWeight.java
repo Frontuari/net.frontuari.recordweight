@@ -5,6 +5,7 @@ package net.frontuari.recordweight.model;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -41,6 +42,8 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+
+import net.frontuari.recordweight.form.FTULoadOrder;
 
 
 /**
@@ -662,6 +665,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		//
 		addDescription(Msg.getMsg(getCtx(), "Voided"));
+		updateVoidedLine();
 		// After Void
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_VOID);
 		if (m_processMsg != null)
@@ -672,7 +676,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
 			setVoidItToMMovmenete(et);
 		}
-
+		
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
 		return true;
@@ -1951,5 +1955,14 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		prodLine.toArray(newLines);
 		return  newLines;
 	}
-
+	public void updateVoidedLine() {
+		String sql = "SELECT FTU_LoadOrderLine_ID FROM FTU_LoadOrderLine WHERE FTU_LoadOrder_ID = ? AND M_Product_ID = ?";
+		
+		int LoadOrderLine_ID = DB.getSQLValue(get_TrxName(), sql,getFTU_LoadOrder_ID(),getM_Product_ID());
+		if (LoadOrderLine_ID > 0) {
+			MFTULoadOrderLine line = new MFTULoadOrderLine(getCtx(), LoadOrderLine_ID, this.get_TrxName());
+			line.setConfirmedWeight(line.getConfirmedWeight().subtract(getNetWeight()));
+			line.saveEx();
+			}
+	}
 }
