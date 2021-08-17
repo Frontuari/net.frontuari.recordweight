@@ -27,9 +27,7 @@ public class ChangePrintedStatusRecordWeight extends FTUProcess {
 	protected void prepare() {
 		p_Record_ID = getRecord_ID();
 
-		String sql = " update FTU_RecordWeight set isprinted = 'Y' WHERE FTU_RecordWeight_ID = "    + p_Record_ID;
-		
-		System.out.println(sql); 
+		String sql = " update FTU_RecordWeight set isprinted = 'Y' WHERE FTU_RecordWeight_ID = "    + p_Record_ID; 
 		
 		PreparedStatement pstmt = null;
 		pstmt = DB.prepareStatement(sql, get_TrxName());

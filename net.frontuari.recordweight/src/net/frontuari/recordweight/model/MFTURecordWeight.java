@@ -27,7 +27,6 @@ import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
 import org.compiere.model.MWarehouse;
-import org.compiere.model.M_Registration;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.Query;
@@ -622,7 +621,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (m_docstatus.isBlank() || m_docstatus.equals("DR")) {
 				throw new AdempiereException(" Analisis, " + m_documentno + " no Completado ");
 			}
-//			System.out.println("no Valido");
 			throw new AdempiereException(" Analisis, " + m_documentno + " no Valido");
 		}
 
@@ -1495,7 +1493,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_Receipt.processIt(docAction);
 			//	End Jorge Colmenarez
 			m_Receipt.saveEx(get_TrxName());
-			System.out.println(m_Receipt.getDocStatus());
 			l_DocumentNo = "@M_InOut_ID@: " + m_Receipt.getDocumentNo();
 		}
 		// Delivery Bulk Material
@@ -1884,8 +1881,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			MDDOrder ddo = new MDDOrder(getCtx(), et.get_ValueAsInt("DD_Order_ID"), get_TrxName());
 			MDocType dt = new MDocType(getCtx(), ddo.getC_DocType_ID(), get_TrxName());
 			
-			System.out.println(dt.get_Value("IsMovementAutomatic"));
-			
 			if(dt.get_ValueAsBoolean("IsMovementAutomatic")) {
 				
 				MMovement mv = new MMovement(getCtx() , 0, get_TrxName());
@@ -1906,10 +1901,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					mml.setLine(ddol.getLine());
 					mml.setM_Product_ID(ddol.getM_Product_ID());
 					mml.setM_Locator_ID(ddol.getM_Locator_ID());
-					mml.setDD_OrderLine_ID(ddol.get_ID());
-					
-					System.out.println(getFTU_Chute_ID());
-					
+					mml.setDD_OrderLine_ID(ddol.get_ID());					
 					if(getFTU_Chute_ID() > 0) {
 						mml.setM_LocatorTo_ID(getFTU_Chute().getM_Locator_ID());
 					}else {
