@@ -351,14 +351,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Quantity
 				if (product.get_ValueAsBoolean("isBulk")) {	
 					shipmentLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
-					shipmentLine.setQty(m_Qty);
-					shipmentLine.setQtyEntered(m_Qty);
+					shipmentLine.setQty(m_FTU_LoadOrderLine.getQty());
+					shipmentLine.setQtyEntered(m_FTU_LoadOrderLine.getQty());
 					shipmentLine.setMovementQty(m_ConfirmedWeight);
 				}else if (!product.get_ValueAsBoolean("isBulk")) {
 					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
-					shipmentLine.setQty(oLine.getQtyEntered());
-					shipmentLine.setQtyEntered(oLine.getQtyEntered());
-					shipmentLine.setMovementQty(oLine.getQtyOrdered());
+					shipmentLine.setQty(m_FTU_LoadOrderLine.getQty());
+					shipmentLine.setQtyEntered(m_FTU_LoadOrderLine.getQty());
+					shipmentLine.setMovementQty(m_FTU_LoadOrderLine.getQty());
 				}
 				shipmentLine.setM_Locator_ID(m_Qty);
 				// Save Line
@@ -610,8 +610,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 								invoiceLine.setQtyEntered(line.getConfirmedQty());
 								invoiceLine.setQtyInvoiced(line.getConfirmedWeight());							
 							}else if (!product.get_ValueAsBoolean("IsBulk")) {
-								invoiceLine.setQtyEntered(oLine.getQtyEntered());
-								invoiceLine.setQtyInvoiced(oLine.getQtyOrdered());
+								invoiceLine.setQtyEntered(line.getQty());
+								invoiceLine.setQtyInvoiced(line.getQty());
 							}
 						}
 						
