@@ -29,6 +29,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 	
 	BigDecimal FTU_Capacity;
 	BigDecimal FTU_Diference;
+	Timestamp P_DateConvertion;
 	@Override
 	protected void prepare() {
 		for (ProcessInfoParameter para:getParameter()){
@@ -40,6 +41,8 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				p_FTU_AdjustPrice = para.getParameterAsString();
 			else if(name.equals("qtyCalc"))
 				p_qtyCalc = para.getParameterAsBigDecimal();
+			else if(name.equals("DateFrom"))
+				P_DateConvertion = para.getParameterAsTimestamp();
 		}
 	}
 
@@ -120,7 +123,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
 						+ "	(CurrencyConvert((CASE WHEN ? >= ValueMax::numeric THEN pft.PriceActual ELSE pft.Price END),pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
+						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, P_DateConvertion,p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
 				
 				if(price == null)
 				{
