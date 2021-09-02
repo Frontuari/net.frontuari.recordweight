@@ -4,6 +4,7 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 
 import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTUVehicle;
@@ -111,6 +112,31 @@ public class EntryTicketChange extends FTUProcess {
 			//	Updated
 			m_Updated ++;
 		}
+		
+		//	Added by Jorge Colmenarez, 2021-08-31 16:02
+		//	Update Bill of Lading
+		MFTUBillOfLading[] bols = m_FTU_EntryTicket.getBillOfLading(null);
+		for(MFTUBillOfLading bol : bols)
+		{
+			//	Change Shipper
+			if(p_M_Shipper_ID != 0) {
+				bol.setM_Shipper_ID(p_M_Shipper_ID);
+			}
+			//	Change Driver
+			if(p_FTU_Driver_ID != 0) {
+				bol.setFTU_Driver_ID(p_FTU_Driver_ID);
+			}
+			//	Change Driver
+			if(p_FTU_Vehicle_ID != 0) {
+				bol.setFTU_Vehicle_ID(p_FTU_Vehicle_ID);
+			}
+			bol.saveEx();
+			//	Add Log
+			addLog("@FTU_BillOfLading_ID@ " + bol.getDocumentNo() + " @Updated@");
+			//	Updated
+			m_Updated ++;
+		}
+		//	End Jorge Colmenarez
 		//	Return
 		return "@Updated@ " + m_Updated;
 	}

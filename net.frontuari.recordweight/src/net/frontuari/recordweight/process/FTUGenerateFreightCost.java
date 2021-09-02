@@ -55,8 +55,8 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
 		int CurrencyID = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 		
-		if(!lo.get_ValueAsBoolean("IsDelivered"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));
+		/*if(!lo.get_ValueAsBoolean("IsDelivered"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));*/
 		
 		/*if(!lo.get_ValueAsBoolean("IsInvoiced"))
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));*/
@@ -90,7 +90,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				+ "	SUM(COUNT(distinct mio.m_inout_id)) over (partition by lol.FTU_DeliveryRute_ID) AS QtyTravel "
 				+ "	FROM FTU_LoadOrderLine as lol"
 				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID "
-				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID) "
+				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID AND mio.DocStatus = 'CO') "
 				+ "	LEFT JOIN C_InvoiceLine as il on (il.C_OrderLine_ID = lol.C_OrderLine_ID) "
 				+ "	WHERE lol.FTU_LoadOrder_ID = ? "
 				+ "	GROUP BY miol.M_InOut_ID,il.C_Invoice_ID,lol.FTU_DeliveryRute_ID";
