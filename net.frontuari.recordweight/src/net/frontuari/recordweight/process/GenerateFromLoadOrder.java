@@ -651,7 +651,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				}
 				invoiceLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());
 	
-				BigDecimal rateWeight = line.getConfirmedWeight().divide(line.getQty(),2,RoundingMode.HALF_UP);
+				//BigDecimal rateWeight = line.getConfirmedWeight().divide(line.getQty(),2,RoundingMode.HALF_UP);
 				
 				BigDecimal price = MConversionRate.convert(getCtx(), oLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
@@ -669,16 +669,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 				BigDecimal priceActual = MConversionRate.convert(getCtx(), oLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
 						(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
-				//	Added By Jorge Colmenarez, 2021-06-17 15:11
-				//	Set value isconverted
-				if(oLine.getC_Currency_ID()!=m_Current_Invoice.getC_Currency_ID())
-					invoiceLine.set_ValueOfColumn("IsConverted", "Y");
-				//	End Jorge Colmenarez
 				if (priceActual != null) {
 					if (product.get_ValueAsBoolean("isBulk") & isCreateShipment) {
 						invoiceLine.setPriceActual(priceActual);
-					}else if (product.get_ValueAsBoolean("isBulk") & !isCreateShipment){
-						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));		
 					}else {
 						invoiceLine.setPriceActual(priceActual);	
 					}
