@@ -24,6 +24,7 @@ public class FTUEvents extends FTUModelEvents {
 
 	@Override
 	protected void doHandleEvent() {
+		System.out.println("entro");
 		if(getEventType().equals(IEventTopics.DOC_AFTER_VOID)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSECORRECT)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSEACCRUAL)) {

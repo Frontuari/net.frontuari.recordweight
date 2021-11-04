@@ -20,7 +20,8 @@ Require-Bundle: org.apache.commons.lang3,
  zweb,
  slf4j.api,
  org.adempiere.ui
-Import-Package: org.apache.ecs.xhtml,
+Import-Package: net.frontuari.mfta.model,
+ org.apache.ecs.xhtml,
  org.compiere.grid,
  org.compiere.minigrid,
  org.osgi.service.event

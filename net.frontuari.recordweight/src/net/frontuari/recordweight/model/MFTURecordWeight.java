@@ -5,12 +5,25 @@ package net.frontuari.recordweight.model;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import net.frontuari.mfta.model.MFTULab_Cultive_Result;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MDocType;
@@ -40,6 +53,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+
 /**
  *
  */
@@ -252,6 +266,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return status;
 		}
 		
+		
+		
+		//Leonardo melendez
+
+		
+		
 		//	Added by Jorge Colmenarez, 2021-06-30 10:36
 		//	Support for Validate NetWeigth Tolerance
 		int tolerance = MSysConfig.getIntValue("FTU_RW_TOLERANCE", 0,getAD_Client_ID());
@@ -434,6 +454,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * Support for update Load Order when Operation Type it's DMP
 	 * @return String
 	 */
+
 	private String updateLoadOrder() {
 		// Valid Operation Type
 		if (!getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
@@ -528,6 +549,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return String
 	 */
 	private String calculatePayWeight() {
+		System.out.println("entro2");
 		setPayWeight(getNetWeight());
 		return null;
 	}
@@ -538,7 +560,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return
 	 * @return String
 	 */
-	private String validWeight() {
+	private String validWeight() {/*
 		// Valid Weight
 		if ((getGrossWeight() == null || getGrossWeight().compareTo(Env.ZERO) == 0) && !isI_IsImported()) {
 			m_processMsg = "@GrossWeight@ = @0@";
@@ -550,6 +572,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_processMsg = "@NetWeight@ < @0@";
 			return DocAction.STATUS_Invalid;
 		}
+		*/
 		return null;
 	}
 
@@ -1039,7 +1062,46 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 		return index;
 	}
-
+	@Override
+	protected boolean afterSave(boolean newRecord, boolean success) {
+		Object InWeight=get_Value("InWeight");
+		Object outWeight=get_Value("OutWeight");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		
+		System.out.println(InWeight);
+		System.out.println(outWeight);
+		//if(InWeight!=null) {
+			set_Value("InDate", timestamp);
+		//}
+		//if(outWeight!=null) {
+			set_Value("OutDate", timestamp);
+		//}
+		
+		
+		
+		return super.afterSave(newRecord, success);
+	}
+	String procesarResultadoHumano(String data){
+		
+		//data=data.replaceAll("true", "VERDADERO");
+		//data=data.replaceAll("", "");
+		return data.toUpperCase();
+		
+	}
+	private ResultSet q(String sql) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		pstmt = DB.prepareStatement(sql, null);
+		try {
+			rs = pstmt.executeQuery();
+			return rs;
+		} catch (SQLException e) {		
+			e.printStackTrace();
+			return null;
+			
+		}	
+	}
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
 		super.beforeSave(newRecord);
