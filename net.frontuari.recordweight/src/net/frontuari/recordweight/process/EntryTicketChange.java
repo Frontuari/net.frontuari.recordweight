@@ -7,6 +7,7 @@ import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
+import net.frontuari.recordweight.model.MFTURecordWeight;
 import net.frontuari.recordweight.model.MFTUVehicle;
 import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 
@@ -133,6 +134,27 @@ public class EntryTicketChange extends FTUProcess {
 			bol.saveEx();
 			//	Add Log
 			addLog("@FTU_BillOfLading_ID@ " + bol.getDocumentNo() + " @Updated@");
+			//	Updated
+			m_Updated ++;
+		}
+		//	End Jorge Colmenarez
+		
+		//	Added by Jorge Colmenarez, 2021-10-28 14:37
+		//	Update Record Weight
+		MFTURecordWeight[] rws = m_FTU_EntryTicket.getRecordWeight(null);
+		for(MFTURecordWeight rw : rws)
+		{
+			//	Change Driver
+			if(p_FTU_Driver_ID != 0) {
+				rw.setFTU_Driver_ID(p_FTU_Driver_ID);
+			}
+			//	Change Driver
+			if(p_FTU_Vehicle_ID != 0) {
+				rw.setFTU_Vehicle_ID(p_FTU_Vehicle_ID);
+			}
+			rw.saveEx();
+			//	Add Log
+			addLog("@FTU_BillOfLading_ID@ " + rw.getDocumentNo() + " @Updated@");
 			//	Updated
 			m_Updated ++;
 		}
