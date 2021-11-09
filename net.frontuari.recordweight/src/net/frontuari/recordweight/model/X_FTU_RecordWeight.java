@@ -894,6 +894,10 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
+	/** Material Output Movement = MOM */
+	public static final String OPERATIONTYPE_MultipleProductMovement = "MMP";
+	
+	
 	/** Set OperationType.
 		@param OperationType OperationType	  */
 	public void setOperationType (String OperationType)

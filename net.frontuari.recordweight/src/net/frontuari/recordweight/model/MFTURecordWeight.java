@@ -364,6 +364,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				// || getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
 				// added by david castillo new support for INPORCA 17/06/2021
+				// added by Armando Rojas support for MMP 08/11/2021 K
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
 			// Generate Material Recei	pt
@@ -392,7 +393,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		
 		// Add support for generating inventory movements
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) && isGenerateMovement) {
+		else if (
+				( getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) 
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) /*Added by: Armando Rojas*/ 
+				&& isGenerateMovement) {
 			String msg = createMovement();
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
@@ -425,7 +429,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Valid Operation Type
 		if (!getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				&& !getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
+				// Added by Armando Rojas
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
 				//	Added by Jorge Colmenarez
 				&& !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 			return null;
@@ -629,7 +635,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//
 		if (getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
-				|| getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+				|| getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /* Added By: Armando Rojas*/
+				) {
 			// Valid QualityAnalysis Reference
 			m_processMsg = validQAReference();
 			if (m_processMsg != null)
@@ -650,14 +658,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
+		) {
 			// Reverse In/Out
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
 				return false;
 		}
 		// Add support for reactivate Movement
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) 
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /*Added By: Armando Rojas*/  ) {
 			// Reverse Movement
 			m_processMsg = reverseMovement();
 			if (m_processMsg != null)
@@ -763,14 +774,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /*Added by: Armando Rojas*/
+			) {
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
 				return false;
 		}
 
 		// Add support for reactivate Movement
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
+				) {
 			// Reverse Movement
 			m_processMsg = reverseMovement();
 			if (m_processMsg != null)
@@ -1053,7 +1068,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		else if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryFinishedProduct)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement)
-				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /* Added By: Armando Rojas*/
+				) {
 
 			/*
 			 * If Operation Type In Delivery Bulk Material, Delivery Finished Product Or
