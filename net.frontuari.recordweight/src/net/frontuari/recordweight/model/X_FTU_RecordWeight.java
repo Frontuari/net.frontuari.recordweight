@@ -437,6 +437,20 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 			 return 0;
 		return ii.intValue();
 	}
+	
+
+	
+	/** Get Record Weight.
+	@return Record Weight	  */
+	public int getFTU_RecordWeight_Source () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_RecordWeightSource_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+
 
 	/** Set FTU_RecordWeight_UU.
 		@param FTU_RecordWeight_UU FTU_RecordWeight_UU	  */
@@ -894,7 +908,7 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
-	/** Material Output Movement = MOM */
+	/** Material Output Movement = MMP */
 	public static final String OPERATIONTYPE_MultipleProductMovement = "MMP";
 	
 	

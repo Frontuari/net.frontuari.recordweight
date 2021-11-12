@@ -243,6 +243,9 @@ public interface I_FTU_RecordWeight
 
     /** Column name FTU_RecordWeight_ID */
     public static final String COLUMNNAME_FTU_RecordWeight_ID = "FTU_RecordWeight_ID";
+    
+    /** Column name FTU_RecordWeightSource_ID */
+    public static final String COLUMNNAME_FTU_RecordWeightSource_ID = "FTU_RecordWeightSource_ID";
 
 	/** Set Record Weight	  */
 	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID);

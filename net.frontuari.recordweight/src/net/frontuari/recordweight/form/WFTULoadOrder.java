@@ -1409,7 +1409,6 @@ public class WFTULoadOrder extends FTULoadOrder
 			stockModel.add(line);
 		}
 	}
-	
 	/**
 	 * Print Document
 	 * @return void

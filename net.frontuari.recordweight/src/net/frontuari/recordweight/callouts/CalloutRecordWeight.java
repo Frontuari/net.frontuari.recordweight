@@ -10,6 +10,7 @@ import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.zkoss.util.logging.Log;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;

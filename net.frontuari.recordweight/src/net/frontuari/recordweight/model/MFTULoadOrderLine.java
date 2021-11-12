@@ -43,6 +43,15 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		super(ctx, rs, trxName);
 	}
 	
+	public boolean isBulk() {
+		MProduct m_Product = MProduct.get(getCtx(), getM_Product_ID());
+		boolean isBulk = true;
+		
+		if(m_Product.get_Attribute("isbulk").equals("N") ) isBulk = false; 
+		
+		return isBulk; 
+	}
+	
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
 		MProduct m_Product = MProduct.get(getCtx(), getM_Product_ID());
