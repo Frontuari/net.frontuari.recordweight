@@ -838,6 +838,8 @@ public class X_FTU_LoadOrder extends PO implements I_FTU_LoadOrder, I_Persistent
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
+	/** Movement Multiple Product = MMP**/
+	public static final String OPERATIONTYPE_MovementMultipleProduct = "MMP";
 	/** Set OperationType.
 		@param OperationType OperationType	  */
 	public void setOperationType (String OperationType)
