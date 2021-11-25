@@ -1360,8 +1360,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		if (!getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) {
 			// Complete Movement
-			System.out.println("# Test: Completa el movimiento"); 
-			completeMovement(m_Current_Movement);
+			// System.out.println("# Test: Completa el movimiento"); 
+			//completeMovement(m_Current_Movement);
 		}else if(!productSelect) {
 			m_processMsg = "@M_Product_ID@ @NotFound@";
 			return null;
@@ -1392,6 +1392,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}
 	}
+	
 
 	/**
 	 * Create a Material Receipt from the Record Weight
