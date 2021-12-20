@@ -190,7 +190,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
 
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
-
+			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
+				addLog(" La orden " + order.getDocumentNo() + " Está Anulada/Reversada/Cerrada");
+				continue;
+			}
 			// Valid Document Order and Business Partner
 			int m_C_BPartner_ID = order.getC_BPartner_ID();
 			int m_M_Warehouse_ID = order.getM_Warehouse_ID();
@@ -442,7 +445,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
 
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
-			
+			//added by david castillo 20/12/2021 check if confirmedQty = 0
+			if (m_FTU_LoadOrderLine.getConfirmedQty().compareTo(Env.ZERO) <= 0)
+				continue;
 			if(order.isInvoiced())
 				return "@C_Order_ID@ @IsInvoiced@";
 			// Valid Purchase Order and Business Partner
