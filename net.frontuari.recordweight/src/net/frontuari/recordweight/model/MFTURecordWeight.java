@@ -374,7 +374,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		log.info(toString());
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
-				// || getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
+				//|| getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
 				// added by david castillo new support for INPORCA 17/06/2021
 				// added by Armando Rojas support for MMP 08/11/2021 K
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
@@ -415,6 +415,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			else
 				m_processMsg = msg;
 		}
+		
+		/*
+		 * Check if M_InOut Related is completed
+		 */
+		
+		int InOutsPending = 0;
+		
+		String sql = "SELECT COUNT(M_InOut_ID) FROM M_InOut where IsSOTrx = 'Y' AND DocStatus NOT IN ('CO','CL','VO','RE') AND FTU_RecordWeight_ID = " + getFTU_RecordWeight_ID();
+		
+		InOutsPending = DB.getSQLValue(get_TrxName(), sql);
+		if (InOutsPending > 0) {
+			m_processMsg = m_processMsg + " Este registro de peso posee una entrega no completada";
+			return DocAction.STATUS_Invalid;
+		}
+		
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null) {
 			m_processMsg = valid;
