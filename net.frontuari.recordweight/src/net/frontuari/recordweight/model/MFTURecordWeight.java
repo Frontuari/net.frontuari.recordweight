@@ -426,7 +426,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		InOutsPending = DB.getSQLValue(get_TrxName(), sql);
 		if (InOutsPending > 0) {
-			m_processMsg = m_processMsg + " Este registro de peso posee una entrega no completada";
+			m_processMsg = m_processMsg + " No puede ser completado debido a que no se dispone de inventario suficiente";
 			return DocAction.STATUS_Invalid;
 		}
 		
