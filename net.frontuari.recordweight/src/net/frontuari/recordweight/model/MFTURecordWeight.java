@@ -5,25 +5,13 @@ package net.frontuari.recordweight.model;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import net.frontuari.mfta.model.MFTULab_Cultive_Result;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MDocType;
@@ -54,6 +42,7 @@ import org.compiere.util.Msg;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
 
+
 /**
  *
  */
@@ -72,7 +61,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @param trxName
 	 */
 	public MFTURecordWeight(Properties ctx, int FTU_RecordWeight_ID, String trxName) {
+		
 		super(ctx, FTU_RecordWeight_ID, trxName);
+		log.info("Iniciar ");
 	}
 
 	/**
@@ -84,6 +75,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	public MFTURecordWeight(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
+		log.info("Iniciar 2 ");
 	}
 
 	/**
@@ -132,6 +124,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return true if performed
 	 */
 	public boolean processIt(String processAction) {
+		log.info("Message processIT");
 		m_processMsg = null;
 		DocumentEngine engine = new DocumentEngine(this, getDocStatus());
 		return engine.processIt(processAction, getDocAction());
@@ -179,7 +172,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 		
-		if(!getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+		if(!getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts) 
+		 && !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) )
 			m_processMsg = validETReferenceDuplicated();
 		
 		if (m_processMsg != null)
@@ -213,7 +207,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 			}			
 		}
-		
 		// Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -221,6 +214,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		m_justPrepared = true;
 		if (!DOCACTION_Complete.equals(getDocAction()))
 			setDocAction(DOCACTION_Complete);
+		
 		return DocAction.STATUS_InProgress;
 	} // prepareIt
 
@@ -259,47 +253,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return new status (Complete, In Progress, Invalid, Waiting ..)
 	 */
 	public String completeIt() {
+		
 		// Re-Check
 		if (!m_justPrepared) {
 			String status = prepareIt();
 			if (!DocAction.STATUS_InProgress.equals(status))
 				return status;
 		}
-		
-		
-		
-		//Leonardo melendez
-
-		
-		
-		//	Added by Jorge Colmenarez, 2021-06-30 10:36
-		//	Support for Validate NetWeigth Tolerance
-		int tolerance = MSysConfig.getIntValue("FTU_RW_TOLERANCE", 0,getAD_Client_ID());
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt) && !isApproved())
-		{
-			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
-			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
-					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
-			{
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
-				return DocAction.STATUS_WaitingConfirmation;
-			}
-		}
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryFinishedProduct) && !isApproved())
-		{
-			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
-			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
-					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
-			{
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
-				return DocAction.STATUS_WaitingConfirmation;
-			}
-		}
-		//	End Jorge Colmenarez
 
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
+		
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 
@@ -359,17 +322,23 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
 			
+			System.out.println(getFTU_LoadOrder().getM_Product());
+			
 			//if(getHRS_Analysis_ID() <= 0) {
 				if(getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 						&& getFTU_LoadOrder().getM_Product().getM_AttributeSet_ID() <= 0) {
 					
 				} else {
+				
+			boolean requiresAnalysys = MSysConfig.getBooleanValue("FTU_REQUIRES_ANALYSIS", false, getAD_Client_ID());
+			if(requiresAnalysys) {
 					int p_HRS_Analysis_ID = MHRSAnalysis.getByEntryTicket(getFTU_EntryTicket_ID());
 					System.out.println(p_HRS_Analysis_ID);
 					if(p_HRS_Analysis_ID > 0) {
 						setHRS_Analysis_ID(p_HRS_Analysis_ID);
 					}else {
 						throw new AdempiereException("No Existe un Analisis Valido Asociado al Ticket de Entrada!!");
+						}
 					}
 				}
 			//}
@@ -398,8 +367,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				// || getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
+				// added by david castillo new support for INPORCA 17/06/2021
+				// added by Armando Rojas support for MMP 08/11/2021 K
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
-			// Generate Material Receipt
+			// Generate Material Recei	pt
 			String msg = createInOut();
 			//
 			if (m_processMsg != null)
@@ -425,7 +397,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		
 		// Add support for generating inventory movements
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) && isGenerateMovement) {
+		else if (
+				( getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) 
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) /*Added by: Armando Rojas*/ 
+				&& isGenerateMovement) {
 			String msg = createMovement();
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
@@ -454,17 +429,19 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * Support for update Load Order when Operation Type it's DMP
 	 * @return String
 	 */
-
 	private String updateLoadOrder() {
 		// Valid Operation Type
 		if (!getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				&& !getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
+				// Added by Armando Rojas
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
 				//	Added by Jorge Colmenarez
 				&& !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 			return null;
 		// Get Orders From Load Order
 		MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
+	
 		if (lo == null || lo.get_ID() <= 0) {
 			return "@FTU_LoadOrder_ID@ @NotFound@";
 		}
@@ -472,27 +449,30 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//	Apply validations by products
 		
 		BigDecimal confirmedWeight = getNetWeight();
-		
+		Boolean firstUpdate = false;
 		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
 		{
 			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
 			{
 			/*	if(confirmedWeight.compareTo(line.getWeight()) >= 0)
 				{*/
-					line.setConfirmedWeight(confirmedWeight);
-					line.setIsConfirmed(true);
-					line.saveEx();
+				line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
+				line.setIsConfirmed(true);
+				line.saveEx();
+				firstUpdate = true;
+				//	confirmedWeight = confirmedWeight.subtract(line.getWeight());
+				//}
 				
-					confirmedWeight = confirmedWeight.subtract(line.getWeight());
-			/*	}
-				else
-				{
-					line.setConfirmedWeight(confirmedWeight);
-					line.setIsConfirmed(true);
-					line.saveEx();
-					confirmedWeight = BigDecimal.ZERO;
-				}*/
 			}
+			if (!firstUpdate) {
+				for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND ConfirmedWeight > 0 AND M_Product_ID = "+getM_Product_ID()))
+				{		//line.setConfirmedQty(line.getConfirmedQty().add());
+						line.setConfirmedWeight(line.getConfirmedWeight().add(confirmedWeight));
+						line.saveEx();
+						firstUpdate = false;
+				}
+			}
+			
 		}
 		
 		//
@@ -549,7 +529,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return String
 	 */
 	private String calculatePayWeight() {
-		System.out.println("entro2");
 		setPayWeight(getNetWeight());
 		return null;
 	}
@@ -560,7 +539,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return
 	 * @return String
 	 */
-	private String validWeight() {/*
+	private String validWeight() {
 		// Valid Weight
 		if ((getGrossWeight() == null || getGrossWeight().compareTo(Env.ZERO) == 0) && !isI_IsImported()) {
 			m_processMsg = "@GrossWeight@ = @0@";
@@ -572,7 +551,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_processMsg = "@NetWeight@ < @0@";
 			return DocAction.STATUS_Invalid;
 		}
-		*/
 		return null;
 	}
 
@@ -662,7 +640,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//
 		if (getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)
-				|| getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+				|| getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /* Added By: Armando Rojas*/
+				) {
 			// Valid QualityAnalysis Reference
 			m_processMsg = validQAReference();
 			if (m_processMsg != null)
@@ -683,14 +663,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
+		) {
 			// Reverse In/Out
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
 				return false;
 		}
 		// Add support for reactivate Movement
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement) 
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /*Added By: Armando Rojas*/  ) {
 			// Reverse Movement
 			m_processMsg = reverseMovement();
 			if (m_processMsg != null)
@@ -698,6 +681,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		//
 		addDescription(Msg.getMsg(getCtx(), "Voided"));
+		updateVoidedLine();
 		// After Void
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_VOID);
 		if (m_processMsg != null)
@@ -708,7 +692,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
 			setVoidItToMMovmenete(et);
 		}
-
+		
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
 		return true;
@@ -720,6 +704,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return true if success
 	 */
 	public boolean closeIt() {
+		System.out.println("Test close");
 		log.info("closeIt - " + toString());
 		// Before Close
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_CLOSE);
@@ -795,7 +780,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /*Added by: Armando Rojas*/
+			) {
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
 				return false;
@@ -810,12 +797,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		
 		//	Added by Jorge Colmenarez, 2021-06-07 15:37
-		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts))
+		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts) 	|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) )
 		{
 			MFTULoadOrder lo = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
 			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'Y' AND M_Product_ID = "+getM_Product_ID()))
 			{
-				line.setConfirmedWeight(BigDecimal.ZERO);
+				//	Added by Jorge Colmenarez, 2021-07-29 12:02
+				//	Support for Reactivate when has confirmend weight more that 0
+				BigDecimal newConfirmedWeight =line.getConfirmedWeight().subtract(getNetWeight());
+				if(newConfirmedWeight.compareTo(BigDecimal.ZERO)  <= 0)
+					newConfirmedWeight = BigDecimal.ZERO;
+				line.setConfirmedWeight(newConfirmedWeight);
+				//	End Jorge Colmenarez
 				line.setIsConfirmed(false);
 				line.saveEx(get_TrxName());
 			}
@@ -1032,6 +1025,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return true if CO, CL or RE
 	 */
 	public boolean isComplete() {
+		System.out.print("TEST isComplet");
 		String ds = getDocStatus();
 		return DOCSTATUS_Completed.equals(ds) || DOCSTATUS_Closed.equals(ds) || DOCSTATUS_Reversed.equals(ds);
 	} // isComplete
@@ -1045,11 +1039,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
 				options[index++] = DocumentEngine.ACTION_Prepare;
 			}
-			else if(docStatus.equals(DocumentEngine.STATUS_WaitingConfirmation))
-			{
-				options[index++] = DocumentEngine.ACTION_Complete;
-				options[index++] = DocumentEngine.ACTION_Reject;
-			}
 			// Complete .. CO
 			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
 				options[index++] = DocumentEngine.ACTION_Void;
@@ -1062,46 +1051,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 
 		return index;
 	}
-	@Override
-	protected boolean afterSave(boolean newRecord, boolean success) {
-		Object InWeight=get_Value("InWeight");
-		Object outWeight=get_Value("OutWeight");
-		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-		
-		System.out.println(InWeight);
-		System.out.println(outWeight);
-		//if(InWeight!=null) {
-			set_Value("InDate", timestamp);
-		//}
-		//if(outWeight!=null) {
-			set_Value("OutDate", timestamp);
-		//}
-		
-		
-		
-		return super.afterSave(newRecord, success);
-	}
-	String procesarResultadoHumano(String data){
-		
-		//data=data.replaceAll("true", "VERDADERO");
-		//data=data.replaceAll("", "");
-		return data.toUpperCase();
-		
-	}
-	private ResultSet q(String sql) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		pstmt = DB.prepareStatement(sql, null);
-		try {
-			rs = pstmt.executeQuery();
-			return rs;
-		} catch (SQLException e) {		
-			e.printStackTrace();
-			return null;
-			
-		}	
-	}
+
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
 		super.beforeSave(newRecord);
@@ -1116,14 +1066,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (getOperationType() == null)
 			msg = "@FTU_EntryTicket_ID@ @NotFound@";
 		// Valid Entry ticket
-		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+		System.out.println("Validacion?");
+		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts) && !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) ) {
+			System.out.println("Validacion si");
 			msg = validETReferenceDuplicated();
 		}
 		// Operation Type
 		else if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryFinishedProduct)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialOutputMovement)
-				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts)
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) /* Added By: Armando Rojas*/
+				) {
 
 			/*
 			 * If Operation Type In Delivery Bulk Material, Delivery Finished Product Or
@@ -1182,6 +1136,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return String
 	 */
 	private String createMovement() {
+		
+		System.out.println("Create Movement");
 		// Get Orders From Load Order
 		MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
 		// Get Lines from Load Order
@@ -1192,9 +1148,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		StringBuffer msg = new StringBuffer();
 		int m_Created = 0;
 		// Create Movements
-		for (MFTULoadOrderLine line : lines) {
+			
+		boolean productSelect = false; 
+		
+		for (MFTULoadOrderLine line : lines) { //  AQUI LAS LINEAS DE LA ORDEN DE Carga
 
 			if (lo.isImmediateDelivery()) {
+				
 				if (line.getM_MovementLine_ID() != 0) {
 					MMovementLine movl = new MMovementLine(getCtx(), line.getM_MovementLine_ID(), get_TrxName());
 					MMovement mov = new MMovement(getCtx(), movl.getM_Movement_ID(), get_TrxName());
@@ -1221,26 +1181,49 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				m_processMsg = "@C_DocTypeMovement_ID@ @NotFound@";
 				return null;
 			}
+			
+			System.out.println("# Test: Curren BPartner");
 			// Generate
 			if (m_Current_BPartner_ID != m_DD_Order.getC_BPartner_ID()) {
 				// Complete Previous Movements
 				completeMovement(m_Current_Movement);
 				m_Current_BPartner_ID = m_DD_Order.getC_BPartner_ID();
 				// Create Movement
-				m_Current_Movement = new MMovement(getCtx(), 0, get_TrxName());
-				m_Current_Movement.setC_DocType_ID(m_C_DocTypeMovement_ID);
-				m_Current_Movement.setDateReceived(getDateForDocument());
-				// Set Organization
-				m_Current_Movement.setAD_Org_ID(getAD_Org_ID());
-				m_Current_Movement.setDD_Order_ID(m_DD_Order.get_ID());
-				if (m_DD_Order.getC_BPartner_ID() > 0) {
-					m_Current_Movement.setC_BPartner_ID(m_DD_Order.getC_BPartner_ID());
-					m_Current_Movement.setC_BPartner_Location_ID(m_DD_Order.getC_BPartner_Location_ID());
+				
+				
+				System.out.println("# TEST: Id de Registro Fuente: ");
+				System.out.println( getFTU_RecordWeight_Source() );
+				
+				if (getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) && getFTU_RecordWeight_Source() > 0 ) {
+					
+					System.out.println("#TEST: Cargar Id del Movimiento anterior ");
+					int sourceRecordWeigthId = getMMovementByRecordWeigthSourceID();
+					System.out.println(sourceRecordWeigthId);
+					
+					
+					System.out.println("# Test: Cargar Movimiento Anterior");
+					m_Current_Movement = new MMovement(getCtx(), sourceRecordWeigthId , get_TrxName());	
+				
+				}else {
+					m_Current_Movement = new MMovement(getCtx(), 0, get_TrxName());
+					m_Current_Movement.setC_DocType_ID(m_C_DocTypeMovement_ID);
+					m_Current_Movement.setDateReceived(getDateForDocument());
+					// Set Organization
+					m_Current_Movement.setAD_Org_ID(getAD_Org_ID());
+					m_Current_Movement.setDD_Order_ID(m_DD_Order.get_ID());
+					if (m_DD_Order.getC_BPartner_ID() > 0) {
+						m_Current_Movement.setC_BPartner_ID(m_DD_Order.getC_BPartner_ID());
+						m_Current_Movement.setC_BPartner_Location_ID(m_DD_Order.getC_BPartner_Location_ID());
+						m_Current_Movement.saveEx();
+					}
+					m_Current_Movement.set_ValueOfColumn("FTU_RecordWeight_ID", getFTU_RecordWeight_ID());
 					m_Current_Movement.saveEx();
 				}
-				m_Current_Movement.set_ValueOfColumn("FTU_RecordWeight_ID", getFTU_RecordWeight_ID());
-				m_Current_Movement.saveEx();
-				//
+			
+			
+				
+				// --------------------
+				
 				m_Created++;
 				// Initialize Message
 				if (msg.length() > 0)
@@ -1248,36 +1231,138 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				else
 					msg.append(m_Current_Movement.getDocumentNo());
 			}
+			
+		
+
 			// Valid exist Movement
 			if (m_Current_Movement != null) {
 				// Create Line
-				MMovementLine m_MovementLine = new MMovementLine(m_Current_Movement);
-				// Reference
-				m_MovementLine.setM_Movement_ID(m_Current_Movement.getM_Movement_ID());
-				m_MovementLine.setDD_OrderLine_ID(m_DD_OrderLine.getDD_OrderLine_ID());
-				// Set Product
-				m_MovementLine.setM_Product_ID(line.getM_Product_ID());
-				m_MovementLine.setM_Locator_ID(m_DD_OrderLine.getM_Locator_ID());
-				m_MovementLine.setM_LocatorTo_ID(m_DD_OrderLine.getM_LocatorTo_ID());
-				if (m_DD_OrderLine.getM_AttributeSetInstance_ID() > 0)
-					m_MovementLine.setM_AttributeSetInstance_ID(m_DD_OrderLine.getM_AttributeSetInstance_ID());
-				if (m_DD_OrderLine.getM_AttributeSetInstanceTo_ID() > 0)
-					m_MovementLine.setM_AttributeSetInstanceTo_ID(m_DD_OrderLine.getM_AttributeSetInstanceTo_ID());
-				m_MovementLine.setMovementQty(line.getQty());
-				m_MovementLine.saveEx();
-				// Reference
-				line.setM_MovementLine_ID(m_MovementLine.getM_MovementLine_ID());
-				line.setConfirmedQty(line.getQty());
-				line.saveEx();
+				System.out.println("ID movimiento");
+				System.out.println(m_Current_Movement.getM_Movement_ID());
+				
+				
+				// Added support for OperationType MMP by: Armando Rojas
+				if (!getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) {
+					
+					System.out.println("# TEST: No es un tipo de operacion MMP");
+					System.out.println(getOperationType());
+					
+					MMovementLine m_MovementLine = new MMovementLine(m_Current_Movement);
+					// Reference
+					m_MovementLine.setM_Movement_ID(m_Current_Movement.getM_Movement_ID());
+					m_MovementLine.setDD_OrderLine_ID(m_DD_OrderLine.getDD_OrderLine_ID());
+					// Set Product
+					m_MovementLine.setM_Product_ID(line.getM_Product_ID());
+					m_MovementLine.setM_Locator_ID(m_DD_OrderLine.getM_Locator_ID());
+					m_MovementLine.setM_LocatorTo_ID(m_DD_OrderLine.getM_LocatorTo_ID());
+					if (m_DD_OrderLine.getM_AttributeSetInstance_ID() > 0)
+						m_MovementLine.setM_AttributeSetInstance_ID(m_DD_OrderLine.getM_AttributeSetInstance_ID());
+					if (m_DD_OrderLine.getM_AttributeSetInstanceTo_ID() > 0)
+						m_MovementLine.setM_AttributeSetInstanceTo_ID(m_DD_OrderLine.getM_AttributeSetInstanceTo_ID());
+					
+					
+					// Complete Movement
+					m_MovementLine.setMovementQty(line.getQty());
+					
+					m_MovementLine.saveEx();
+					// Reference
+					line.setM_MovementLine_ID(m_MovementLine.getM_MovementLine_ID());
+					line.setConfirmedQty(line.getQty());
+					line.saveEx();
+					
+				}
+				else {
+					
+					System.out.println("# TEST: Es un tipo de operacion MMP");
+					System.out.println(getOperationType());
+					
+					if ( getM_Product_ID() == 0) {
+						
+						System.out.println("# TEST: MProduct_id es 0");
+						System.out.println(getM_Product_ID());
+						
+						m_processMsg = "@M_Product_ID@ @NotFound@";
+						return null;
+					}
+					
+					
+					
+					if(  getM_Product_ID() == line.getM_Product_ID()) {
+						
+						MMovementLine m_MovementLine = new MMovementLine(m_Current_Movement);
+						// Reference
+						m_MovementLine.setM_Movement_ID(m_Current_Movement.getM_Movement_ID());
+						m_MovementLine.setDD_OrderLine_ID(m_DD_OrderLine.getDD_OrderLine_ID());
+						// Set Product
+						m_MovementLine.setM_Product_ID(line.getM_Product_ID());
+						m_MovementLine.setM_Locator_ID(m_DD_OrderLine.getM_Locator_ID());
+						m_MovementLine.setM_LocatorTo_ID(m_DD_OrderLine.getM_LocatorTo_ID());
+						if (m_DD_OrderLine.getM_AttributeSetInstance_ID() > 0)
+							m_MovementLine.setM_AttributeSetInstance_ID(m_DD_OrderLine.getM_AttributeSetInstance_ID());
+						if (m_DD_OrderLine.getM_AttributeSetInstanceTo_ID() > 0)
+							m_MovementLine.setM_AttributeSetInstanceTo_ID(m_DD_OrderLine.getM_AttributeSetInstanceTo_ID());
+									
+						
+						System.out.println("# TEST: MProduct ID encontrado");
+						System.out.println(getM_Product_ID());
+						
+						MProduct product = MProduct.get(getCtx(), line.getM_Product_ID());
+						
+						System.out.println("# TEST: Revision de producto a granel o no");
+						System.out.println(product.get_Value("isbulk"));
+						
+						System.out.println("# TEST: Peso Neto");
+						System.out.println( getNetWeight() );
+						
+						if((boolean) product.get_Value("isbulk")) m_MovementLine.setMovementQty( getNetWeight() );
+						else m_MovementLine.setMovementQty(line.getQty());
+						
+						System.out.println("Linea del movimiento"); 
+						
+						System.out.println(m_MovementLine.get_ID());
+						
+						System.out.println("Movimiento"); 
+						
+						System.out.println(m_MovementLine.getM_Movement().getM_Movement_ID());
+						
+						
+						m_MovementLine.saveEx();
+						// Reference
+						line.setM_MovementLine_ID(m_MovementLine.getM_MovementLine_ID());
+						
+						
+						if((boolean) product.get_Value("isbulk")) line.setConfirmedQty( getNetWeight() );
+						else line.setConfirmedQty(line.getQty());
+						
+						
+						line.saveEx();
+						productSelect = true ; 
+					 
+					}
+					
+					if(productSelect) break;
+				}
+				//---------------------
+			
 			}
 
 		} // Create
+		
+		if (!getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) {
 			// Complete Movement
-		completeMovement(m_Current_Movement);
+			// System.out.println("# Test: Completa el movimiento"); 
+			//completeMovement(m_Current_Movement);
+		}else if(!productSelect) {
+			m_processMsg = "@M_Product_ID@ @NotFound@";
+			return null;
+		}
+			
 		//
 		lo.setIsMoved(true);
 		lo.save(get_TrxName());
 		//
+	
+		
 		return "@M_Movement_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
 	}
 
@@ -1287,6 +1372,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return void
 	 */
 	private void completeMovement(MMovement m_Current_Movement) {
+		System.out.println("Test completMovement"); 
 		if (m_Current_Movement != null) {
 			if (m_Current_Movement.getDocStatus().equals(X_M_Movement.DOCSTATUS_Drafted)) {
 				m_Current_Movement.setDocAction(X_M_Movement.DOCACTION_Complete);
@@ -1296,6 +1382,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}
 	}
+	
 
 	/**
 	 * Create a Material Receipt from the Record Weight
@@ -1309,7 +1396,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (validInOutReference() != null)
 			return "";
 		//
-
+		MDocType LoadOrderDocType  = (MDocType) getFTU_LoadOrder().getC_DocType();
+		Boolean isCreateShipment = LoadOrderDocType.get_ValueAsBoolean("isCreateShipment");
 		// DocumentNo
 		String l_DocumentNo = "";
 		// Create Material Receipt or Shipment by Operation Type
@@ -1418,6 +1506,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		else if (getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) {
 			// Get Order and Line
 			MOrder order = null;
+			
 			// MAttributeSetInstance asi = null;
 			MProduct product = (MProduct) getM_Product();
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TableName());
@@ -1664,8 +1753,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			lo.save(get_TrxName());
 		}
 		// Delivery Finished Product
-		else if (getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct)) {
+		
+		else if (getOperationType().equals(OPERATIONTYPE_DeliveryFinishedProduct) || 
+				(getOperationType().contentEquals(OPERATIONTYPE_DeliveryMultiplesProducts) && isCreateShipment)) {
 			// Crate Shipments
+		
+		
 			l_DocumentNo = createShipments();
 		}
 		return l_DocumentNo;
@@ -1705,6 +1798,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		StringBuffer msg = new StringBuffer();
 		int m_Created = 0;
 		//
+		if  (getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+			lines = getProductLine(lines);
+		}
 		for (MFTULoadOrderLine line : lines) {
 			// Valid Document Order and Business Partner
 			MOrderLine oLine = (MOrderLine) line.getC_OrderLine();
@@ -1768,24 +1864,49 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				shipmentLine.setM_InOut_ID(m_Current_Shipment.getM_InOut_ID());
 				// Quantity and Product
 				shipmentLine.setM_Product_ID(product.getM_Product_ID());
+				if (getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryMultiplesProducts)) {
+				shipmentLine.setM_Warehouse_ID(getFTU_Chute().getM_Warehouse_ID());
+				//System.out.println(getFTU_Chute().getM_Warehouse_ID() + " - " + getFTU_Chute().getM_Locator_ID());
+				shipmentLine.setM_Locator_ID(getFTU_Chute().getM_Locator_ID());
+				//shipmentLine.setDescription();
+				BigDecimal qtyCount = (BigDecimal) get_Value("qtyCount");
+				BigDecimal ConfirmedQty = (BigDecimal) line.get_Value("ConfirmedQty");
+				if (ConfirmedQty == null)
+					ConfirmedQty = Env.ZERO;
+				
+				if (qtyCount == null)
+					throw new AdempiereException("No Introdujo Cantidad Contada");
+				if (qtyCount.compareTo(Env.ZERO) <= 0)
+					throw new AdempiereException("Cantidad Contada no puede ser menor o igual a 0");
+				shipmentLine.setMovementQty(qtyCount);
+				shipmentLine.setQty(qtyCount);
+				shipmentLine.setQtyEntered(getNetWeight());
+				
+				shipmentLine.setC_UOM_ID(product.getC_UOM_ID());
+				
+				line.setConfirmedQty(qtyCount.add(ConfirmedQty));
+				}else {
 				BigDecimal m_MovementQty = m_Qty.multiply(rate);
 				shipmentLine.setM_Warehouse_ID(m_Current_Shipment.getM_Warehouse_ID());
 				shipmentLine.setC_UOM_ID(product.getC_UOM_ID());
 				shipmentLine.setQty(line.getQty());
 				// References
 				shipmentLine.setM_Locator_ID(m_MovementQty);
+				line.setConfirmedQty(m_MovementQty);
+				}
 				shipmentLine.setC_OrderLine_ID(line.getC_OrderLine_ID());
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 
 				// Manually Process Shipment
-				line.setConfirmedQty(m_MovementQty);
+				
 				line.setM_InOutLine_ID(shipmentLine.get_ID());
 				line.saveEx();
 				// Set true Is Delivered and Is Weight Register
 				lo.setIsDelivered(true);
 				// Save
 				lo.saveEx(get_TrxName());
+				
 
 			} // End Invoice Line Created
 		} // End Invoice Generated
@@ -1829,6 +1950,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		return null;
 	}
+	
+	
+	private int getMMovementByRecordWeigthSourceID(  ) {
+		
+		return DB.getSQLValue(get_TrxName(), "select max( mm.m_movement_id ) from " + 
+				"ftu_recordweight fr " + 
+				"inner join ftu_loadorder fl on fl.ftu_loadorder_id = fr.ftu_loadorder_id " + 
+				"inner join ftu_loadorderline fl2 on fl.ftu_loadorder_id = fl2.ftu_loadorder_id " + 
+				"inner join dd_orderline do2 on fl2.dd_orderline_id = do2.dd_orderline_id " + 
+				"inner join dd_order do22 on do22.dd_order_id = do2.dd_order_id " + 
+				"inner join m_movement mm on mm.dd_order_id = do22.dd_order_id " + 
+				"where fr.ftu_recordweight_id = ? and mm.docstatus != 'VO' " , getFTU_RecordWeight_Source());
+	
+	}
+	
 
 	/**
 	 * Get Valid Weight For Shipment or Receipt
@@ -1890,9 +2026,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	
 	public String createMMovement(MFTUEntryTicket et) {
 		
+			System.out.println("Create MMovement");
+		
 			String message = null;
 			
-			MDDOrder ddo = new MDDOrder(getCtx(), et.get_ValueAsInt("DD_Order_ID"), get_TrxName());
+       		MDDOrder ddo = new MDDOrder(getCtx(), et.get_ValueAsInt("DD_Order_ID"), get_TrxName());
 			MDocType dt = new MDocType(getCtx(), ddo.getC_DocType_ID(), get_TrxName());
 			
 			System.out.println(dt.get_Value("IsMovementAutomatic"));
@@ -1927,6 +2065,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						mml.setM_LocatorTo_ID(ddol.getM_LocatorTo_ID());
 					}
 					
+					
 					//Add Support for UOM Conversion by Argenis Rodríguez
 					BigDecimal rate = MUOMConversion.getProductRateFrom(getCtx(), ddol.getM_Product_ID(), getC_UOM_ID());
 					
@@ -1934,6 +2073,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						return "@NoUOMConversion@";
 					
 					BigDecimal movementQty = rate.multiply(getNetWeight());
+					
+				
 					
 					mml.setMovementQty(movementQty);
 					mml.saveEx(get_TrxName());
@@ -1981,5 +2122,25 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		return null;
 		
 	}
-
+	public MFTULoadOrderLine[] getProductLine (MFTULoadOrderLine[] allLines) {
+		ArrayList<MFTULoadOrderLine> prodLine = new ArrayList<MFTULoadOrderLine>();
+		for (int i = 0; i < allLines.length; i++) {
+			if(allLines[i].getM_Product_ID() == getM_Product_ID())
+			prodLine.add(allLines[i]);
+				
+			}
+		MFTULoadOrderLine[] newLines = new MFTULoadOrderLine[prodLine.size()];
+		prodLine.toArray(newLines);
+		return  newLines;
+	}
+	public void updateVoidedLine() {
+		String sql = "SELECT FTU_LoadOrderLine_ID FROM FTU_LoadOrderLine WHERE FTU_LoadOrder_ID = ? AND M_Product_ID = ?";
+		
+		int LoadOrderLine_ID = DB.getSQLValue(get_TrxName(), sql,getFTU_LoadOrder_ID(),getM_Product_ID());
+		if (LoadOrderLine_ID > 0) {
+			MFTULoadOrderLine line = new MFTULoadOrderLine(getCtx(), LoadOrderLine_ID, this.get_TrxName());
+			line.setConfirmedWeight(line.getConfirmedWeight().subtract(getNetWeight()));
+			line.saveEx();
+			}
+	}
 }

@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrderLine
     /** TableName=FTU_LoadOrderLine */
     public static final String Table_Name = "FTU_LoadOrderLine";
 
-    /** AD_Table_ID=1000023 */
+    /** AD_Table_ID=1000052 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

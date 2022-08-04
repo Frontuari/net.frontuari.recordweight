@@ -32,7 +32,7 @@ public interface I_FTU_WeightScale_Role
     /** TableName=FTU_WeightScale_Role */
     public static final String Table_Name = "FTU_WeightScale_Role";
 
-    /** AD_Table_ID=1000028 */
+    /** AD_Table_ID=1000062 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

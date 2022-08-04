@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FTU_SerialPortConfig
+/** Generated Interface for FTU_Analysis_Type
  *  @author iDempiere (generated) 
  *  @version Release 7.1
  */
 @SuppressWarnings("all")
-public interface I_FTU_SerialPortConfig 
+public interface I_FTU_Analysis_Type 
 {
 
-    /** TableName=FTU_SerialPortConfig */
-    public static final String Table_Name = "FTU_SerialPortConfig";
+    /** TableName=FTU_Analysis_Type */
+    public static final String Table_Name = "FTU_Analysis_Type";
 
-    /** AD_Table_ID=1000065 */
+    /** AD_Table_ID=1000077 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,15 +64,6 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name Bauds */
-    public static final String COLUMNNAME_Bauds = "Bauds";
-
-	/** Set Bauds	  */
-	public void setBauds (String Bauds);
-
-	/** Get Bauds	  */
-	public String getBauds();
-
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -89,45 +80,36 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public int getCreatedBy();
 
-    /** Column name DataBits */
-    public static final String COLUMNNAME_DataBits = "DataBits";
+    /** Column name Description */
+    public static final String COLUMNNAME_Description = "Description";
 
-	/** Set DataBits	  */
-	public void setDataBits (String DataBits);
-
-	/** Get DataBits	  */
-	public String getDataBits();
-
-    /** Column name FlowControl */
-    public static final String COLUMNNAME_FlowControl = "FlowControl";
-
-	/** Set FlowControl	  */
-	public void setFlowControl (String FlowControl);
-
-	/** Get FlowControl	  */
-	public String getFlowControl();
-
-    /** Column name FTU_SerialPortConfig_ID */
-    public static final String COLUMNNAME_FTU_SerialPortConfig_ID = "FTU_SerialPortConfig_ID";
-
-	/** Set Serial Port Configuration.
-	  * Serial Port Configuration example: COM1 or tty01, 9600...
+	/** Set Description.
+	  * Optional short description of the record
 	  */
-	public void setFTU_SerialPortConfig_ID (int FTU_SerialPortConfig_ID);
+	public void setDescription (String Description);
 
-	/** Get Serial Port Configuration.
-	  * Serial Port Configuration example: COM1 or tty01, 9600...
+	/** Get Description.
+	  * Optional short description of the record
 	  */
-	public int getFTU_SerialPortConfig_ID();
+	public String getDescription();
 
-    /** Column name FTU_SerialPortConfig_UU */
-    public static final String COLUMNNAME_FTU_SerialPortConfig_UU = "FTU_SerialPortConfig_UU";
+    /** Column name FTU_Analysis_Type_ID */
+    public static final String COLUMNNAME_FTU_Analysis_Type_ID = "FTU_Analysis_Type_ID";
 
-	/** Set FTU_SerialPortConfig_UU	  */
-	public void setFTU_SerialPortConfig_UU (String FTU_SerialPortConfig_UU);
+	/** Set Analysis_Type_ID	  */
+	public void setFTU_Analysis_Type_ID (int FTU_Analysis_Type_ID);
 
-	/** Get FTU_SerialPortConfig_UU	  */
-	public String getFTU_SerialPortConfig_UU();
+	/** Get Analysis_Type_ID	  */
+	public int getFTU_Analysis_Type_ID();
+
+    /** Column name FTU_Analysis_Type_UU */
+    public static final String COLUMNNAME_FTU_Analysis_Type_UU = "FTU_Analysis_Type_UU";
+
+	/** Set FTU_Analysis_Type_UU	  */
+	public void setFTU_Analysis_Type_UU (String FTU_Analysis_Type_UU);
+
+	/** Get FTU_Analysis_Type_UU	  */
+	public String getFTU_Analysis_Type_UU();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -155,32 +137,38 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public String getName();
 
-    /** Column name Parity */
-    public static final String COLUMNNAME_Parity = "Parity";
+    /** Column name Romana_IsActive */
+    public static final String COLUMNNAME_Romana_IsActive = "Romana_IsActive";
 
-	/** Set Parity	  */
-	public void setParity (String Parity);
+	/** Set Romana_IsActive	  */
+	public void setRomana_IsActive (boolean Romana_IsActive);
 
-	/** Get Parity	  */
-	public String getParity();
+	/** Get Romana_IsActive	  */
+	public boolean isRomana_IsActive();
 
-    /** Column name SerialPort */
-    public static final String COLUMNNAME_SerialPort = "SerialPort";
+    /** Column name Romana_SeqNo */
+    public static final String COLUMNNAME_Romana_SeqNo = "Romana_SeqNo";
 
-	/** Set SerialPort	  */
-	public void setSerialPort (String SerialPort);
+	/** Set Romana_SeqNo	  */
+	public void setRomana_SeqNo (int Romana_SeqNo);
 
-	/** Get SerialPort	  */
-	public String getSerialPort();
+	/** Get Romana_SeqNo	  */
+	public int getRomana_SeqNo();
 
-    /** Column name StopBits */
-    public static final String COLUMNNAME_StopBits = "StopBits";
+    /** Column name SeqNo */
+    public static final String COLUMNNAME_SeqNo = "SeqNo";
 
-	/** Set StopBits	  */
-	public void setStopBits (String StopBits);
+	/** Set Sequence.
+	  * Method of ordering records;
+ lowest number comes first
+	  */
+	public void setSeqNo (int SeqNo);
 
-	/** Get StopBits	  */
-	public String getStopBits();
+	/** Get Sequence.
+	  * Method of ordering records;
+ lowest number comes first
+	  */
+	public int getSeqNo();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -197,4 +185,17 @@ public interface I_FTU_SerialPortConfig
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name Value */
+    public static final String COLUMNNAME_Value = "Value";
+
+	/** Set Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value);
+
+	/** Get Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public String getValue();
 }

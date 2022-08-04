@@ -17,9 +17,11 @@
 /** Generated Model - DO NOT CHANGE */
 package net.frontuari.recordweight.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.Env;
 
 /** Generated Model for FTU_ScreenConfig
  *  @author iDempiere (generated) 
@@ -30,7 +32,7 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_ScreenConfig (Properties ctx, int FTU_ScreenConfig_ID, String trxName)
@@ -73,6 +75,46 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	/** Set CutEnd.
+		@param CutEnd 
+		CutEnd
+	  */
+	public void setCutEnd (int CutEnd)
+	{
+		set_Value (COLUMNNAME_CutEnd, Integer.valueOf(CutEnd));
+	}
+
+	/** Get CutEnd.
+		@return CutEnd
+	  */
+	public int getCutEnd () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_CutEnd);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set CutStart.
+		@param CutStart 
+		CutStart
+	  */
+	public void setCutStart (int CutStart)
+	{
+		set_Value (COLUMNNAME_CutStart, Integer.valueOf(CutStart));
+	}
+
+	/** Get CutStart.
+		@return CutStart
+	  */
+	public int getCutStart () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_CutStart);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set EndCharacter.
 		@param EndCharacter EndCharacter	  */
@@ -122,6 +164,30 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 		return (String)get_Value(COLUMNNAME_FTU_ScreenConfig_UU);
 	}
 
+	/** Set Test.
+		@param IsTest 
+		Execute in Test Mode
+	  */
+	public void setIsTest (boolean IsTest)
+	{
+		set_Value (COLUMNNAME_IsTest, Boolean.valueOf(IsTest));
+	}
+
+	/** Get Test.
+		@return Execute in Test Mode
+	  */
+	public boolean isTest () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsTest);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Name.
 		@param Name 
 		Alphanumeric identifier of the entity
@@ -137,6 +203,23 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 	public String getName () 
 	{
 		return (String)get_Value(COLUMNNAME_Name);
+	}
+
+	/** Set Qty Decimal.
+		@param QtyDecimal Qty Decimal	  */
+	public void setQtyDecimal (BigDecimal QtyDecimal)
+	{
+		set_Value (COLUMNNAME_QtyDecimal, QtyDecimal);
+	}
+
+	/** Get Qty Decimal.
+		@return Qty Decimal	  */
+	public BigDecimal getQtyDecimal () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_QtyDecimal);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set StartCharacter.

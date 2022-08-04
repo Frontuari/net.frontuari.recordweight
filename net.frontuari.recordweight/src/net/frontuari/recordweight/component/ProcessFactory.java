@@ -21,7 +21,6 @@ package net.frontuari.recordweight.component;
 import net.frontuari.recordweight.base.FTUProcessFactory;
 import net.frontuari.recordweight.process.ChangePrintedStatus;
 import net.frontuari.recordweight.process.ChangePrintedStatusRecordWeight;
-import net.frontuari.recordweight.process.Driver;
 import net.frontuari.recordweight.process.EntryTicketChange;
 import net.frontuari.recordweight.process.FTUApproveQualityAnalysis;
 import net.frontuari.recordweight.process.FTUGenerateFreightCost;
@@ -29,6 +28,7 @@ import net.frontuari.recordweight.process.GenerateFromLoadOrder;
 import net.frontuari.recordweight.process.GenerateMovementFromAnalysis;
 import net.frontuari.recordweight.process.ImportEntryTicket;
 import net.frontuari.recordweight.process.LoadOrderGuideGenerate;
+import net.frontuari.recordweight.process.LoadOrderPrintFormat;
 import net.frontuari.recordweight.process.ValidateDriver;
 
 /**
@@ -47,8 +47,6 @@ public class ProcessFactory extends FTUProcessFactory {
 	 */
 	@Override
 	protected void initialize() {
-		registerProcess(Driver.class);
-		registerProcess(ValidateDriver.class);
 		registerProcess(LoadOrderGuideGenerate.class);
 		registerProcess(GenerateFromLoadOrder.class);
 		registerProcess(EntryTicketChange.class);
@@ -57,7 +55,9 @@ public class ProcessFactory extends FTUProcessFactory {
 		registerProcess(FTUGenerateFreightCost.class);
 		registerProcess(GenerateMovementFromAnalysis.class);
 		registerProcess(ImportEntryTicket.class);
+		registerProcess(ValidateDriver.class);
 		registerProcess(FTUApproveQualityAnalysis.class);
+		registerProcess(LoadOrderPrintFormat.class);
 	}
 
 }

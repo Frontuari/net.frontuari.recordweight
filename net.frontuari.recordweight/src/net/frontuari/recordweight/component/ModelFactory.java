@@ -19,10 +19,14 @@
 package net.frontuari.recordweight.component;
 
 import net.frontuari.recordweight.base.FTUModelFactory;
+import net.frontuari.recordweight.model.I_FTU_Analysis_Type;
 import net.frontuari.recordweight.model.I_FTU_BillOfLading;
+import net.frontuari.recordweight.model.I_FTU_BillOfLadingLine;
 import net.frontuari.recordweight.model.I_FTU_Chute;
 import net.frontuari.recordweight.model.I_FTU_Driver;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
+import net.frontuari.recordweight.model.I_FTU_Laboratory_A_Line;
+import net.frontuari.recordweight.model.I_FTU_Laboratory_Analysis;
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.model.I_FTU_LoadOrderLine;
 import net.frontuari.recordweight.model.I_FTU_MobilizationGuide;
@@ -40,9 +44,11 @@ import net.frontuari.recordweight.model.I_FTU_WeightScale_Role;
 import net.frontuari.recordweight.model.I_HRS_Analysis;
 import net.frontuari.recordweight.model.I_HRS_QualityParameter;
 import net.frontuari.recordweight.model.MFTUBillOfLading;
+import net.frontuari.recordweight.model.MFTUBillOfLadingLine;
 import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUDriver;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTULaboratoryAnalysis;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTUMobilizationGuide;
@@ -57,12 +63,12 @@ import net.frontuari.recordweight.model.MFTUVehicleType;
 import net.frontuari.recordweight.model.MFTUWeightScale;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 import net.frontuari.recordweight.model.MHRSQualityParameter;
+import net.frontuari.recordweight.model.X_FTU_Analysis_Type;
+import net.frontuari.recordweight.model.X_FTU_Laboratory_A_Line;
+import net.frontuari.recordweight.model.X_FTU_Laboratory_Analysis;
 import net.frontuari.recordweight.model.X_FTU_RW_ApprovalMotive;
-import net.frontuari.recordweight.model.X_FTU_ScreenConfig;
-import net.frontuari.recordweight.model.X_FTU_SerialPortConfig;
 import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
-import net.frontuari.recordweight.model.X_HRS_QualityParameter;
 import net.frontuari.recordweight.model.X_I_EntryTicket;
 
 /**
@@ -81,8 +87,14 @@ public class ModelFactory extends FTUModelFactory {
 	 */
 	@Override
 	protected void initialize() {
+		registerModel(I_FTU_Analysis_Type.Table_Name, X_FTU_Analysis_Type.class);
+		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);
+		registerModel(I_FTU_BillOfLadingLine.Table_Name, MFTUBillOfLadingLine.class);
+		registerModel(I_FTU_Chute.Table_Name, MFTUChute.class);
 		registerModel(I_FTU_Driver.Table_Name, MFTUDriver.class);
 		registerModel(I_FTU_EntryTicket.Table_Name, MFTUEntryTicket.class);
+		registerModel(I_FTU_Laboratory_A_Line.Table_Name, X_FTU_Laboratory_A_Line.class);
+		registerModel(I_FTU_Laboratory_Analysis.Table_Name, MFTULaboratoryAnalysis.class);
 		registerModel(I_FTU_LoadOrder.Table_Name, MFTULoadOrder.class);
 		registerModel(I_FTU_LoadOrderLine.Table_Name, MFTULoadOrderLine.class);
 		registerModel(I_FTU_MobilizationGuide.Table_Name, MFTUMobilizationGuide.class);
@@ -92,16 +104,15 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(I_FTU_SerialPortConfig.Table_Name, MFTUSerialPortConfig.class);
 		registerModel(I_FTU_Vehicle.Table_Name, MFTUVehicle.class);
 		registerModel(I_FTU_VehicleBrand.Table_Name, MFTUVehicleBrand.class);
+		registerModel(I_FTU_VehicleModel.Table_Name, MFTUVehicleModel.class);
 		registerModel(I_FTU_VehicleType.Table_Name, MFTUVehicleType.class);
 		registerModel(I_FTU_VehicleModel.Table_Name, MFTUVehicleModel.class);
-		registerModel(I_FTU_WeightScale.Table_Name, MFTUWeightScale.class);
 		registerModel(I_FTU_WeightScale_Role.Table_Name, X_FTU_WeightScale_Role.class);
+		registerModel(I_FTU_WeightScale.Table_Name, MFTUWeightScale.class);
 		registerModel(I_FTU_WS_Warehouse.Table_Name, X_FTU_WS_Warehouse.class);
-		registerModel(I_FTU_Chute.Table_Name, MFTUChute.class);
 		
 		registerModel(I_HRS_Analysis.Table_Name, MHRSAnalysis.class);
 		registerModel(I_HRS_QualityParameter.Table_Name, MHRSQualityParameter.class);
-		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);
 		registerModel(X_I_EntryTicket.Table_Name, X_I_EntryTicket.class);
 		registerModel(MFTUMovement.Table_Name, MFTUMovement.class);
 	}

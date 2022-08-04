@@ -22,16 +22,7 @@ public class ValidateDriver extends FTUProcess{
 	String Cedula;
 	int FTU_Driver_ID;
 	private String ConsultarDatos() throws IOException {
-		String str=Cedula.toLowerCase();
-
-		
-
-        if(str.contains("v")) {
-        	str = str.replace("v", "");
-        }
-		
-		
-		Document doc = Jsoup.connect("http://www.cne.gob.ve/web/registro_electoral/ce.php?nacionalidad=V&cedula="+str).get();
+		Document doc = Jsoup.connect("http://www.cne.gob.ve/web/registro_electoral/ce.php?nacionalidad=V&cedula="+Cedula).get();
 		//System.out.println((doc.title()));
 		String Nombre = doc.select("body > table > tbody > tr > td > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(2) > td > table:nth-child(1) > tbody > tr:nth-child(2) > td:nth-child(2) > b").text();
 		//System.out.println(Nombre);

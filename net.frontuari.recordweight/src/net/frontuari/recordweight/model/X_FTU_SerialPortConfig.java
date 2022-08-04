@@ -30,7 +30,7 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_SerialPortConfig (Properties ctx, int FTU_SerialPortConfig_ID, String trxName)

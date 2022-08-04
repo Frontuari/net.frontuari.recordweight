@@ -10,6 +10,7 @@ import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.zkoss.util.logging.Log;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
@@ -56,32 +57,7 @@ public class CalloutRecordWeight extends FTUCallout {
 				setValue(I_FTU_RecordWeight.COLUMNNAME_C_UOM_ID, scale.getC_UOM_ID());
 			return "";			
 		}
-		System.out.println(getColumnName());
-		switch(getColumnName()) {
-			case "InWeight":
-			case "outWeight":
-				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-				BigDecimal InWeight=(BigDecimal) getValue("InWeight");
-				BigDecimal outWeight=(BigDecimal) getValue("outWeight");
-				
-				if(outWeight.compareTo(BigDecimal.ZERO) == 0) {
-					setValue("NetWeight", BigDecimal.ZERO);
-				}else {
-					setValue("NetWeight", InWeight.subtract(outWeight));
-				}
-				
-				
-				if(InWeight.compareTo(BigDecimal.ZERO) == 0) {
-					setValue("InDate", timestamp);
-				}
-				if(outWeight.compareTo(BigDecimal.ZERO) != 0) {
-					 setValue("OutDate", timestamp);
-				}
-
-					
-				
-			break;
-		}
+		
 		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_FTU_EntryTicket_ID)) {
 			Integer m_FTU_EntryTicket_ID = (Integer) getValue();
 			if (m_FTU_EntryTicket_ID == null || m_FTU_EntryTicket_ID.intValue() == 0)

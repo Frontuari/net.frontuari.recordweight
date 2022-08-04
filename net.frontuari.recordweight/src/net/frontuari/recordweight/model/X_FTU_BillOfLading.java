@@ -33,7 +33,7 @@ public class X_FTU_BillOfLading extends PO implements I_FTU_BillOfLading, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_BillOfLading (Properties ctx, int FTU_BillOfLading_ID, String trxName)

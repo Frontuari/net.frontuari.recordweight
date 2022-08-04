@@ -63,8 +63,6 @@ public class CalloutFactory extends FTUCalloutFactory {
 		//	Added by Jorge Colmenarez, 2021-06-07 15:24
 		registerCallout(I_FTU_RecordWeight.Table_Name, "FTU_RecordWeightSource_ID", CalloutRecordWeight.class);
 		//	End Jorge Colmenarez
-		registerCallout(I_FTU_RecordWeight.Table_Name, "InWeight", CalloutRecordWeight.class);
-		registerCallout(I_FTU_RecordWeight.Table_Name, "outWeight", CalloutRecordWeight.class);
 		//	Vehicle
 		registerCallout(I_FTU_Vehicle.Table_Name, I_FTU_Vehicle.COLUMNNAME_FTU_VehicleModel_ID, CalloutVehicle.class);
 		registerCallout(I_FTU_Vehicle.Table_Name, I_FTU_Vehicle.COLUMNNAME_FTU_VehicleType_ID, CalloutVehicle.class);

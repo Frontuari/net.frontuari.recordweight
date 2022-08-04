@@ -31,7 +31,7 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_EntryTicket (Properties ctx, int FTU_EntryTicket_ID, String trxName)
@@ -40,12 +40,14 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
       /** if (FTU_EntryTicket_ID == 0)
         {
 			setC_DocType_ID (0);
+// 1000003
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
 			setFTU_EntryTicket_ID (0);
 			setIsApproved (false);
 // N
 			setOperationType (null);
+// ORW
         } */
     }
 
@@ -229,6 +231,23 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public Timestamp getDateDoc () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_DateDoc);
+	}
+
+	/** Set Date printed.
+		@param DatePrinted 
+		Date the document was printed.
+	  */
+	public void setDatePrinted (Timestamp DatePrinted)
+	{
+		set_Value (COLUMNNAME_DatePrinted, DatePrinted);
+	}
+
+	/** Get Date printed.
+		@return Date the document was printed.
+	  */
+	public Timestamp getDatePrinted () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_DatePrinted);
 	}
 
 	/** Set Description.
@@ -658,8 +677,6 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public static final String OPERATIONTYPE_DeliveryBulkMaterial = "DBM";
 	/** Delivery Finished Product = DFP */
 	public static final String OPERATIONTYPE_DeliveryFinishedProduct = "DFP";
-	/** Delivery Multiples Products = DMP */
-	public static final String OPERATIONTYPE_DeliveryMultiplesProducts = "DMP";
 	/** Material Input Movement = MIM */
 	public static final String OPERATIONTYPE_MaterialInputMovement = "MIM";
 	/** Material Output Movement = MOM */
@@ -672,6 +689,16 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
+	/** Reception = REC */
+	public static final String OPERATIONTYPE_Reception = "REC";
+	/** Dispatch = DES */
+	public static final String OPERATIONTYPE_Dispatch = "DES";
+	/** Entry = ENT */
+	public static final String OPERATIONTYPE_Entry = "ENT";
+	/** Output = SAL */
+	public static final String OPERATIONTYPE_Output = "SAL";
+	/** Manual = MAN */
+	public static final String OPERATIONTYPE_Manual = "MAN";
 	/** Set OperationType.
 		@param OperationType OperationType	  */
 	public void setOperationType (String OperationType)

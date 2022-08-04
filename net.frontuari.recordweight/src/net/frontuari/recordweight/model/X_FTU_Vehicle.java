@@ -32,7 +32,7 @@ public class X_FTU_Vehicle extends PO implements I_FTU_Vehicle, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_Vehicle (Properties ctx, int FTU_Vehicle_ID, String trxName)
@@ -42,10 +42,9 @@ public class X_FTU_Vehicle extends PO implements I_FTU_Vehicle, I_Persistent
         {
 			setFTU_Vehicle_ID (0);
 			setFTU_VehicleType_ID (0);
-			setLoadCapacity (Env.ZERO);
 			setName (null);
+// -
 			setVehiclePlate (null);
-			setVolumeCapacity (Env.ZERO);
         } */
     }
 
