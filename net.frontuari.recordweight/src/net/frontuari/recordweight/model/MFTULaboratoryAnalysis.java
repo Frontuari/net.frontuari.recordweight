@@ -4,14 +4,14 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.List;
 import java.util.Properties;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MColumn;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -22,6 +22,8 @@ import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 
 import net.frontuari.mfta.model.MFTULabCultiveResult;
+import net.frontuari.mfta.model.X_FTU_Functions_Formule;
+import net.frontuari.mfta.model.X_FTU_Quality_Param;
 
 public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements DocOptions, DocAction {
 
@@ -115,31 +117,240 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 	 *	@param whereClause
 	 *	@return lines
 	 */
-	public MFTULaboratoryAnalisysLine[] getLines (boolean requery, String whereClause)
+	public MFTULaboratoryAnalisysLine[] getLines (String whereClause)
 	{
-		if (m_lines != null && !requery)
-		{
-			set_TrxName(m_lines, get_TrxName());
-			return m_lines;
-		}
-		List<MFTULaboratoryAnalisysLine> list = new Query(getCtx(), MFTULaboratoryAnalisysLine.Table_Name, "FTU_Laboratory_Analysis_ID=?"
+		List<MFTULaboratoryAnalisysLine> list = new Query(getCtx(), I_FTU_Laboratory_A_Line.Table_Name, "FTU_Laboratory_Analysis_ID=?"
 				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
 		.setParameters(get_ID())
 		.setOrderBy(MFTULaboratoryAnalisysLine.COLUMNNAME_FTU_Laboratory_A_Line_ID)
 		.list();
 		
-		m_lines = new MFTULaboratoryAnalisysLine[list.size ()];
-		list.toArray (m_lines);
+		return list.toArray(new MFTULaboratoryAnalisysLine[list.size()]);
+	}	//	getLines
+	
+	/**
+	 * 	Get Lines of Order
+	 * 	@param requery requery
+	 * 	@param orderBy optional order by column
+	 * 	@return lines
+	 */
+	public MFTULaboratoryAnalisysLine[] getLines (boolean requery, String whereClause)
+	{
+		if (m_lines != null && !requery) {
+			set_TrxName(m_lines, get_TrxName());
+			return m_lines;
+		}
+		m_lines = getLines(whereClause);
 		return m_lines;
 	}	//	getLines
 	
+	/***
+	 * Clean input Code
+	 * @author Jorge Colmenarez, 2022-08-04 19:05
+	 * @param code
+	 * @return code cleaned
+	 */
+	private String cleanCode(String code) {
+		code=code.toLowerCase();
+		code=code.replaceAll("#(\\d+)", "0");
+		code=code.replaceAll("&(\\d+)", "0");
+		code=code.replaceAll("@(\\d+)", "0");
+		code=code.replaceAll("%", "");
+		code=code.replaceAll(";", "");
+		return code;
+	}
+	
+	/***
+	 * get ID Function from code
+	 * @param code
+	 * @return ID Function
+	 */
+	private String getIdFunction(String code) {
+		Pattern regex = Pattern.compile("@(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+        
+		return regexMatcher.group().replaceAll("@", "");	
+	}
+	
+	/***
+	 * get ID Formula from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:06
+	 * @param code
+	 * @return ID Formula
+	 */
+	private String getIdFormula(String code) {
+		Pattern regex = Pattern.compile("F(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+        
+		return regexMatcher.group().replaceAll("F", "");	
+	}
+	
+	/***
+	 * Replace Table and Column from Script Code
+	 * @author Jorge Colmenarez, 2022-08-04 18:49
+	 * @param code
+	 * @param FTU_EntryTicket_ID
+	 * @return code
+	 */
+	private String replaceTableAndColumn(String code, int FTU_EntryTicket_ID) {
+		Pattern regex = Pattern.compile("&\\d+");
+        Matcher regexMatcher = regex.matcher(code);
+        int ColumnID;
+        String ColumnName;
+        String TableName;
+        String ColumnSql="";
+        
+        while (regexMatcher.find()) {
+        	ColumnID=Integer.parseInt(regexMatcher.group().replaceAll("&", ""));
+        	MColumn col = new MColumn(getCtx(), ColumnID, get_TrxName());
+        	TableName = col.getAD_Table().getTableName();
+        	ColumnName = col.getColumnName();
+        	ColumnSql +=TableName+"."+ColumnName+" as \""+ColumnID+"\",";
+        }
+        //	Remove last comma (,)
+        if(ColumnSql!="")
+        	ColumnSql = ColumnSql.substring(0,ColumnSql.length()-1);
+        
+        if(ColumnSql!="")
+        {
+        	String sql = "SELECT "+ColumnSql+" FROM FTU_RecordWeight " +
+        			" LEFT JOIN FTU_Laboratory_Analysis ON FTU_Laboratory_Analysis.FTU_Laboratory_Analysis_ID = FTU_RecordWeight.FTU_Laboratory_Analysis_ID " + 
+					" LEFT JOIN AD_Org ON AD_Org.AD_Org_ID =FTU_RecordWeight.AD_Org_ID " + 
+					" LEFT JOIN AD_Client ON AD_Client.AD_Client_ID = FTU_RecordWeight.AD_Client_ID " + 
+					" LEFT JOIN C_BPartner ON C_BPartner.C_BPartner_ID  = FTU_RecordWeight.C_BPartner_ID " + 
+					" LEFT JOIN FTU_Recipe ON FTU_Recipe.FTU_Recipe_ID = FTU_Laboratory_Analysis.FTU_Recipe_ID " + 
+					" LEFT JOIN AD_User ON AD_User.C_BPartner_ID = C_BPartner.C_BPartner_ID " +
+					" WHERE FTU_RecordWeight.FTU_EntryTicket_ID="+FTU_EntryTicket_ID;
+        	PreparedStatement pstmt = null;
+        	ResultSet rs = null;
+        	ResultSetMetaData rsMetaData = null;
+        	try {
+        		pstmt = DB.prepareStatement(sql, get_TrxName());
+        		rs = pstmt.executeQuery();
+        		rsMetaData = rs.getMetaData();
+        		final int columnCount = rsMetaData.getColumnCount();
+        		rs.next();
+        		String name;
+        		for(int i = 1;i<=columnCount;i++){
+        			name = rsMetaData.getColumnName(i);
+			        code=code.replaceAll("&("+name+")", "'"+rs.getObject(i).toString()+"'");
+        		}
+        	}catch(Exception e)
+        	{
+        		throw new AdempiereException(e.getMessage());
+        	}
+        	finally {
+        		DB.close(rs, pstmt);
+        		rs = null; pstmt = null;
+        		rsMetaData = null;
+        	}
+        }
+		return code;
+	}
+	
+	/***
+	 * Get parameter to function from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param code
+	 * @return parameter function
+	 */
+	private String getFunctionParameter(String code) {
+		Pattern regex = Pattern.compile("'.+\\'");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+		return regexMatcher.group().replaceAll("'", "");	
+	}
+
+	/***
+	 * Added Variable into Function from FuntionCode
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param functionCode
+	 * @param code
+	 * @return code with variable
+	 */
+	private String addVariableIntoFunction(String functionCode,String code) {
+		String param=	getFunctionParameter(code);
+		functionCode	=	functionCode.replaceAll("\\$var1", param);
+		code	=	code.replaceAll("'.+\\'", functionCode);
+		return code;
+	}
+	
+	/***
+	 * processing Functions from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param code
+	 * @return code processed
+	 */
+	private String processFunctions(String code) {
+		Pattern regex = Pattern.compile("@(\\d+\\(.+\\))");
+        Matcher regexMatcher = regex.matcher(code);
+        
+        while (regexMatcher.find()) {
+        	int ffID=Integer.parseInt(getIdFunction(regexMatcher.group()));
+        	
+        	X_FTU_Functions_Formule ff = new X_FTU_Functions_Formule(getCtx(), ffID, get_TrxName());
+        	
+        	if(ff.get_ID()>0)
+        	{
+        		code = addVariableIntoFunction(ff.getDescription().toLowerCase(), code);
+        		return code.replaceAll("@(\\d+)", "");
+        	}
+        }
+        
+	    return code;	
+	}
+	
+	/***
+	 * Replace Basic Code
+	 * @param code
+	 * @return code clean
+	 */
+	private String replaceBasicCode(String code) {
+		//	Get Lines to Lab Analysis
+		for(MFTULaboratoryAnalisysLine line : getLines(true, ""))
+		{
+			String value = line.getFTU_Analysis_Type().getValue();
+			String result = line.getResult().toString();
+			code=code.replaceAll("#("+value+")", result);
+		}
+		return code;
+	}
+	
+	/***
+	 * Extract Formulas from Code
+	 * @param code
+	 * @return code with formulas
+	 */
+	private String getFormulas(String code)
+	{
+		Pattern regex = Pattern.compile("F(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        String contenidoFormula;
+        while (regexMatcher.find()) {
+        	int idCampo=Integer.parseInt(getIdFormula(regexMatcher.group()));
+        	X_FTU_Quality_Param qp = new X_FTU_Quality_Param(getCtx(), idCampo, get_TrxName());
+        	if(qp.get_ID()>0) {
+        		contenidoFormula = qp.getCode().toLowerCase();
+            	code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
+        	}
+        }
+		
+		return code;
+	}
+	
+	/***
+	 * Process Clasifications of Analysis
+	 * @author Jorge Colmenarez, 2022-08-04 17:42
+	 */
 	private void clasification() {
 		//	Delete Cultive Result
 		String dSql = "DELETE FROM FTU_Lab_Cultive_Result WHERE FTU_Laboratory_Analysis_ID=?";
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
 		String sql="SELECT qp.ftu_quality_param_id,name,code "
-				+ "FROM FTU_Quality_Param qp WHERE qp.FTU_Recipe_ID=?";
+				+ "FROM FTU_Quality_Param qp WHERE qp.FTU_Recipe_ID=? AND qp.IsActive = 'Y'";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
@@ -151,35 +362,22 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 				String code=rs.getString("code");
 				int ftu_quality_param_id=rs.getInt("ftu_quality_param_id");
 				//	Replace Code
-				for(MFTULaboratoryAnalisysLine line : getLines(true, "")) {
-					String value=line.getFTU_Analysis_Type().getValue();
-					String result=line.getResult().toString();
-					code=code.replaceAll("#("+value+")", result);
-				}
-				//	Clean code
-				code=code.toLowerCase();
-				code=code.replaceAll("#", "");
-				code=code.replaceAll("%", "");
-				code=code.replaceAll(" or ", " || ");
-				code=code.replaceAll(" and ", " && ");
-				
-				ScriptEngineManager manager = new ScriptEngineManager();
-				ScriptEngine engine = manager.getEngineByName("js");
-				Object result;
-				try {
-					result = engine.eval(code);
-					if(result!=null) {
-						if(result.toString()!="false") {
-							MFTULabCultiveResult objLCR= new MFTULabCultiveResult(getCtx(),0,get_TrxName());
-							objLCR.setFTU_Laboratory_Analysis_ID(get_ID());
-							objLCR.setFTU_Quality_Param_ID(ftu_quality_param_id);
-							objLCR.setresult_human(procesarResultadoHumano(result.toString()));
-							objLCR.setresult_system(result.toString());
-							objLCR.saveEx();
-						}
-					}
-				} catch (ScriptException e) {
-					e.printStackTrace();
+				code = getFormulas(code);
+				code = replaceBasicCode(code);
+				code = replaceTableAndColumn(code, getFTU_EntryTicket_ID());
+				code = processFunctions(code);
+				code = cleanCode(code);
+				//	Execute Code
+				String sqlCode = "SELECT ("+code+") AS result";
+				String result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				if(result!=null) {
+					MFTULabCultiveResult lcr = new MFTULabCultiveResult(getCtx(), 0, get_TrxName());
+					lcr.setAD_Org_ID(getAD_Org_ID());
+					lcr.setFTU_Laboratory_Analysis_ID(get_ID());
+					lcr.setFTU_Quality_Param_ID(ftu_quality_param_id);
+					lcr.setresult_human(result.toUpperCase());
+					lcr.setresult_system(result);
+					lcr.saveEx();
 				}
 			}
 		}catch(Exception e)
@@ -190,11 +388,6 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 			rs = null;
 			pst = null;
 		}
-	}
-	
-	private String procesarResultadoHumano(String data){
-		return data.toUpperCase();
-		
 	}
 
 	@Override
