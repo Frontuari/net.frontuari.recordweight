@@ -76,6 +76,9 @@ public class CalloutFactory extends FTUCalloutFactory {
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_C_UOM_ID, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_QtyOrdered, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_M_Product_ID, FTU_CalloutDDOrderLine.class);
+		//	Added By Jorge Colmenarez, 2022-08-05 15:52
+		registerCallout(I_FTU_RecordWeight.Table_Name, "outWeight", CalloutRecordWeight.class);
+		
 	}
 
 }

@@ -10,7 +10,6 @@ import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.zkoss.util.logging.Log;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
@@ -218,6 +217,29 @@ public class CalloutRecordWeight extends FTUCallout {
 			setValue("InDate", rw.getOutDate());
 			setValue("WeightStatus", "G");
 			
+		}
+		//	Added By Jorge Colmenarez, 2022-08-05 15:19
+		//	Support for calculate NetWeight
+		if(getColumnName().equals("outWeight")) {
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			BigDecimal InWeight=(BigDecimal) getValue("InWeight");
+			BigDecimal outWeight=(BigDecimal) getValue("outWeight");
+
+			if(outWeight.compareTo(BigDecimal.ZERO) == 0) {
+				setValue("NetWeight", BigDecimal.ZERO);
+			}else {
+				setValue("GrossWeight",InWeight);
+				setValue("TareWeight",outWeight);
+				setValue("NetWeight", InWeight.subtract(outWeight));
+			}
+
+
+			if(InWeight.compareTo(BigDecimal.ZERO) == 0) {
+				setValue("InDate", timestamp);
+			}
+			if(outWeight.compareTo(BigDecimal.ZERO) != 0) {
+				 setValue("OutDate", timestamp);
+			}
 		}
 		//	End Jorge Colmenarez
 		return "";

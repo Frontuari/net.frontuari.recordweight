@@ -1066,9 +1066,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (getOperationType() == null)
 			msg = "@FTU_EntryTicket_ID@ @NotFound@";
 		// Valid Entry ticket
-		System.out.println("Validacion?");
 		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultiplesProducts) && !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) ) {
-			System.out.println("Validacion si");
 			msg = validETReferenceDuplicated();
 		}
 		// Operation Type
