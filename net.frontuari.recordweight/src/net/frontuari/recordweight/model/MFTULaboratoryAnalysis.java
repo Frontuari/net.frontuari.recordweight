@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MColumn;
+import org.compiere.model.MDocType;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -20,6 +21,7 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.TimeUtil;
 
 import net.frontuari.mfta.model.MFTULabCultiveResult;
 import net.frontuari.mfta.model.X_FTU_Functions_Formule;
@@ -235,7 +237,10 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
         		String name;
         		for(int i = 1;i<=columnCount;i++){
         			name = rsMetaData.getColumnName(i);
-			        code=code.replaceAll("&("+name+")", "'"+rs.getObject(i).toString()+"'");
+        			if(isInstance(rs.getObject(i), BigDecimal.class))
+        				code=code.replaceAll("&("+name+")", rs.getObject(i).toString());
+        			else
+        				code=code.replaceAll("&("+name+")", "'"+rs.getObject(i).toString()+"'");
         		}
         	}catch(Exception e)
         	{
@@ -248,6 +253,18 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
         	}
         }
 		return code;
+	}
+	
+	/***
+	 * Check Instance of Object
+	 * @author Jorge Colmenarez, 2022-08-05 10:57
+	 * @param obj
+	 * @param type
+	 * @return true or false
+	 */
+	private boolean isInstance(Object obj, Class<?> type)
+	{
+		return type.isInstance(obj);
 	}
 	
 	/***
@@ -442,7 +459,8 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
-		setDescription(null);
+		
+		setDefiniteDocumentNo();
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (m_processMsg != null) {
@@ -600,6 +618,21 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 	public BigDecimal getApprovalAmt() {
 		
 		return null;
+	}
+	
+	/**
+	 * 	Set the definite document number after completed
+	 */
+	protected void setDefiniteDocumentNo() {
+		MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
+		if (dt.isOverwriteDateOnComplete()) {
+			setDateDoc(TimeUtil.getDay(0));
+		}
+		if (dt.isOverwriteSeqOnComplete()) {
+			String value = DB.getDocumentNo(getC_DocType_ID(), get_TrxName(), true, this);
+			if (value != null)
+				setDocumentNo(value);
+		}
 	}
 
 }
