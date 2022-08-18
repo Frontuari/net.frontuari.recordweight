@@ -264,6 +264,7 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 	 */
 	private boolean isInstance(Object obj, Class<?> type)
 	{
+		System.out.println(obj.getClass());
 		return type.isInstance(obj);
 	}
 	
