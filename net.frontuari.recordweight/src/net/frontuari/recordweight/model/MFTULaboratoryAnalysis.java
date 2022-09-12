@@ -393,8 +393,8 @@ public class MFTULaboratoryAnalysis extends X_FTU_Laboratory_Analysis implements
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setFTU_Laboratory_Analysis_ID(get_ID());
 					lcr.setFTU_Quality_Param_ID(ftu_quality_param_id);
-					lcr.setresult_human(result.toUpperCase());
-					lcr.setresult_system(result);
+					lcr.setResult_Human(result.toUpperCase());
+					lcr.setResult_System(result);
 					lcr.saveEx();
 				}
 			}
