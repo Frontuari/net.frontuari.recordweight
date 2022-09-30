@@ -46,6 +46,7 @@ import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTUInOut;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
+import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
 import net.frontuari.recordweight.model.MFTUMobilizationGuide;
 import net.frontuari.recordweight.model.MFTUMovement;
 import net.frontuari.recordweight.model.MFTURecordWeight;
@@ -103,6 +104,7 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(X_I_EntryTicket.Table_Name, X_I_EntryTicket.class);
 		registerModel(MFTUMovement.Table_Name, MFTUMovement.class);
 		registerModel(MFTUInOut.Table_Name, MFTUInOut.class);
+		registerModel(MFTULoadOrderLineMA.Table_Name, MFTULoadOrderLineMA.class);
 	}
 
 }

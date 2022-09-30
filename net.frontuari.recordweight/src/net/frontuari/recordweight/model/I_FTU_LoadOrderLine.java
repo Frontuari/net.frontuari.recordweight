@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrderLine
     /** TableName=FTU_LoadOrderLine */
     public static final String Table_Name = "FTU_LoadOrderLine";
 
-    /** AD_Table_ID=1000023 */
+    /** AD_Table_ID=1000029 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -132,6 +132,21 @@ public interface I_FTU_LoadOrderLine
 	  */
 	public int getCreatedBy();
 
+    /** Column name C_UOM_ID */
+    public static final String COLUMNNAME_C_UOM_ID = "C_UOM_ID";
+
+	/** Set UOM.
+	  * Unit of Measure
+	  */
+	public void setC_UOM_ID (int C_UOM_ID);
+
+	/** Get UOM.
+	  * Unit of Measure
+	  */
+	public int getC_UOM_ID();
+
+	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException;
+
     /** Column name DateConfirm */
     public static final String COLUMNNAME_DateConfirm = "DateConfirm";
 
@@ -179,6 +194,15 @@ public interface I_FTU_LoadOrderLine
 	public int getFreightInvoiceLine_ID();
 
 	public org.compiere.model.I_C_InvoiceLine getFreightInvoiceLine() throws RuntimeException;
+
+    /** Column name FTU_DeliveryRute_ID */
+    public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
+
+	/** Set Delivery Rute	  */
+	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
+
+	/** Get Delivery Rute	  */
+	public int getFTU_DeliveryRute_ID();
 
     /** Column name FTU_LoadOrder_ID */
     public static final String COLUMNNAME_FTU_LoadOrder_ID = "FTU_LoadOrder_ID";
@@ -235,6 +259,34 @@ public interface I_FTU_LoadOrderLine
 	  */
 	public boolean isConfirmed();
 
+    /** Column name Line */
+    public static final String COLUMNNAME_Line = "Line";
+
+	/** Set Line No.
+	  * Unique line for this document
+	  */
+	public void setLine (int Line);
+
+	/** Get Line No.
+	  * Unique line for this document
+	  */
+	public int getLine();
+
+    /** Column name M_AttributeSetInstance_ID */
+    public static final String COLUMNNAME_M_AttributeSetInstance_ID = "M_AttributeSetInstance_ID";
+
+	/** Set Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public void setM_AttributeSetInstance_ID (int M_AttributeSetInstance_ID);
+
+	/** Get Attribute Set Instance.
+	  * Product Attribute Set Instance
+	  */
+	public int getM_AttributeSetInstance_ID();
+
+	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
+
     /** Column name M_InOutLine_ID */
     public static final String COLUMNNAME_M_InOutLine_ID = "M_InOutLine_ID";
 
@@ -249,6 +301,21 @@ public interface I_FTU_LoadOrderLine
 	public int getM_InOutLine_ID();
 
 	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException;
+
+    /** Column name M_Locator_ID */
+    public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
+
+	/** Set Locator.
+	  * Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID);
+
+	/** Get Locator.
+	  * Warehouse Locator
+	  */
+	public int getM_Locator_ID();
+
+	public I_M_Locator getM_Locator() throws RuntimeException;
 
     /** Column name M_MovementLine_ID */
     public static final String COLUMNNAME_M_MovementLine_ID = "M_MovementLine_ID";

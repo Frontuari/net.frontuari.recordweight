@@ -9,14 +9,42 @@ import java.sql.ResultSet;
 import java.util.Properties;
 
 import org.compiere.model.MProduct;
+import org.compiere.model.MStorageOnHand;
+import org.compiere.model.MWarehouse;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
+
 /**
  *
- */
+ **/
+
 public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 
+	/** Parent					*/
+	protected MFTULoadOrder	m_parent = null;
+	
+	/**
+	 * 	Get Parent
+	 *	@return parent
+	 */
+	public MFTULoadOrder getParent()
+	{
+		if (m_parent == null)
+			m_parent = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
+		return m_parent;
+	}	//	getParent
+	
+	public void setHeaderInfo (MFTULoadOrder loadorder)
+	{
+		m_parent = loadorder;
+	}	//	setHeaderInfo
+	public void setLoadOrder (MFTULoadOrder loadorder)
+	{
+		setClientOrg(loadorder);
+		//
+		setHeaderInfo(loadorder);	//	sets MARILoadOrder
+	}	//	setLoadOrder
 	/**
 	 * 
 	 */
@@ -42,6 +70,15 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 	public MFTULoadOrderLine(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
+	
+	public MFTULoadOrderLine (MFTULoadOrder loadorder)
+	{
+		this (loadorder.getCtx(), 0, loadorder.get_TrxName());
+		if (loadorder.get_ID() == 0)
+			throw new IllegalArgumentException("Header not saved");
+		setFTU_LoadOrder_ID(loadorder.getFTU_LoadOrder_ID());
+		setLoadOrder(loadorder);
+	}	//	MARILoadOrderLine
 	
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
@@ -140,5 +177,34 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 			log.warning("(1) #" + no);
 		return no == 1;
 	}	//	updateHeaderTax
+	/**
+	 * 	Set (default) Locator based on qty.
+	 * 	@param Qty quantity
+	 * 	Assumes Warehouse is set
+	 */
+	public void setM_Locator_ID(BigDecimal Qty)
+	{
+		//	Locator established
+		if (getM_Locator_ID() != 0)
+			return;
+		//	No Product
+		if (getM_Product_ID() == 0)
+		{
+			set_ValueNoCheck(COLUMNNAME_M_Locator_ID, null);
+			return;
+		}
+
+		//	Get existing Location
+		int M_Locator_ID = MStorageOnHand.getM_Locator_ID (getM_Warehouse_ID(),
+				getM_Product_ID(), getM_AttributeSetInstance_ID(),
+				Qty, get_TrxName());
+		//	Get default Location
+		if (M_Locator_ID == 0)
+		{
+			MWarehouse wh = MWarehouse.get(getCtx(), getM_Warehouse_ID());
+			M_Locator_ID = wh.getDefaultLocator().getM_Locator_ID();
+		}
+		setM_Locator_ID(M_Locator_ID);
+	}	//	setM_Locator_ID
 
 }

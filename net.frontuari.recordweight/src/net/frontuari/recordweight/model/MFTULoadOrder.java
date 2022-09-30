@@ -15,7 +15,10 @@ import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MPeriod;
+import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
+import org.compiere.model.MStorageOnHand;
+import org.compiere.model.MUOMConversion;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PrintInfo;
@@ -276,6 +279,54 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		if(m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 			
+//		Create ProductMA
+			for(MFTULoadOrderLine line : getLines(true))
+			{
+				MProduct product = (MProduct) line.getM_Product();
+				//	Stock Movement 
+				if (product != null
+					&& product.isStocked() )
+				{
+					BigDecimal movementQty = MUOMConversion.convertProductFrom (getCtx(), line.getM_Product_ID(),
+							line.getC_UOM_ID(), line.getQty());
+					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(line.getFTU_LoadOrderLine_ID(), get_TrxName());				
+					
+					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
+						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
+						// More then line qty on attribute tab for line 10
+						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
+						return DOCSTATUS_Invalid;
+					}
+					
+					checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));
+					
+				}
+				
+				//
+				if (line.getM_AttributeSetInstance_ID() == 0)
+				{
+					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
+						line.getFTU_LoadOrderLine_ID(), get_TrxName());
+					for (int j = 0; j < mas.length; j++)
+					{
+						MFTULoadOrderLineMA ma = mas[j];
+						BigDecimal QtyMA = ma.getQty().negate();
+
+						//	Update Storage - see also VMatch.createMatchRecord
+						/*if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
+							line.getM_Locator_ID(),
+							line.getM_Product_ID(),
+							ma.getM_AttributeSetInstance_ID(),
+							QtyMA,ma.getDateMaterialPolicy(),
+							get_TrxName()))
+						{
+							String lastError = CLogger.retrieveErrorString("");
+							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
+							return DocAction.STATUS_Invalid;
+						}*/
+					}
+				}
+			}
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)
@@ -729,6 +780,13 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		if (m_processMsg != null)
 			return false; 
 		
+		for (MFTULoadOrderLine line : getLines(true)) {
+			if (line.getConfirmedWeight().compareTo(Env.ZERO) > 0 ) {
+				m_processMsg = m_processMsg + " No puede reactivar porque ya se ha pesado la orden de carga";
+				return false;
+			}
+		}
+		setDocStatus(STATUS_InProgress);
 		setDocAction(DOCACTION_Complete);
 		setProcessed(false);
 		return true;
@@ -1011,6 +1069,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			else if(docStatus.equals(DocumentEngine.STATUS_Completed)){
 				options[index++] = DocumentEngine.ACTION_Close;
 				options[index++] = DocumentEngine.ACTION_Void;
+				options[index++] = DocumentEngine.ACTION_ReActivate;
 			}else
 				options[index++] = DocumentEngine.ACTION_None;
 		}
@@ -1144,4 +1203,79 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		ReportEngine re = new ReportEngine(ctx, format, query, info, trxName);
 		return re;
 	}	//	getDocumentPrintEngine	
+	/**
+	 * 	Check Material Policy
+	 * 	Sets line ASI
+	 */
+	protected void checkMaterialPolicy(MFTULoadOrderLine line,BigDecimal qty)
+	{
+			
+		int no = MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrder_ID(), get_TrxName());
+		if (no > 0)
+			if (log.isLoggable(Level.CONFIG)) log.config("Delete old #" + no);
+		
+		if(Env.ZERO.compareTo(qty)==0)
+			return;
+
+		boolean needSave = false;
+
+		MProduct product = (MProduct) line.getM_Product();
+
+		//	Need to have Location
+		if (product != null
+				&& line.getM_Locator_ID() == 0)
+		{
+			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
+			line.setM_Warehouse_ID(getM_Warehouse_ID());
+			line.setM_Locator_ID(line.getQty());	//	default Locator
+			needSave = true;
+		}
+
+		//	Attribute Set Instance
+		//  Create an  Attribute Set Instance to any receipt FIFO/LIFO
+		if (product != null && line.getM_AttributeSetInstance_ID() == 0)
+		{
+			 
+			// Create consume the Attribute Set Instance using policy FIFO/LIFO
+			String MMPolicy = product.getMMPolicy();
+			Timestamp minGuaranteeDate = getDateDoc();
+			MStorageOnHand[] storages = MStorageOnHand.getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
+					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false);
+			BigDecimal qtyToDeliver = qty;
+			for (MStorageOnHand storage: storages)
+			{
+				if (storage.getQtyOnHand().compareTo(qtyToDeliver) >= 0)
+				{
+					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
+							storage.getM_AttributeSetInstance_ID(),
+							qtyToDeliver,storage.getDateMaterialPolicy(),true);
+					ma.saveEx();
+					qtyToDeliver = Env.ZERO;
+				}
+				else
+				{
+					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
+							storage.getM_AttributeSetInstance_ID(),
+							storage.getQtyOnHand(),storage.getDateMaterialPolicy(),true);
+					ma.saveEx();
+					qtyToDeliver = qtyToDeliver.subtract(storage.getQtyOnHand());
+					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
+				}
+					if (qtyToDeliver.signum() == 0)
+					break;
+			}
+			if (qtyToDeliver.signum() != 0)
+			{					
+				//Over Delivery
+				MFTULoadOrderLineMA ma = MFTULoadOrderLineMA.addOrCreate(line, line.getM_AttributeSetInstance_ID(), qtyToDeliver, getDateDoc(),true);
+				ma.saveEx();
+				if (log.isLoggable(Level.FINE)) log.fine("##: " + ma);
+			}
+		}	//	attributeSetInstance
+
+		if (needSave)
+		{
+			line.saveEx();
+		}
+	}	//	checkMaterialPolicy
 }
