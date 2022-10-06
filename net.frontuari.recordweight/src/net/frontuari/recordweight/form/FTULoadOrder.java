@@ -920,9 +920,10 @@ public class FTULoadOrder {
 		m_FTU_LoadOrder.setVolume(totalVolume);
 		//	Save Header
 		m_FTU_LoadOrder.saveEx();
-		//	Complete Order
+		//	Complete Order - removed 03/10/2022
+		m_FTU_LoadOrder.setDocStatus(X_FTU_LoadOrder.DOCSTATUS_Drafted);
 		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Complete);
-		m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Complete);
+		//m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Complete);
 		m_FTU_LoadOrder.saveEx();
 		//	Valid Error
 		String errorMsg = m_FTU_LoadOrder.getProcessMsg();
