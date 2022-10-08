@@ -13,18 +13,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2021 Frontuari and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUFormFactory;
+import net.frontuari.recordweight.base.CustomFormFactory;
+
 import net.frontuari.recordweight.form.WFTULoadOrder;
 
 /**
  * Form Factory
  */
-public class FormFactory extends FTUFormFactory {
+public class FormFactory extends CustomFormFactory {
 
 	/**
 	 * For initialize class. Register the custom forms to build. This method is

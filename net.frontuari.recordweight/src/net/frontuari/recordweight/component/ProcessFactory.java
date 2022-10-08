@@ -13,12 +13,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2021 Frontuari and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUProcessFactory;
+import net.frontuari.recordweight.base.CustomProcessFactory;
 import net.frontuari.recordweight.process.ChangePrintedStatus;
 import net.frontuari.recordweight.process.ChangePrintedStatusRecordWeight;
 import net.frontuari.recordweight.process.EntryTicketChange;
@@ -33,7 +33,7 @@ import net.frontuari.recordweight.process.ValidateDriver;
 /**
  * Process Factory
  */
-public class ProcessFactory extends FTUProcessFactory {
+public class ProcessFactory extends CustomProcessFactory {
 
 	/**
 	 * For initialize class. Register the process to build

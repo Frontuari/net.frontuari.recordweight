@@ -14,10 +14,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.jsoup.select.Evaluator;
 import net.frontuari.recordweight.model.MFTUDriver;
+import net.frontuari.recordweight.base.CustomProcess;
 
-import net.frontuari.recordweight.base.FTUProcess;
-
-public class ValidateDriver extends FTUProcess{
+public class ValidateDriver extends CustomProcess{
 	
 	String Cedula;
 	int FTU_Driver_ID;

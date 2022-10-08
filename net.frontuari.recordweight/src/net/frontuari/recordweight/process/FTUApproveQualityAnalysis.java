@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.DB;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 
 /**
@@ -15,7 +15,7 @@ import net.frontuari.recordweight.model.MHRSAnalysis;
  * @author Argenis Rodríguez
  *
  */
-public class FTUApproveQualityAnalysis extends FTUProcess {
+public class FTUApproveQualityAnalysis extends CustomProcess {
 
 	@Override
 	protected void prepare() {

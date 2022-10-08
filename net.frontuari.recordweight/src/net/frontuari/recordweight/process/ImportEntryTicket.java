@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.X_I_EntryTicket;
 
@@ -17,7 +17,7 @@ import net.frontuari.recordweight.model.X_I_EntryTicket;
  * @author Argenis Rodríguez arodriguez@frontuari.net
  *
  */
-public class ImportEntryTicket extends FTUProcess {
+public class ImportEntryTicket extends CustomProcess {
 	
 	private int p_AD_Client_ID = 0;
 	

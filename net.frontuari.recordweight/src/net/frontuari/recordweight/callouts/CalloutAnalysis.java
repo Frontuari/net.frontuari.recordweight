@@ -7,7 +7,8 @@ import org.compiere.model.MInOutLine;
 import org.compiere.util.DB;
 import org.eevolution.model.X_PP_Order;
 
-import net.frontuari.recordweight.base.FTUCallout;
+import net.frontuari.recordweight.base.CustomCallout;
+
 import net.frontuari.recordweight.model.I_HRS_Analysis;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.X_HRS_Analysis;
@@ -16,7 +17,7 @@ import net.frontuari.recordweight.model.X_HRS_Analysis;
  * @author jruiz
  *
  */
-public class CalloutAnalysis extends FTUCallout {
+public class CalloutAnalysis extends CustomCallout {
 
 	@Override
 	protected String start() {

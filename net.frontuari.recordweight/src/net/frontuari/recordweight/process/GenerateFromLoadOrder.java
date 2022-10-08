@@ -39,7 +39,7 @@ import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.util.ProcessBuilder;
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTURecordWeight;
@@ -49,7 +49,7 @@ import net.frontuari.recordweight.model.X_FTU_LoadOrder;
  * @author dixon
  *
  */
-public class GenerateFromLoadOrder extends FTUProcess {
+public class GenerateFromLoadOrder extends CustomProcess {
 
 	private int p_FTU_LoadOrder_ID = -1;
 	/** Current Shipment */

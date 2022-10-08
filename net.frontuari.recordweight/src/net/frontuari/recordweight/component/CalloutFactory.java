@@ -13,14 +13,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2021 Frontuari and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
 import org.eevolution.model.I_DD_OrderLine;
 
-import net.frontuari.recordweight.base.FTUCalloutFactory;
+import net.frontuari.recordweight.base.CustomCalloutFactory;
 import net.frontuari.recordweight.callouts.CallOutEntryTicket;
 import net.frontuari.recordweight.callouts.CalloutAnalysis;
 import net.frontuari.recordweight.callouts.CalloutRecordWeight;
@@ -34,7 +34,7 @@ import net.frontuari.recordweight.model.I_HRS_Analysis;
 /**
  * Callout Factory
  */
-public class CalloutFactory extends FTUCalloutFactory {
+public class CalloutFactory extends CustomCalloutFactory {
 
 	/**
 	 * For initialize class. Register the custom callout to build

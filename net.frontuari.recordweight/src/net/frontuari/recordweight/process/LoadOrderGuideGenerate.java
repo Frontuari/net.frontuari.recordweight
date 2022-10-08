@@ -15,7 +15,7 @@ import org.compiere.util.AdempiereUserError;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 import net.frontuari.recordweight.model.MFTULoadOrder;
@@ -26,7 +26,7 @@ import net.frontuari.recordweight.model.X_FTU_RecordWeight;
 /** 
  *
  */
-public class LoadOrderGuideGenerate extends FTUProcess {
+public class LoadOrderGuideGenerate extends CustomProcess {
 
 	/**	Organization 				*/
 	private int 		p_AD_Org_ID				= 0;

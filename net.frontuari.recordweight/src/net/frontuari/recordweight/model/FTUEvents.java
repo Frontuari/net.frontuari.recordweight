@@ -18,9 +18,10 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.eevolution.model.MDDOrderLine;
 
-import net.frontuari.recordweight.base.FTUModelEvents;
+import net.frontuari.recordweight.base.CustomEvent;
 
-public class FTUEvents extends FTUModelEvents {
+
+public class FTUEvents extends CustomEvent {
 
 	@Override
 	protected void doHandleEvent() {

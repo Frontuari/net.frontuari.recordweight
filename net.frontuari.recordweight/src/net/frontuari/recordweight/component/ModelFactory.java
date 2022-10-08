@@ -13,12 +13,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2021 Frontuari and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUModelFactory;
+import net.frontuari.recordweight.base.CustomModelFactory;
 import net.frontuari.recordweight.model.I_FTU_BillOfLading;
 import net.frontuari.recordweight.model.I_FTU_Chute;
 import net.frontuari.recordweight.model.I_FTU_Driver;
@@ -68,7 +68,7 @@ import net.frontuari.recordweight.model.X_I_EntryTicket;
 /**
  * Model Factory
  */
-public class ModelFactory extends FTUModelFactory {
+public class ModelFactory extends CustomModelFactory {
 
 	/**
 	 * For initialize class. Register the models to build

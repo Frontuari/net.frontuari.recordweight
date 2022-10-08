@@ -15,14 +15,15 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
+
 import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUBillOfLadingLine;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.X_FTU_BillOfLading;
 
-public class FTUGenerateFreightCost extends FTUProcess{
+public class FTUGenerateFreightCost extends CustomProcess{
 	String p_FTU_ZeroCost;
 	String p_FTU_AdjustPrice;
 	BigDecimal p_qtyCalc;

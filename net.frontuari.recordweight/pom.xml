@@ -5,8 +5,8 @@
 	<parent>
 		<groupId>org.idempiere</groupId>
 		<artifactId>org.idempiere.parent</artifactId>
-		<version>7.1.0-SNAPSHOT</version>
-		<relativePath>../../../idempiere-release-7.1/org.idempiere.parent/pom.xml</relativePath>
+		<version>8.2.0-SNAPSHOT</version>
+		<relativePath>../../../../../../media/opensource/Data/idempiere-release-8.2/org.idempiere.parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>net.frontuari.recordweight</artifactId>
 	<packaging>eclipse-plugin</packaging>
@@ -26,7 +26,7 @@
 				<configuration>
 					<filesets>
 						<fileset>
-							<directory>${project.basedir}/lib</directory>
+							<directory>lib</directory>
 							<includes>
 								<include>*.jar</include>
 							</includes>
@@ -47,9 +47,9 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>org.apache.velocity</groupId>
-									<artifactId>velocity-engine-core</artifactId>
-									<version>2.1</version>
+									<groupId>org.freemarker</groupId>
+									<artifactId>freemarker</artifactId>
+									<version>2.3.29</version>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.jsoup</groupId>
@@ -68,4 +68,3 @@
 		</plugins>
 	</build>
 </project>
-

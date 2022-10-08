@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Record Weight Test
+Bundle-Name: recordweight Test
 Bundle-SymbolicName: net.frontuari.recordweight.test
-Bundle-Version: 7.1.0.qualifier
-Bundle-Vendor: FRONTUARI <https://www.frontuari.net>
+Bundle-Version: 8.2.0.qualifier
+Bundle-Vendor: Frontuari
 Fragment-Host: net.frontuari.recordweight
 Bundle-ClassPath: .,
  lib/junit-jupiter-engine.jar,

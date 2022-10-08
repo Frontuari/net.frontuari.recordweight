@@ -3,7 +3,7 @@ package net.frontuari.recordweight.process;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTUVehicle;
@@ -12,7 +12,7 @@ import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 /**
  *
  */
-public class EntryTicketChange extends FTUProcess {
+public class EntryTicketChange extends CustomProcess {
 
 	/**	Entry Ticket				*/
 	private int p_FTU_EntryTicket_ID 	= 0;

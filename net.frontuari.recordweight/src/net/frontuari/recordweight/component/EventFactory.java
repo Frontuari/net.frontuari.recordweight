@@ -13,7 +13,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2021 Frontuari and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
@@ -24,13 +24,13 @@ import org.compiere.model.I_M_InOut;
 import org.compiere.model.I_M_Movement;
 import org.compiere.model.MMovement;
 
-import net.frontuari.recordweight.base.FTUEventFactory;
+import net.frontuari.recordweight.base.CustomEventFactory;
 import net.frontuari.recordweight.model.FTUEvents;
 
 /**
  * Event Factory
  */
-public class EventFactory extends FTUEventFactory {
+public class EventFactory extends CustomEventFactory {
 
 	/**
 	 * For initialize class. Register the custom events to build

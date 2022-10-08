@@ -1,31 +1,31 @@
-# Record Weight
+# recordweight
 
 ## Standard
 
 - New callout
     * Name: CName
-    * Package: net.fromtuari.recordweight.callout
-    * Example: net.fromtuari.recordweight.callout.CStringFormat
+    * Package: net.frontuari.recordweight.callout
+    * Example: net.frontuari.recordweight.callout.CStringFormat
 
 - New process
     * Name: PName
-    * Package: net.fromtuari.recordweight.process
-    * Example: net.fromtuari.recordweight.process.PGenerateWithholding
+    * Package: net.frontuari.recordweight.process
+    * Example: net.frontuari.recordweight.process.PGenerateWithholding
 
 - New form
     * Name: FName
-    * Package: net.fromtuari.recordweight.form
-    * Example: net.fromtuari.recordweight.form.FMultiPayment
+    * Package: net.frontuari.recordweight.form
+    * Example: net.frontuari.recordweight.form.FMultiPayment
 
 - New event
     * Name: EName
-    * Package: net.fromtuari.recordweight.event
-    * Example: net.fromtuari.recordweight.event.EAfterCompleteInvoice
+    * Package: net.frontuari.recordweight.event
+    * Example: net.frontuari.recordweight.event.EAfterCompleteInvoice
 
 - New model (extends class X)
     * Name: MName
-    * Package: net.fromtuari.recordweight.model
-    * Example: net.fromtuari.recordweight.model.MTableExample
+    * Package: net.frontuari.recordweight.model
+    * Example: net.frontuari.recordweight.model.MTableExample
 
 ## Folder estructure
 
@@ -53,7 +53,7 @@
         |   |_ModelFactory.xml
         |   |_ProcessFactory.xml
         |_src
-            |_net.fromtuari.recordweight
+            |_net.frontuari.recordweight
                 |_base (plugin core)
                 |   |_BundleInfo.java (gets plugin information dynamically)
                 |   |_CustomCallout.java (IColumnCallout implementation)
@@ -88,8 +88,8 @@
 ### Components
 
 - New callout
-    * Create callout in package `net.fromtuari.recordweight.callout`, extends from `CustomCallout`
-    * Register callout in `net.fromtuari.recordweight.component.CalloutFactory`. Example:
+    * Create callout in package `net.frontuari.recordweight.callout`, extends from `CustomCallout`
+    * Register callout in `net.frontuari.recordweight.component.CalloutFactory`. Example:
 
 ```java
     protected void initialize() {
@@ -98,8 +98,8 @@
 ```
 
 - New process
-    * Create process in package `net.fromtuari.recordweight.process`, extends from `CustomProcess`
-    * Register process in `net.fromtuari.recordweight.component.ProcessFactory`. Example:
+    * Create process in package `net.frontuari.recordweight.process`, extends from `CustomProcess`
+    * Register process in `net.frontuari.recordweight.component.ProcessFactory`. Example:
 
 ```java
     protected void initialize() {
@@ -108,8 +108,8 @@
 ```
 
 - New form
-    * Create form in package `net.fromtuari.recordweight.form`, extends from `CustomForm`
-    * Register form in `net.fromtuari.recordweight.component.FormFactory`. Example:
+    * Create form in package `net.frontuari.recordweight.form`, extends from `CustomForm`
+    * Register form in `net.frontuari.recordweight.component.FormFactory`. Example:
 
 ```java
     protected void initialize() {
@@ -118,8 +118,8 @@
 ```
 
 - New event
-    * Create event in package `net.fromtuari.recordweight.event`, extends from `CustomEvent`
-    * Register event in `net.fromtuari.recordweight.component.EventFactory`. Example:
+    * Create event in package `net.frontuari.recordweight.event`, extends from `CustomEvent`
+    * Register event in `net.frontuari.recordweight.component.EventFactory`. Example:
 
 ```java
     protected void initialize() {
@@ -128,8 +128,8 @@
 ```
 
 - New model (extends form class X)
-    * Create model in package `net.fromtuari.recordweight.model`, extends class `X`. Example: `X_TL_TableExample -> MTableExample`
-    * Register model in `net.fromtuari.recordweight.component.ModelFactory`. Example:
+    * Create model in package `net.frontuari.recordweight.model`, extends class `X`. Example: `X_TL_TableExample -> MTableExample`
+    * Register model in `net.frontuari.recordweight.component.ModelFactory`. Example:
 
 ```java
     protected void initialize() {
@@ -139,11 +139,11 @@
 
 ### Utils
 
-- `FileTemplateBuilder`: Creates complex text file using [velocity](https://velocity.apache.org/), example:
+- `FileTemplateBuilder`: Creates complex text file using [freemarker](https://freemarker.apache.org/), example:
 
 ```java
 FileTemplateBuilder.builder()
-    .template("invoice-template.xml")
+    .file("invoice-template.xml")
     .inject("invoice", new Invoice())
     .export("invoice.xml")
 ```
@@ -152,14 +152,14 @@ The `invoice-template.xml` file:
 
 ```xml
 <invoice>
-    <ruc>$invoice.name</ruc>
-    <name>$invoice.ruc</name>
+    <name>${invoice.name}</name>
+    <id>${invoice.id}</id>
     <lines>
-        #foreach($line in $invoice.invoiceLines)
+        <#list invoice.invoiceLines as line>
         <line>
-            <product name="$line.product" price="$line.price"/>
+            <product name="${line.product}" price="${line.price}"/>
         </line>
-        #end
+        </#list>
     </lines>
 </invoice>
 ```
@@ -174,7 +174,14 @@ keyValueLogger.message("Hello World!!").info();
 The output:
 
 ```bash
-20:34:24.270===========> ELogLoginInfo.error: message="Hello World!!"
+20:34:24.270 ELogLoginInfo.log: message="Hello World!!"
+```
+
+Othes output examples:
+
+```css
+19:50:16.044 OpenTransactionInterceptor.log: dateTime="2020-02-12 19:50:16.039 -0500" httpMethod="POST" client="11" language="es_CO" endpoint="/api/auth/login" transaction="Trx_e1dcd314-a508-44c1-9a0c-d34d4caacb2b" [33]
+19:50:16.157 CloseTransactionInterceptor.log: dateTime="2020-02-12 19:50:16.156 -0500" httpStatus="200" endpoint="/api/auth/login" transaction="Trx_e1dcd314-a508-44c1-9a0c-d34d4caacb2b" [33]
 ```
 
 - `SqlBuilder`: It is a wrapper for StringBuilder, allows you to create sql from files, example:
