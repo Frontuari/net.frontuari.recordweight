@@ -26,6 +26,7 @@ import org.compiere.model.MMovement;
 
 import net.frontuari.recordweight.base.FTUEventFactory;
 import net.frontuari.recordweight.model.FTUEvents;
+import net.frontuari.recordweight.model.MFTULoadOrderLine;
 
 /**
  * Event Factory
@@ -58,6 +59,7 @@ public class EventFactory extends FTUEventFactory {
 		//Add Event After Complete Movement for Update Qty Delivered in Distribution Order Line By Argenis Rodríguez
 		registerEvent(IEventTopics.DOC_AFTER_COMPLETE, MMovement.Table_Name, FTUEvents.class);
 		//End By Argenis Rodríguez
+		registerEvent(IEventTopics.PO_BEFORE_DELETE, MFTULoadOrderLine.Table_Name, FTUEvents.class);
 	}
 
 }

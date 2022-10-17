@@ -14,6 +14,7 @@ import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.PO;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.eevolution.model.MDDOrderLine;
@@ -24,6 +25,17 @@ public class FTUEvents extends FTUModelEvents {
 
 	@Override
 	protected void doHandleEvent() {
+	
+		PO po = getPO();		
+		String type = getEventType();
+		if (type.equalsIgnoreCase(IEventTopics.PO_BEFORE_DELETE)) {
+			if (po.get_TableName().equals(MFTULoadOrderLine.Table_Name)) {
+				MFTULoadOrderLine line = (MFTULoadOrderLine) po;
+				MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrderLine_ID(), line.get_TrxName());
+			}
+				
+		}
+		
 		if(getEventType().equals(IEventTopics.DOC_AFTER_VOID)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSECORRECT)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSEACCRUAL)) {
