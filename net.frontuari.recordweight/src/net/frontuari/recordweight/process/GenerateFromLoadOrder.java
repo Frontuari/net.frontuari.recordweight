@@ -508,6 +508,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MLocator l = w.getDefaultLocator();
 				shipmentLine.setM_Locator_ID(l.getM_Locator_ID());
 				//	End Jorge Colmenarez
+				shipmentLine.setM_AttributeSetInstance_ID(m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID());
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 				// Manually Process Shipment

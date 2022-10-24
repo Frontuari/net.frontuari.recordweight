@@ -23,6 +23,7 @@ import org.eevolution.model.I_DD_OrderLine;
 import net.frontuari.recordweight.base.FTUCalloutFactory;
 import net.frontuari.recordweight.callouts.CallOutEntryTicket;
 import net.frontuari.recordweight.callouts.CalloutAnalysis;
+import net.frontuari.recordweight.callouts.CalloutLoadOrder;
 import net.frontuari.recordweight.callouts.CalloutRecordWeight;
 import net.frontuari.recordweight.callouts.CalloutVehicle;
 import net.frontuari.recordweight.callouts.FTU_CalloutDDOrderLine;
@@ -30,6 +31,7 @@ import net.frontuari.recordweight.model.I_FTU_EntryTicket;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 import net.frontuari.recordweight.model.I_FTU_Vehicle;
 import net.frontuari.recordweight.model.I_HRS_Analysis;
+import net.frontuari.recordweight.model.X_FTU_LoadOrderLine;
 
 /**
  * Callout Factory
@@ -76,6 +78,8 @@ public class CalloutFactory extends FTUCalloutFactory {
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_C_UOM_ID, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_QtyOrdered, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_M_Product_ID, FTU_CalloutDDOrderLine.class);
+		//	Load Order
+		registerCallout(X_FTU_LoadOrderLine.Table_Name, X_FTU_LoadOrderLine.COLUMNNAME_C_OrderLine_ID, CalloutLoadOrder.class);
 	}
 
 }
