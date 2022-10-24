@@ -14,6 +14,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
+import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
@@ -297,13 +298,31 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
 						return DOCSTATUS_Invalid;
 					}
-					
-					checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));
-					
+					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
+						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
+							if (line.getM_AttributeSetInstance_ID() == 0) {
+								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
+										line.getFTU_LoadOrderLine_ID(), get_TrxName());		
+									if (mas.length < 1) {
+									StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
+										.append(line.getLine())
+										.append(", @M_Product_ID@=")
+										.append(product.getValue())
+										.append(")");
+									m_processMsg = msg.toString();
+									return DocAction.STATUS_Invalid;
+									}
+								}
+							}					
+						
+						}else {
+							
+							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
+					}					
 				}
 				
 				//
-				if (line.getM_AttributeSetInstance_ID() == 0)
+				/*if (line.getM_AttributeSetInstance_ID() == 0)
 				{
 					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
 						line.getFTU_LoadOrderLine_ID(), get_TrxName());
@@ -313,7 +332,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						BigDecimal QtyMA = ma.getQty().negate();
 
 						//	Update Storage - see also VMatch.createMatchRecord
-						/*if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
+						if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
 							line.getM_Locator_ID(),
 							line.getM_Product_ID(),
 							ma.getM_AttributeSetInstance_ID(),
@@ -323,9 +342,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 							String lastError = CLogger.retrieveErrorString("");
 							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
 							return DocAction.STATUS_Invalid;
-						}*/
+						}
 					}
-				}
+				}*/
 			}
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
