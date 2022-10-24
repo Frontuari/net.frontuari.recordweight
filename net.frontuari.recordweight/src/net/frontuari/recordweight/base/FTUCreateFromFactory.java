@@ -9,7 +9,9 @@ import org.compiere.model.GridTab;
 import org.compiere.model.MWindow;
 import org.compiere.util.Env;
 
+import net.frontuari.recordweight.form.WApplyDeliveredRute;
 import net.frontuari.recordweight.form.WFTUGetWeightUI;
+import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 
 /**
@@ -25,6 +27,8 @@ public class FTUCreateFromFactory implements ICreateFromFactory {
 		if (window.getEntityType().equals("FTU01")) {
 			if(tableName.equals(I_FTU_RecordWeight.Table_Name))
 				return new WFTUGetWeightUI(mTab);
+			if(tableName.equals(I_FTU_LoadOrder.Table_Name))
+				return new WApplyDeliveredRute(mTab);
 		}
 		return null;
 	}
