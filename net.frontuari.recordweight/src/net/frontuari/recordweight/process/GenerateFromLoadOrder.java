@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MClientInfo;
 import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
@@ -193,6 +194,41 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		boolean m_Added = false;
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
+			
+			//validate lot is ok
+			
+			boolean isOk = true;
+			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
+				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
+				String[] attrVal = i.getDescription().split("_");
+				for (String a : attrVal) {
+					if (a.equalsIgnoreCase("Observacion") ) {
+						isOk = false;
+						break;
+					}
+				}
+			}else {
+			MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
+			if (lineAttr.length > 0 ) {//if has attribute line
+				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
+					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
+					String[] attrVal = i.getDescription().split("_");
+					for (String a : attrVal) {
+						if (a.equalsIgnoreCase("Observacion") )
+							isOk = false;
+							break;
+						}
+
+					}
+				}
+			}
+			
+			if (!isOk) {
+				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder + " se encuentra en observacion");
+				continue;
+				
+			}
+			
 
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
@@ -299,6 +335,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
 				if (lineAttr.length > 0 ) {//if has attribute line
 					for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
+						
 						 m_Qty = lineMA.getQty();
 						 m_TotalQty = m_Qty;
 						// Create Shipment Line
@@ -421,9 +458,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				}else {
 					//end david castillo papasapo
 				// Create Shipment Line
+			
+					
 				MInOutLine shipmentLine = new MInOutLine(getCtx(), 0, get_TrxName());
 				// Get Order Line
 				MOrderLine oLine = (MOrderLine) m_FTU_LoadOrderLine.getC_OrderLine();
+				//atributo
 				
 				m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
 				m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
@@ -541,6 +581,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 		}
 		// Complete Shipment
+		if (m_Current_Shipment != null)
+		if (m_Current_Shipment.getLines().length <=0) {
+			m_Current_Shipment.deleteEx(true);
+			m_Current_Shipment = null;
+		}
 		completeShipment();
 		// Commit Transaction
 		return "";
@@ -588,7 +633,37 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
+			boolean isOk = true;
+			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
+				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
+				String[] attrVal = i.getDescription().split("_");
+				for (String a : attrVal) {
+					if (a.equalsIgnoreCase("Observacion") ) {
+						isOk = false;
+						break;
+					}
+				}
+			}else {
+			MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
+			if (lineAttr.length > 0 ) {//if has attribute line
+				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
+					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
+					String[] attrVal = i.getDescription().split("_");
+					for (String a : attrVal) {
+						if (a.equalsIgnoreCase("Observacion") )
+							isOk = false;
+							break;
+						}
 
+					}
+				}
+			}
+			if (!isOk) {
+				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder + " se encuentra en observacion");
+				continue;
+				
+			}
+			
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
 			
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
@@ -807,6 +882,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			} // End Invoice Line Created
 		} // End Invoice Generated
 
+		if (m_Current_Invoice != null)
+			if (m_Current_Invoice.getLines().length <=0) {
+				m_Current_Invoice.deleteEx(true);
+				m_Current_Invoice = null;
+			}
 		completeInvoice();
 		// Info
 		return "";
