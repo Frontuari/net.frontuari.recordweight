@@ -21,6 +21,7 @@ public class CalloutLoadOrder extends FTUCallout {
 					MOrderLine ol = new MOrderLine(getCtx(), olID, null);
 					getTab().setValue("M_Product_ID", ol.getM_Product_ID());
 					getTab().setValue("Qty", ol.getQtyReserved());
+					getTab().setValue("C_UOM_ID", ol.getC_UOM_ID());
 				}
 			}
 		}
