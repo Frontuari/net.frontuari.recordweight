@@ -224,7 +224,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 			
 			if (!isOk) {
-				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder + " se encuentra en observacion");
+				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder.getDocumentNo() + " se encuentra en observacion");
 				continue;
 				
 			}
@@ -659,7 +659,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				}
 			}
 			if (!isOk) {
-				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder + " se encuentra en observacion");
+				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder.getDocumentNo() + " se encuentra en observacion");
 				continue;
 				
 			}
