@@ -295,16 +295,19 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//Added By David Castillo 17/10/2022 Support to validate on MaterialOutputMovement
 		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialOutputMovement) && !isApproved())
 		{
-			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
+			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
+			
+			BigDecimal toleranceAmt = (new BigDecimal(tolerancePercentage).divide(Env.ONEHUNDRED, 2,RoundingMode.HALF_UP));
+			toleranceAmt = oNetWeight.multiply(toleranceAmt);
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
-					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
+			if(difference.compareTo(toleranceAmt.negate()) == -1 
+					|| difference.compareTo(toleranceAmt) == 1)
 			{
 				//	Added by Jorge Colmenarez, 2021-11-04 14:53
 				//	Support for write QtyDifference
 				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
 				//	End Jorge Colmenarez
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = ["+tolerancePercentage+"% = "+toleranceAmt+"] se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
 			}
 		}
