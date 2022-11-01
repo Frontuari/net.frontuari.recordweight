@@ -5,6 +5,7 @@ package net.frontuari.recordweight.model;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1638,13 +1639,57 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					else if (m_AcumWeight.compareTo(getValidWeight(false).multiply(rate)) == -1)
 						m_MovementQty = m_MovementQty.add(getValidWeight(false).multiply(rate).subtract(m_AcumWeight));
 				}
-
+				boolean atributosdemierda = false;
 				// Set Product
 				ioLine.setProduct(product);
-				/*
-				 * if (asi != null)
-				 * ioLine.setM_AttributeSetInstance_ID(asi.getM_AttributeSetInstance_ID());
-				 */
+				
+				if (lol[i].getM_AttributeSetInstance_ID()>0) {
+					ioLine.setM_AttributeSetInstance_ID(lol[i].getM_AttributeSetInstance_ID());
+				}else {
+					atributosdemierda = true;
+					MFTULoadOrderLineMA[] mas = MFTULoadOrderLineMA.get(getCtx(), lol[i].getFTU_LoadOrder_ID(), get_TrxName());
+					if (mas.length>0) {
+						BigDecimal qtyToDeliver = m_MovementQty;
+						for (MFTULoadOrderLineMA ma : mas) { 
+							
+							if (ma.getQty().compareTo(qtyToDeliver) >=0) {
+
+								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
+								
+								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
+								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
+								// Set Quantity
+								ioLine2.setC_UOM_ID(oLine.getC_UOM_ID());
+								ioLine2.setQty(qtyToDeliver);
+								ioLine2.setQtyEntered(m_Qty);
+								ioLine2.setM_Locator_ID(m_MovementQty);
+								//
+								ioLine2.saveEx(get_TrxName());
+								qtyToDeliver = Env.ZERO;
+								
+							}else {
+
+								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
+								
+								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
+								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
+								// Set Quantity
+								ioLine2.setC_UOM_ID(oLine.getC_UOM_ID());
+								ioLine2.setQty(qtyToDeliver);
+								ioLine2.setQtyEntered(m_Qty);
+								ioLine2.setM_Locator_ID(m_MovementQty);
+								//
+								ioLine2.saveEx(get_TrxName());
+								qtyToDeliver = qtyToDeliver.subtract(ma.getQty());
+												
+							}							
+							
+							
+							if (qtyToDeliver.signum() == 0)
+								break;
+						}
+					}
+				}
 
 				ioLine.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
 

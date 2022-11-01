@@ -13,10 +13,12 @@ import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.WListbox;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MDocType;
+import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
+import org.compiere.model.MUOMConversion;
 import org.compiere.model.X_C_Order;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -27,6 +29,7 @@ import org.compiere.util.Util;
 
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
+import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
 import net.frontuari.recordweight.model.MFTUVehicle;
 import net.frontuari.recordweight.model.MFTUVehicleType;
 import net.frontuari.recordweight.model.MFTUWeightScale;
@@ -912,6 +915,25 @@ public class FTULoadOrder {
 				m_FTU_LoadOrderLine.saveEx();
 				//	Add Count
 				m_gen ++;
+				// create MA
+				MProduct product = (MProduct) m_FTU_LoadOrderLine.getM_Product();
+				//	Stock Movement 
+				if (product != null
+					&& product.isStocked() )
+				{
+					BigDecimal movementQty = MUOMConversion.convertProductFrom (m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_Product_ID(),
+							m_FTU_LoadOrderLine.getC_UOM_ID(), m_FTU_LoadOrderLine.getQty());
+					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), m_FTU_LoadOrderLine.get_TrxName());				
+					
+					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
+						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
+						// More then line qty on attribute tab for line 10
+						throw new AdempiereException("@Over_Qty_On_Attribute_Tab@ " + m_FTU_LoadOrderLine.getLine());
+						
+					}
+					
+					m_FTU_LoadOrder.checkMaterialPolicy(m_FTU_LoadOrderLine, movementQty.subtract(qtyOnLineMA));	
+				}
 			}
 		}
 		//	Set Header Weight
@@ -922,8 +944,8 @@ public class FTULoadOrder {
 		m_FTU_LoadOrder.saveEx();
 		//	Complete Order - removed 03/10/2022
 		m_FTU_LoadOrder.setDocStatus(X_FTU_LoadOrder.DOCSTATUS_Drafted);
-		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Complete);
-		//m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Complete);
+		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Prepare);
+		m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Prepare);
 		m_FTU_LoadOrder.saveEx();
 		//	Valid Error
 		String errorMsg = m_FTU_LoadOrder.getProcessMsg();

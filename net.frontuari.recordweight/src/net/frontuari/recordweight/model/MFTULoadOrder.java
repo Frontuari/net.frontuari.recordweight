@@ -190,7 +190,73 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		MDocType m_DocType = MDocType.get(Env.getCtx(), getC_DocType_ID());
 
 		setIsImmediateDelivery(m_DocType.get_ValueAsBoolean("IsImmediateDelivery"));
-		
+		//
+//		Create ProductMA
+			for(MFTULoadOrderLine line : getLines(true))
+			{
+				MProduct product = (MProduct) line.getM_Product();
+				//	Stock Movement 
+				if (product != null
+					&& product.isStocked() )
+				{
+					BigDecimal movementQty = MUOMConversion.convertProductFrom (getCtx(), line.getM_Product_ID(),
+							line.getC_UOM_ID(), line.getQty());
+					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(line.getFTU_LoadOrderLine_ID(), get_TrxName());				
+					
+					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
+						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
+						// More then line qty on attribute tab for line 10
+						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
+						return DOCSTATUS_Invalid;
+					}
+					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
+						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
+							if (line.getM_AttributeSetInstance_ID() == 0) {
+								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
+										line.getFTU_LoadOrderLine_ID(), get_TrxName());		
+									if (mas.length < 1) {
+									StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
+										.append(line.getLine())
+										.append(", @M_Product_ID@=")
+										.append(product.getValue())
+										.append(")");
+									m_processMsg = msg.toString();
+									return DocAction.STATUS_Invalid;
+									}
+								}
+							}					
+						
+						}else {
+							
+							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
+					}					
+				}
+				
+				//
+				/*if (line.getM_AttributeSetInstance_ID() == 0)
+				{
+					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
+						line.getFTU_LoadOrderLine_ID(), get_TrxName());
+					for (int j = 0; j < mas.length; j++)
+					{
+						MFTULoadOrderLineMA ma = mas[j];
+						BigDecimal QtyMA = ma.getQty().negate();
+
+						//	Update Storage - see also VMatch.createMatchRecord
+						if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
+							line.getM_Locator_ID(),
+							line.getM_Product_ID(),
+							ma.getM_AttributeSetInstance_ID(),
+							QtyMA,ma.getDateMaterialPolicy(),
+							get_TrxName()))
+						{
+							String lastError = CLogger.retrieveErrorString("");
+							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
+							return DocAction.STATUS_Invalid;
+						}
+					}
+				}*/
+			}
 		//	Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -280,72 +346,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		if(m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 			
-//		Create ProductMA
-			for(MFTULoadOrderLine line : getLines(true))
-			{
-				MProduct product = (MProduct) line.getM_Product();
-				//	Stock Movement 
-				if (product != null
-					&& product.isStocked() )
-				{
-					BigDecimal movementQty = MUOMConversion.convertProductFrom (getCtx(), line.getM_Product_ID(),
-							line.getC_UOM_ID(), line.getQty());
-					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(line.getFTU_LoadOrderLine_ID(), get_TrxName());				
-					
-					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
-						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
-						// More then line qty on attribute tab for line 10
-						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
-						return DOCSTATUS_Invalid;
-					}
-					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
-						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
-							if (line.getM_AttributeSetInstance_ID() == 0) {
-								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-										line.getFTU_LoadOrderLine_ID(), get_TrxName());		
-									if (mas.length < 1) {
-									StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
-										.append(line.getLine())
-										.append(", @M_Product_ID@=")
-										.append(product.getValue())
-										.append(")");
-									m_processMsg = msg.toString();
-									return DocAction.STATUS_Invalid;
-									}
-								}
-							}					
-						
-						}else {
-							
-							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
-					}					
-				}
-				
-				//
-				/*if (line.getM_AttributeSetInstance_ID() == 0)
-				{
-					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-						line.getFTU_LoadOrderLine_ID(), get_TrxName());
-					for (int j = 0; j < mas.length; j++)
-					{
-						MFTULoadOrderLineMA ma = mas[j];
-						BigDecimal QtyMA = ma.getQty().negate();
-
-						//	Update Storage - see also VMatch.createMatchRecord
-						if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
-							line.getM_Locator_ID(),
-							line.getM_Product_ID(),
-							ma.getM_AttributeSetInstance_ID(),
-							QtyMA,ma.getDateMaterialPolicy(),
-							get_TrxName()))
-						{
-							String lastError = CLogger.retrieveErrorString("");
-							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
-							return DocAction.STATUS_Invalid;
-						}
-					}
-				}*/
-			}
 		//	User Validation
 		String valid = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (valid != null)
@@ -1226,7 +1226,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 * 	Check Material Policy
 	 * 	Sets line ASI
 	 */
-	protected void checkMaterialPolicy(MFTULoadOrderLine line,BigDecimal qty)
+	public void checkMaterialPolicy(MFTULoadOrderLine line,BigDecimal qty)
 	{
 			
 		int no = MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrder_ID(), get_TrxName());
