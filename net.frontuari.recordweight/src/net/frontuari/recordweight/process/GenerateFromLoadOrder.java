@@ -199,10 +199,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			
 			boolean isOk = true;
 			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
+		
 				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
 				String[] attrVal = i.getDescription().split("_");
 				for (String a : attrVal) {
-					if (a.equalsIgnoreCase("Observacion") ) {
+				if (a.equals("Observacion") ) {						
 						isOk = false;
 						break;
 					}
@@ -210,16 +211,18 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}else {
 			MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
 			if (lineAttr.length > 0 ) {//if has attribute line
+			
 				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
 					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
 					String[] attrVal = i.getDescription().split("_");
-					for (String a : attrVal) {
-						if (a.equalsIgnoreCase("Observacion") )
+					for (String a : attrVal) {					
+						if (a.equals("Observacion") ) {
 							isOk = false;
 							break;
 						}
 
 					}
+				}
 				}
 			}
 			
@@ -650,11 +653,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
 					String[] attrVal = i.getDescription().split("_");
 					for (String a : attrVal) {
-						if (a.equalsIgnoreCase("Observacion") )
+						if (a.equalsIgnoreCase("Observacion") ) {
 							isOk = false;
 							break;
-						}
+							}
 
+						}
 					}
 				}
 			}
