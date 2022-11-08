@@ -19,13 +19,16 @@
 package net.frontuari.recordweight.component;
 
 import net.frontuari.recordweight.base.FTUModelFactory;
+import net.frontuari.recordweight.model.I_FTU_Analysis_Type;
 import net.frontuari.recordweight.model.I_FTU_BillOfLading;
 import net.frontuari.recordweight.model.I_FTU_Chute;
 import net.frontuari.recordweight.model.I_FTU_Driver;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
+import net.frontuari.recordweight.model.I_FTU_Functions_Formule;
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.model.I_FTU_LoadOrderLine;
 import net.frontuari.recordweight.model.I_FTU_MobilizationGuide;
+import net.frontuari.recordweight.model.I_FTU_Quality_Param;
 import net.frontuari.recordweight.model.I_FTU_RW_ApprovalMotive;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 import net.frontuari.recordweight.model.I_FTU_ScreenConfig;
@@ -38,7 +41,10 @@ import net.frontuari.recordweight.model.I_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.I_FTU_WeightScale;
 import net.frontuari.recordweight.model.I_FTU_WeightScale_Role;
 import net.frontuari.recordweight.model.I_HRS_Analysis;
+import net.frontuari.recordweight.model.I_HRS_AnalysisLine;
+import net.frontuari.recordweight.model.I_HRS_AnalysisValuation;
 import net.frontuari.recordweight.model.I_HRS_QualityParameter;
+import net.frontuari.recordweight.model.MFTUAnalysisType;
 import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUDriver;
@@ -58,7 +64,11 @@ import net.frontuari.recordweight.model.MFTUVehicleModel;
 import net.frontuari.recordweight.model.MFTUVehicleType;
 import net.frontuari.recordweight.model.MFTUWeightScale;
 import net.frontuari.recordweight.model.MHRSAnalysis;
+import net.frontuari.recordweight.model.MHRSAnalysisLine;
+import net.frontuari.recordweight.model.MHRSAnalysisValuation;
 import net.frontuari.recordweight.model.MHRSQualityParameter;
+import net.frontuari.recordweight.model.X_FTU_Functions_Formule;
+import net.frontuari.recordweight.model.X_FTU_Quality_Param;
 import net.frontuari.recordweight.model.X_FTU_RW_ApprovalMotive;
 import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
@@ -105,6 +115,15 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(MFTUMovement.Table_Name, MFTUMovement.class);
 		registerModel(MFTUInOut.Table_Name, MFTUInOut.class);
 		registerModel(MFTULoadOrderLineMA.Table_Name, MFTULoadOrderLineMA.class);
+		//	Added by Jorge Colmenarez, 2022-11-08 09:15
+		//	Module Lab Analysis
+		registerModel(I_FTU_Analysis_Type.Table_Name, MFTUAnalysisType.class);
+		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
+		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
+		registerModel(I_FTU_Quality_Param.Table_Name, X_FTU_Quality_Param.class);
+		registerModel(I_HRS_AnalysisLine.Table_Name, MHRSAnalysisLine.class);
+		registerModel(I_HRS_AnalysisValuation.Table_Name, MHRSAnalysisValuation.class);
+		//	End Jorge Colmenarez
 	}
 
 }
