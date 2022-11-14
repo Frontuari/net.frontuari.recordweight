@@ -210,7 +210,7 @@ public class FTULoadOrder {
 			if (m_AD_Org_ID > 0)
 				sql.append("AND lord.AD_Org_ID=? ");
 			if (m_M_Warehouse_ID > 0 )
-				sql.append("AND lord.M_Warehouse_ID=? ");
+				sql.append("AND ord.M_Warehouse_ID=? ");
 			if (m_C_SalesRegion_ID > 0 )
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
 			if (m_SalesRep_ID > 0 )
