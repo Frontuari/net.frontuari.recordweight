@@ -5,18 +5,22 @@ package net.frontuari.recordweight.model;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.compiere.model.MAttribute;
-import org.compiere.model.MAttributeInstance;
-import org.compiere.model.MAttributeSet;
-import org.compiere.model.MAttributeSetInstance;
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
+import org.compiere.model.Query;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
@@ -29,6 +33,8 @@ import org.compiere.util.Msg;
  * @author <a href="mailto:dixonalvarezm@gmail.com">Dixon Martinez</a></a>
  * @see
  *	<li><a href="https://bitbucket.org/djmartinez/record-weight/issues/8/validar-estatus-de-analisis"> ER [ 8 ] Validar estatus de Analisis</a></li>
+ * @author Jorge Colmenarez, 2022-11-04 17:42, Frontuari, C.A.
+ * @commentary Support for Analysis Type Result and Valuations
 */
 public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOptions {
 
@@ -73,14 +79,12 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	@Override
 	public boolean unlockIt() {
 		log.info("unlockIt - " + toString());
-		// setProcessing(false);
 		return true;
 	}
 
 	@Override
 	public boolean invalidateIt() {
 		log.info("invalidateIt - " + toString());
-		// setDocAction(DOCACTION_Prepare);
 		return true;
 	}
 	
@@ -105,6 +109,339 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		
 		return null;
 	}
+	
+	/** Lines					*/
+	private MHRSAnalysisLine[]		m_lines = null;
+	/** Lines					*/
+	private MHRSAnalysisValuation[]		m_vlines = null;
+	
+	/**
+	 * 	Get Lines
+	 *	@param requery requery
+	 *	@param whereClause
+	 *	@return lines
+	 */
+	public MHRSAnalysisLine[] getLines (String whereClause)
+	{
+		List<MHRSAnalysisLine> list = new Query(getCtx(), I_HRS_AnalysisLine.Table_Name, "HRS_Analysis_ID=?"
+				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
+		.setParameters(get_ID())
+		.setOrderBy(MHRSAnalysisLine.COLUMNNAME_HRS_AnalysisLine_ID)
+		.list();
+		
+		return list.toArray(new MHRSAnalysisLine[list.size()]);
+	}	//	getLines
+	
+	/**
+	 * 	Get Lines of Order
+	 * 	@param requery requery
+	 * 	@param orderBy optional order by column
+	 * 	@return lines
+	 */
+	public MHRSAnalysisLine[] getLines (boolean requery, String whereClause)
+	{
+		if (m_lines != null && !requery) {
+			set_TrxName(m_lines, get_TrxName());
+			return m_lines;
+		}
+		m_lines = getLines(whereClause);
+		return m_lines;
+	}	//	getLines
+	
+	/**
+	 * 	Get Valuation Lines
+	 *	@param requery requery
+	 *	@param whereClause
+	 *	@return lines
+	 */
+	public MHRSAnalysisValuation[] getValuationLines (String whereClause)
+	{
+		List<MHRSAnalysisValuation> list = new Query(getCtx(), I_HRS_AnalysisValuation.Table_Name, "HRS_Analysis_ID=?"
+				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
+		.setParameters(get_ID())
+		.setOrderBy(MHRSAnalysisValuation.COLUMNNAME_HRS_AnalysisValuation_ID)
+		.list();
+		
+		return list.toArray(new MHRSAnalysisValuation[list.size()]);
+	}	//	getLines
+	
+	/**
+	 * 	Get Valuation Lines of Analysis
+	 * 	@param requery requery
+	 * 	@param orderBy optional order by column
+	 * 	@return lines
+	 */
+	public MHRSAnalysisValuation[] getValuationLines (boolean requery, String whereClause)
+	{
+		if (m_vlines != null && !requery) {
+			set_TrxName(m_vlines, get_TrxName());
+			return m_vlines;
+		}
+		m_vlines = getValuationLines(whereClause);
+		return m_vlines;
+	}	//	getLines
+	
+	
+	/***
+	 * Clean input Code
+	 * @author Jorge Colmenarez, 2022-08-04 19:05
+	 * @param code
+	 * @return code cleaned
+	 */
+	private String cleanCode(String code) {
+		code=code.toLowerCase();
+		code=code.replaceAll("#(\\d+)", "0");
+		code=code.replaceAll("&(\\d+)", "0");
+		code=code.replaceAll("@(\\d+)", "0");
+		code=code.replaceAll("%", "");
+		code=code.replaceAll(";", "");
+		return code;
+	}
+	
+	/***
+	 * get ID Function from code
+	 * @param code
+	 * @return ID Function
+	 */
+	private String getIdFunction(String code) {
+		Pattern regex = Pattern.compile("@(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+        
+		return regexMatcher.group().replaceAll("@", "");	
+	}
+	
+	/***
+	 * get ID Formula from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:06
+	 * @param code
+	 * @return ID Formula
+	 */
+	private String getIdFormula(String code) {
+		Pattern regex = Pattern.compile("F(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+        
+		return regexMatcher.group().replaceAll("F", "");	
+	}
+	
+	/***
+	 * Replace Table and Column from Script Code
+	 * @author Jorge Colmenarez, 2022-08-04 18:49
+	 * @param code
+	 * @param FTU_EntryTicket_ID
+	 * @return code
+	 */
+	private String replaceTableAndColumn(String code, int FTU_EntryTicket_ID) {
+		Pattern regex = Pattern.compile("&\\d+");
+        Matcher regexMatcher = regex.matcher(code);
+        int ColumnID;
+        String ColumnName;
+        String TableName;
+        String ColumnSql="";
+        
+        while (regexMatcher.find()) {
+        	ColumnID=Integer.parseInt(regexMatcher.group().replaceAll("&", ""));
+        	MColumn col = new MColumn(getCtx(), ColumnID, get_TrxName());
+        	TableName = col.getAD_Table().getTableName();
+        	ColumnName = col.getColumnName();
+        	ColumnSql +=TableName+"."+ColumnName+" as \""+ColumnID+"\",";
+        }
+        //	Remove last comma (,)
+        if(ColumnSql!="")
+        	ColumnSql = ColumnSql.substring(0,ColumnSql.length()-1);
+        
+        if(ColumnSql!="")
+        {
+        	String sql = "SELECT "+ColumnSql+" FROM FTU_RecordWeight " +
+        			" LEFT JOIN HRS_Analysis ON HRS_Analysis.HRS_Analysis_ID = FTU_RecordWeight.HRS_Analysis_ID " + 
+					" LEFT JOIN AD_Org ON AD_Org.AD_Org_ID =FTU_RecordWeight.AD_Org_ID " + 
+					" LEFT JOIN AD_Client ON AD_Client.AD_Client_ID = FTU_RecordWeight.AD_Client_ID " + 
+					" LEFT JOIN C_BPartner ON C_BPartner.C_BPartner_ID  = FTU_RecordWeight.C_BPartner_ID " + 
+					" LEFT JOIN M_Product ON M_Product.M_Product_ID = HRS_Analysis.M_Product_ID " + 
+					" LEFT JOIN AD_User ON AD_User.C_BPartner_ID = C_BPartner.C_BPartner_ID " +
+					" WHERE FTU_RecordWeight.FTU_EntryTicket_ID="+FTU_EntryTicket_ID;
+        	PreparedStatement pstmt = null;
+        	ResultSet rs = null;
+        	ResultSetMetaData rsMetaData = null;
+        	try {
+        		pstmt = DB.prepareStatement(sql, get_TrxName());
+        		rs = pstmt.executeQuery();
+        		rsMetaData = rs.getMetaData();
+        		final int columnCount = rsMetaData.getColumnCount();
+        		rs.next();
+        		String name;
+        		for(int i = 1;i<=columnCount;i++){
+        			name = rsMetaData.getColumnName(i);
+        			if(isInstance(rs.getObject(i), BigDecimal.class))
+        				code=code.replaceAll("&("+name+")", rs.getObject(i).toString());
+        			else
+        				code=code.replaceAll("&("+name+")", "'"+rs.getObject(i).toString()+"'");
+        		}
+        	}catch(Exception e)
+        	{
+        		throw new AdempiereException(e.getMessage());
+        	}
+        	finally {
+        		DB.close(rs, pstmt);
+        		rs = null; pstmt = null;
+        		rsMetaData = null;
+        	}
+        }
+		return code;
+	}
+	
+	/***
+	 * Check Instance of Object
+	 * @author Jorge Colmenarez, 2022-08-05 10:57
+	 * @param obj
+	 * @param type
+	 * @return true or false
+	 */
+	private boolean isInstance(Object obj, Class<?> type)
+	{
+		return type.isInstance(obj);
+	}
+	
+	/***
+	 * Get parameter to function from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param code
+	 * @return parameter function
+	 */
+	private String getFunctionParameter(String code) {
+		Pattern regex = Pattern.compile("'.+\\'");
+        Matcher regexMatcher = regex.matcher(code);
+        regexMatcher.find();
+		return regexMatcher.group().replaceAll("'", "");	
+	}
+
+	/***
+	 * Added Variable into Function from FuntionCode
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param functionCode
+	 * @param code
+	 * @return code with variable
+	 */
+	private String addVariableIntoFunction(String functionCode,String code) {
+		String param=	getFunctionParameter(code);
+		functionCode	=	functionCode.replaceAll("\\$var1", param);
+		code	=	code.replaceAll("'.+\\'", functionCode);
+		return code;
+	}
+	
+	/***
+	 * processing Functions from code
+	 * @author Jorge Colmenarez, 2022-08-04 19:07
+	 * @param code
+	 * @return code processed
+	 */
+	private String processFunctions(String code) {
+		Pattern regex = Pattern.compile("@(\\d+\\(.+\\))");
+        Matcher regexMatcher = regex.matcher(code);
+        
+        while (regexMatcher.find()) {
+        	int ffID=Integer.parseInt(getIdFunction(regexMatcher.group()));
+        	
+        	X_FTU_Functions_Formule ff = new X_FTU_Functions_Formule(getCtx(), ffID, get_TrxName());
+        	
+        	if(ff.get_ID()>0)
+        	{
+        		code = addVariableIntoFunction(ff.getDescription().toLowerCase(), code);
+        		return code.replaceAll("@(\\d+)", "");
+        	}
+        }
+        
+	    return code;	
+	}
+	
+	/***
+	 * Replace Basic Code
+	 * @param code
+	 * @return code clean
+	 */
+	private String replaceBasicCode(String code) {
+		//	Get Lines to Lab Analysis
+		for(MHRSAnalysisLine line : getLines(true, ""))
+		{
+			String value = line.getFTU_Analysis_Type().getValue();
+			String result = line.getResult().toString();
+			code=code.replaceAll("#("+value+")", result);
+		}
+		return code;
+	}
+	
+	/***
+	 * Extract Formulas from Code
+	 * @param code
+	 * @return code with formulas
+	 */
+	private String getFormulas(String code)
+	{
+		Pattern regex = Pattern.compile("F(\\d+)");
+        Matcher regexMatcher = regex.matcher(code);
+        String contenidoFormula;
+        while (regexMatcher.find()) {
+        	int idCampo=Integer.parseInt(getIdFormula(regexMatcher.group()));
+        	X_FTU_Quality_Param qp = new X_FTU_Quality_Param(getCtx(), idCampo, get_TrxName());
+        	if(qp.get_ID()>0) {
+        		contenidoFormula = qp.getCode().toLowerCase();
+            	code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
+        	}
+        }
+		
+		return code;
+	}
+	
+	/***
+	 * Process Clasifications of Analysis
+	 * @author Jorge Colmenarez, 2022-08-04 17:42
+	 */
+	private void clasification() {
+		//	Delete Cultive Result
+		String dSql = "DELETE FROM HRS_AnalysisValuation WHERE HRS_Analysis_ID=?";
+		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
+		//	Create Cultive Result
+		String sql="SELECT qp.ftu_quality_param_id,name,code "
+				+ "FROM FTU_Quality_Param qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		try {
+			pst = DB.prepareStatement(sql, get_TrxName());
+			pst.setInt(1, getM_Product_ID());
+			rs = pst.executeQuery();
+			while(rs.next())
+			{
+				String code=rs.getString("code");
+				int ftu_quality_param_id=rs.getInt("ftu_quality_param_id");
+				//	Replace Code
+				code = getFormulas(code);
+				code = replaceBasicCode(code);
+				code = replaceTableAndColumn(code, getFTU_EntryTicket_ID());
+				code = processFunctions(code);
+				code = cleanCode(code);
+				//	Execute Code
+				String sqlCode = "SELECT ("+code+") AS result";
+				String result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				if(result!=null) {
+					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
+					lcr.setAD_Org_ID(getAD_Org_ID());
+					lcr.setHRS_Analysis_ID(get_ID());
+					lcr.setFTU_Quality_Param_ID(ftu_quality_param_id);
+					lcr.setResult_Human(result.toUpperCase());
+					lcr.setResult_System(result);
+					lcr.saveEx();
+				}
+			}
+		}catch(Exception e)
+		{
+			throw new AdempiereException(e.getLocalizedMessage());
+		}finally {
+			DB.close(rs, pst);
+			rs = null;
+			pst = null;
+		}
+	}
 
 	@Override
 	public String prepareIt() {
@@ -122,6 +459,9 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			return STATUS_Invalid;
 		//End By Argenis Rodríguez
 		
+		//	Clasificar
+		clasification();
+		setDescription(null);
 		String valid = validateAnalysis();
 		String status = X_HRS_Analysis.STATUS_Completed;
 		if (valid != null) {
@@ -137,8 +477,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		//	ER [ 8 ]
 		setStatus(status);
 		setIsValidAnalysis(valid == null);
-		//setStatus(X_HRS_Analysis.STATUS_InProgress);
-		//setIsValidAnalysis(false);
 		
 		saveEx();
 		
@@ -176,32 +514,13 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
-		setDescription(null);
 		
-		/*String valid = validateAnalysis();
-		String status = X_HRS_Analysis.STATUS_Completed;
-		if (valid != null) {
-			if(getDescription() != null 
-					&& getDescription().length() > 0) {
-				setDescription(getDescription() + valid );
-			} else {
-				setDescription(valid);
-			}
-			//	ER [ 8 ]
-			status = X_HRS_Analysis.STATUS_Error;
-		}
-		//	ER [ 8 ]
-		setStatus(status);
-		setIsValidAnalysis(valid == null);*/
-		
-		saveEx();
+		setDefiniteDocumentNo();
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (m_processMsg != null) {
 			return DocAction.STATUS_Invalid;
 		}
-
-		setDefiniteDocumentNo();
 
 		setProcessed(true);
 		setDocAction(DOCACTION_Close);
@@ -213,32 +532,12 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	 */
 	private String validateAnalysis() {
 		StringBuilder msg = new StringBuilder();
-		MAttributeSetInstance setInstance = new MAttributeSetInstance(getCtx(), getAnalysis_ID(), get_TrxName());
-		MAttributeSet attributeSet = setInstance.getMAttributeSet();
-		MAttribute [] atributes = attributeSet.getMAttributes(true);
-		for (MAttribute mAttribute : atributes) {
-			MHRSQualityParameter qualityParameter = MHRSQualityParameter.getMHRSQualityParameter(getCtx(), mAttribute.getM_Attribute_ID(), getM_Product_ID(), get_TrxName());
-			if(qualityParameter == null)
-				continue;
-			MAttributeInstance attributeInstance = mAttribute.getMAttributeInstance(setInstance.getM_AttributeSetInstance_ID());
-			if(attributeInstance != null) {
-				BigDecimal value = attributeInstance.getValueNumber();
-				
-				if(value != null) {
-					if(value.compareTo(qualityParameter.getLowerLimit()) < 0 
-							|| value.compareTo(qualityParameter.getUpperLimit()) > 0) {
-						msg
-							.append( mAttribute.getName() )
-							.append(" = " )
-							.append(value)
-							.append(" @LowerLimit@ = " )
-							.append(qualityParameter.getLowerLimit())
-							.append(" @AND@ @UpperLimit@ = ")
-							.append(qualityParameter.getUpperLimit())
-							.append(Env.NL); 
-					}
-				}
-			}
+		
+		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(Result_System) = 'rechazar'")) {
+			msg.append( valuation.getFTU_Quality_Param().getName() )
+				.append(" = " )
+				.append(valuation.getResult_Human())
+				.append(Env.NL); 
 		}
 		if(msg.length() > 0) 
 			return Msg.parseTranslation(getCtx(), msg.toString());
@@ -408,7 +707,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 
 	@Override
 	public int getDoc_User_ID() {
-		return 0;
+		return getCreatedBy();
 	}
 
 	@Override

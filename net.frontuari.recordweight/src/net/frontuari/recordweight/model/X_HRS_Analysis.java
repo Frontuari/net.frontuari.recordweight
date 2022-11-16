@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
-import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HRS_Analysis
  *  @author iDempiere (generated) 
@@ -32,7 +31,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20221104L;
 
     /** Standard Constructor */
     public X_HRS_Analysis (Properties ctx, int HRS_Analysis_ID, String trxName)
@@ -322,6 +321,23 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return ii.intValue();
 	}
 
+	/** Set Generate Document.
+		@param GenerateDoc 
+		Process generate document
+	  */
+	public void setGenerateDoc (String GenerateDoc)
+	{
+		set_Value (COLUMNNAME_GenerateDoc, GenerateDoc);
+	}
+
+	/** Get Generate Document.
+		@return Process generate document
+	  */
+	public String getGenerateDoc () 
+	{
+		return (String)get_Value(COLUMNNAME_GenerateDoc);
+	}
+
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis	  */
 	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
@@ -354,6 +370,27 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public String getHRS_Analysis_UU () 
 	{
 		return (String)get_Value(COLUMNNAME_HRS_Analysis_UU);
+	}
+
+	/** Set Aproved Analysis.
+		@param IsApprovedAnalysis Aproved Analysis	  */
+	public void setIsApprovedAnalysis (boolean IsApprovedAnalysis)
+	{
+		set_Value (COLUMNNAME_IsApprovedAnalysis, Boolean.valueOf(IsApprovedAnalysis));
+	}
+
+	/** Get Aproved Analysis.
+		@return Aproved Analysis	  */
+	public boolean isApprovedAnalysis () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsApprovedAnalysis);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Manufactured.
@@ -401,6 +438,90 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return false;
 	}
 
+	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_InOut)MTable.get(getCtx(), org.compiere.model.I_M_InOut.Table_Name)
+			.getPO(getM_InOut_ID(), get_TrxName());	}
+
+	/** Set Shipment/Receipt.
+		@param M_InOut_ID 
+		Material Shipment Document
+	  */
+	public void setM_InOut_ID (int M_InOut_ID)
+	{
+		if (M_InOut_ID < 1) 
+			set_Value (COLUMNNAME_M_InOut_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_InOut_ID, Integer.valueOf(M_InOut_ID));
+	}
+
+	/** Get Shipment/Receipt.
+		@return Material Shipment Document
+	  */
+	public int getM_InOut_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOut_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_Name)
+			.getPO(getM_InOutLine_ID(), get_TrxName());	}
+
+	/** Set Shipment/Receipt Line.
+		@param M_InOutLine_ID 
+		Line on Shipment or Receipt document
+	  */
+	public void setM_InOutLine_ID (int M_InOutLine_ID)
+	{
+		if (M_InOutLine_ID < 1) 
+			set_Value (COLUMNNAME_M_InOutLine_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_InOutLine_ID, Integer.valueOf(M_InOutLine_ID));
+	}
+
+	/** Get Shipment/Receipt Line.
+		@return Line on Shipment or Receipt document
+	  */
+	public int getM_InOutLine_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOutLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Locator)MTable.get(getCtx(), org.compiere.model.I_M_Locator.Table_Name)
+			.getPO(getM_Locator_ID(), get_TrxName());	}
+
+	/** Set Locator.
+		@param M_Locator_ID 
+		Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID)
+	{
+		if (M_Locator_ID < 1) 
+			set_Value (COLUMNNAME_M_Locator_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Locator_ID, Integer.valueOf(M_Locator_ID));
+	}
+
+	/** Get Locator.
+		@return Warehouse Locator
+	  */
+	public int getM_Locator_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
     {
 		return (org.compiere.model.I_M_Product)MTable.get(getCtx(), org.compiere.model.I_M_Product.Table_Name)
@@ -429,13 +550,33 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return ii.intValue();
 	}
 
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
+	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
     {
-        return new KeyNamePair(get_ID(), String.valueOf(getM_Product_ID()));
-    }
+		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_Name)
+			.getPO(getM_Warehouse_ID(), get_TrxName());	}
+
+	/** Set Warehouse.
+		@param M_Warehouse_ID 
+		Storage Warehouse and Service Point
+	  */
+	public void setM_Warehouse_ID (int M_Warehouse_ID)
+	{
+		if (M_Warehouse_ID < 1) 
+			set_Value (COLUMNNAME_M_Warehouse_ID, null);
+		else 
+			set_Value (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
+	}
+
+	/** Get Warehouse.
+		@return Storage Warehouse and Service Point
+	  */
+	public int getM_Warehouse_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Delivery Bulk Material = DBM */
 	public static final String OPERATIONTYPE_DeliveryBulkMaterial = "DBM";
@@ -453,6 +594,8 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
+	/** Delivery Multiple Products = DMP */
+	public static final String OPERATIONTYPE_DeliveryMultipleProducts = "DMP";
 	/** Set OperationType.
 		@param OperationType OperationType	  */
 	public void setOperationType (String OperationType)
@@ -565,22 +708,5 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public String getStatus () 
 	{
 		return (String)get_Value(COLUMNNAME_Status);
-	}
-
-	/** Set Type Calculation.
-		@param TypeCalculation Type Calculation	  */
-	public void setTypeCalculation (int TypeCalculation)
-	{
-		set_Value (COLUMNNAME_TypeCalculation, Integer.valueOf(TypeCalculation));
-	}
-
-	/** Get Type Calculation.
-		@return Type Calculation	  */
-	public int getTypeCalculation () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_TypeCalculation);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 }

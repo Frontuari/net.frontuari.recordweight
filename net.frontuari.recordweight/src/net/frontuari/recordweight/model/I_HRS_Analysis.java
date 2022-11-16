@@ -32,7 +32,7 @@ public interface I_HRS_Analysis
     /** TableName=HRS_Analysis */
     public static final String Table_Name = "HRS_Analysis";
 
-    /** AD_Table_ID=1000037 */
+    /** AD_Table_ID=1000044 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -193,6 +193,19 @@ public interface I_HRS_Analysis
 
 	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException;
 
+    /** Column name GenerateDoc */
+    public static final String COLUMNNAME_GenerateDoc = "GenerateDoc";
+
+	/** Set Generate Document.
+	  * Process generate document
+	  */
+	public void setGenerateDoc (String GenerateDoc);
+
+	/** Get Generate Document.
+	  * Process generate document
+	  */
+	public String getGenerateDoc();
+
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
 
@@ -224,6 +237,15 @@ public interface I_HRS_Analysis
 	  */
 	public boolean isActive();
 
+    /** Column name IsApprovedAnalysis */
+    public static final String COLUMNNAME_IsApprovedAnalysis = "IsApprovedAnalysis";
+
+	/** Set Aproved Analysis	  */
+	public void setIsApprovedAnalysis (boolean IsApprovedAnalysis);
+
+	/** Get Aproved Analysis	  */
+	public boolean isApprovedAnalysis();
+
     /** Column name IsManufactured */
     public static final String COLUMNNAME_IsManufactured = "IsManufactured";
 
@@ -246,6 +268,51 @@ public interface I_HRS_Analysis
 	/** Get IsValidAnalysis	  */
 	public boolean isValidAnalysis();
 
+    /** Column name M_InOut_ID */
+    public static final String COLUMNNAME_M_InOut_ID = "M_InOut_ID";
+
+	/** Set Shipment/Receipt.
+	  * Material Shipment Document
+	  */
+	public void setM_InOut_ID (int M_InOut_ID);
+
+	/** Get Shipment/Receipt.
+	  * Material Shipment Document
+	  */
+	public int getM_InOut_ID();
+
+	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException;
+
+    /** Column name M_InOutLine_ID */
+    public static final String COLUMNNAME_M_InOutLine_ID = "M_InOutLine_ID";
+
+	/** Set Shipment/Receipt Line.
+	  * Line on Shipment or Receipt document
+	  */
+	public void setM_InOutLine_ID (int M_InOutLine_ID);
+
+	/** Get Shipment/Receipt Line.
+	  * Line on Shipment or Receipt document
+	  */
+	public int getM_InOutLine_ID();
+
+	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException;
+
+    /** Column name M_Locator_ID */
+    public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
+
+	/** Set Locator.
+	  * Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID);
+
+	/** Get Locator.
+	  * Warehouse Locator
+	  */
+	public int getM_Locator_ID();
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException;
+
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
@@ -260,6 +327,21 @@ public interface I_HRS_Analysis
 	public int getM_Product_ID();
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
+
+    /** Column name M_Warehouse_ID */
+    public static final String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
+
+	/** Set Warehouse.
+	  * Storage Warehouse and Service Point
+	  */
+	public void setM_Warehouse_ID (int M_Warehouse_ID);
+
+	/** Get Warehouse.
+	  * Storage Warehouse and Service Point
+	  */
+	public int getM_Warehouse_ID();
+
+	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException;
 
     /** Column name OperationType */
     public static final String COLUMNNAME_OperationType = "OperationType";
@@ -319,15 +401,6 @@ public interface I_HRS_Analysis
 	  * Status of the currently running check
 	  */
 	public String getStatus();
-
-    /** Column name TypeCalculation */
-    public static final String COLUMNNAME_TypeCalculation = "TypeCalculation";
-
-	/** Set Type Calculation	  */
-	public void setTypeCalculation (int TypeCalculation);
-
-	/** Get Type Calculation	  */
-	public int getTypeCalculation();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

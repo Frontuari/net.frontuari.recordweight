@@ -24,6 +24,7 @@ import net.frontuari.recordweight.base.FTUCalloutFactory;
 import net.frontuari.recordweight.callouts.CallOutEntryTicket;
 import net.frontuari.recordweight.callouts.CalloutAnalysis;
 import net.frontuari.recordweight.callouts.CalloutLoadOrder;
+import net.frontuari.recordweight.callouts.CalloutQualityParam;
 import net.frontuari.recordweight.callouts.CalloutRecordWeight;
 import net.frontuari.recordweight.callouts.CalloutVehicle;
 import net.frontuari.recordweight.callouts.FTU_CalloutDDOrderLine;
@@ -80,6 +81,12 @@ public class CalloutFactory extends FTUCalloutFactory {
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_M_Product_ID, FTU_CalloutDDOrderLine.class);
 		//	Load Order
 		registerCallout(X_FTU_LoadOrderLine.Table_Name, X_FTU_LoadOrderLine.COLUMNNAME_C_OrderLine_ID, CalloutLoadOrder.class);
+		//	Quality Param
+		registerCallout("FTU_Quality_Param", "AD_Column_ID", CalloutQualityParam.class);
+		registerCallout("FTU_Quality_Param", "FTU_Analysis_Type_ID", CalloutQualityParam.class);
+		registerCallout("FTU_Quality_Param", "Update_Code_Human", CalloutQualityParam.class);
+		registerCallout("FTU_Quality_Param", "FTU_Parent_ID", CalloutQualityParam.class);
+		registerCallout("FTU_Quality_Param", "FTU_Functions_Formule_ID", CalloutQualityParam.class);
 	}
 
 }
