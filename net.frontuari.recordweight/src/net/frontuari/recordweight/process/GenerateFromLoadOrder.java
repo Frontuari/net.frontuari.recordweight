@@ -17,7 +17,6 @@ import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOutLine;
-import org.compiere.model.MInOutLineMA;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MLocator;
@@ -334,10 +333,140 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Break = false;
 			// Shipment Created?
 			if (m_Current_Shipment != null) {
+				
+				//added by david castillo 28/09/2022 support to write LoadOrderLineMA Attributes
+				MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
+				if (lineAttr.length > 0 ) {//if has attribute line
+					for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
+						
+						 m_Qty = lineMA.getQty();
+						 m_TotalQty = m_Qty;
+						// Create Shipment Line
+						MInOutLine shipmentLine = new MInOutLine(getCtx(), 0, get_TrxName());
+						// Get Order Line
+						MOrderLine oLine = (MOrderLine) m_FTU_LoadOrderLine.getC_OrderLine();
+						
+						m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
+						m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
+						
+						// Instance MProduct
+						MProduct product = MProduct.get(getCtx(), m_FTU_LoadOrderLine.getM_Product_ID());
+						// Rate Convert
+						BigDecimal rate = MUOMConversion.getProductRateTo(Env.getCtx(), product.getM_Product_ID(),
+								oLine.getC_UOM_ID());
+						// Validate Rate equals null
+						if (rate == null) {
+							MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
+							MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
+							throw new AdempiereException(
+									"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+						}
+						//
+						if (m_BreakValue > 0 && m_FTU_LoadOrder.isImmediateDelivery()) {
+							MClientInfo clientInfo = MClientInfo.get(getCtx(), getAD_Client_ID());
+							// Rate From Product to Weigh
+							BigDecimal rateCumulated = MUOMConversion.getProductRateTo(Env.getCtx(), product.getM_Product_ID(),
+									clientInfo.getC_UOM_Weight_ID());
+							// Rate from Weight to Product
+							BigDecimal rateFromWeight = MUOMConversion.getProductRateFrom(Env.getCtx(),
+									product.getM_Product_ID(), clientInfo.getC_UOM_Weight_ID());
+							// Validate Rate equals null
+							if (rateCumulated == null) {
+								MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
+								MUOM oLineUOM = MUOM.get(getCtx(), clientInfo.getC_UOM_Weight_ID());
+								throw new AdempiereException(
+										"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+							}
+							//
+							m_Qty = m_Qty.subtract(m_QtySubtract);
+							BigDecimal nextWeight = m_CumulatedWeightAll.add(m_Qty.multiply(rateCumulated));
+							if (nextWeight.doubleValue() > m_BreakWeight.doubleValue()
+									&& product.get_ValueAsBoolean("IsBulk")) {
+								BigDecimal diff = nextWeight.subtract(m_BreakWeight);
+								m_Qty = m_Qty.subtract(diff.multiply(rateFromWeight));
+								m_Break = true;
+							}
+							// Set Cumulate Weight
+							m_CumulatedWeightLine = m_CumulatedWeightLine.add(m_Qty.multiply(rateCumulated));
+							m_CumulatedWeightAll = m_CumulatedWeightAll.add(m_CumulatedWeightLine);
+						}
+						// Set Values for Lines
+						shipmentLine.setAD_Org_ID(oLine.getAD_Org_ID());
+						
+						shipmentLine.setM_InOut_ID(m_Current_Shipment.getM_InOut_ID());
+						// Quantity and Product
+						shipmentLine.setM_Product_ID(product.getM_Product_ID());
+						// References
+						shipmentLine.setC_OrderLine_ID(m_FTU_LoadOrderLine.getC_OrderLine_ID());
+						// Quantity
+						if (product.get_ValueAsBoolean("isBulk")) {	
+							shipmentLine.setC_UOM_ID(m_FTU_LoadOrder.getC_UOM_Weight_ID());
+							shipmentLine.setQty(m_Qty);
+							shipmentLine.setQtyEntered(m_Qty);
+							shipmentLine.setMovementQty(m_ConfirmedWeight);
+						}
+						//	Modified by Jorge Colmenarez, 2021-07-01 18:04
+						//	Separate events DMP from DFP
+						else if (!product.get_ValueAsBoolean("isBulk") 
+								&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts.equals(m_FTU_LoadOrder.getOperationType())) {
+							shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
+							shipmentLine.setQty(oLine.getQtyEntered());
+							shipmentLine.setQtyEntered(oLine.getQtyEntered());
+							shipmentLine.setMovementQty(oLine.getQtyOrdered());
+						}
+						else
+						{
+							shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
+							shipmentLine.setQty(m_Qty);
+							shipmentLine.setQtyEntered(m_Qty);
+							shipmentLine.setMovementQty(MUOMConversion.convertProductFrom(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+						}
+					
+						//SET WAREHOUSE AND LOCATOR FROM lineMA
+						
+						shipmentLine.setM_Warehouse_ID(m_FTU_LoadOrderLine.getM_Warehouse_ID());
+						shipmentLine.setM_Locator_ID(m_FTU_LoadOrderLine.getM_Locator_ID());
+						shipmentLine.setM_AttributeSetInstance_ID(lineMA.getM_AttributeSetInstance_ID());
+						// Save Line
+						shipmentLine.saveEx(get_TrxName());
+						// Manually Process Shipment
+						// Added
+						if (!m_Added) {
+							m_FTU_LoadOrderLine.setConfirmedQty(m_Qty);
+							
+							m_FTU_LoadOrderLine.setM_InOutLine_ID(shipmentLine.get_ID());
+						}
+						m_FTU_LoadOrderLine.saveEx();
+						// Set true Is Delivered and Is Weight Register
+						m_FTU_LoadOrder.setIsDelivered(true);
+						// Save
+						m_FTU_LoadOrder.saveEx(get_TrxName());
+						// Set Current Delivery
+						m_Current_IsImmediateDelivery = m_FTU_LoadOrder.isImmediateDelivery();
+
+						m_CumulatedWeightLine = Env.ZERO;
+					} // End Invoice Line Created
+					// Valid Break
+					if (m_Break) {
+						m_CumulatedWeightAll = Env.ZERO;
+						m_QtySubtract = m_QtySubtract.add(m_Qty);
+						completeShipment();
+						m_Added = true;
+					} else {
+						m_QtySubtract = Env.ZERO;
+						m_Added = false;
+						}
+						
+					
+				}else {
+					//end david castillo papasapo
 				// Create Shipment Line
+			
+					
 				MInOutLine shipmentLine = new MInOutLine(getCtx(), 0, get_TrxName());
 				// Get Order Line
 				MOrderLine oLine = (MOrderLine) m_FTU_LoadOrderLine.getC_OrderLine();
+				//atributo
 				
 				m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
 				m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
@@ -418,29 +547,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				//	End Jorge Colmenarez
 				//	Added By Jorge Colmenarez, 2021-07-20 16:11
 				//	Support for get Default Locator by Warehouse 
-				shipmentLine.setM_Warehouse_ID(m_FTU_LoadOrderLine.getM_Warehouse_ID());			
-				shipmentLine.setM_Locator_ID(m_FTU_LoadOrderLine.getM_Locator_ID());
+				MWarehouse w = new MWarehouse(getCtx(), oLine.getM_Warehouse_ID(), get_TrxName());
+				MLocator l = w.getDefaultLocator();
+				shipmentLine.setM_Locator_ID(l.getM_Locator_ID());
 				//	End Jorge Colmenarez
+				shipmentLine.setM_AttributeSetInstance_ID(m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID());
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 				// Manually Process Shipment
-				MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
-				if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID()>0) {
-					shipmentLine.setM_AttributeSetInstance_ID(m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID());
-					shipmentLine.saveEx();
-				}else if(lineAttr.length>0) {
-					for(MFTULoadOrderLineMA maline : lineAttr) {
-						MInOutLineMA shma = new MInOutLineMA(getCtx(), shipmentLine.getM_InOutLine_ID(), get_TrxName());
-						shma.setAD_Org_ID(shipmentLine.getAD_Org_ID());
-						shma.setM_AttributeSetInstance_ID(maline.getM_AttributeSetInstance_ID());
-						shma.setDateMaterialPolicy(maline.getDateMaterialPolicy());
-						shma.setIsAutoGenerated(true);
-						shma.setMovementQty(maline.getQty());
-						shma.saveEx();
-					}
-					
-				}					
-					
 				// Added
 				if (!m_Added) {
 					m_FTU_LoadOrderLine.setConfirmedQty(m_Qty);
@@ -466,9 +580,15 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			} else {
 				m_QtySubtract = Env.ZERO;
 				m_Added = false;
+				}
 			}
 		}
 		// Complete Shipment
+		if (m_Current_Shipment != null)
+		if (m_Current_Shipment.getLines().length <=0) {
+			m_Current_Shipment.deleteEx(true);
+			m_Current_Shipment = null;
+		}
 		completeShipment();
 		// Commit Transaction
 		return "";
@@ -837,37 +957,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
-			
-			boolean isOk = true;
-			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
-				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
-				String[] attrVal = i.getDescription().split("_");
-				for (String a : attrVal) {
-					if (a.equalsIgnoreCase("Observacion") ) {
-						isOk = false;
-						break;
-					}
-				}
-			}else {
-			MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
-			if (lineAttr.length > 0 ) {//if has attribute line
-				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
-					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
-					String[] attrVal = i.getDescription().split("_");
-					for (String a : attrVal) {
-						if (a.equalsIgnoreCase("Observacion") ) {
-							isOk = false;
-							break;
-							}
-
-						}
-					}
-				}
-			}
-			if (!isOk) {
-				addLog("la linea " + m_FTU_LoadOrderLine.getLine() +" de la orden de carga "+ m_FTU_LoadOrder.getDocumentNo() + " se encuentra en observacion");
-				continue;
-			}
 
 			// Create Order
 			MDDOrder order = (MDDOrder) m_FTU_LoadOrderLine.getDD_OrderLine().getDD_Order();
