@@ -19,6 +19,7 @@ import org.compiere.model.MRole;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
+import org.compiere.model.MWarehouse;
 import org.compiere.model.X_C_Order;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -857,8 +858,12 @@ public class FTULoadOrder {
 		//	Set Is Handle Record Weight
 		m_FTU_LoadOrder.setIsHandleRecordWeight(MFTUWeightScale.isWeightScaleOrg(m_AD_Org_ID, trxName));
 		//	Set Warehouse
-		if(m_M_Warehouse_ID != 0)
+		if(m_M_Warehouse_ID != 0) {
 			m_FTU_LoadOrder.setM_Warehouse_ID(m_M_Warehouse_ID);
+		}else {
+		MWarehouse[] WH = MWarehouse.getForOrg(Env.getCtx(), m_AD_Org_ID);
+		m_FTU_LoadOrder.setM_Warehouse_ID(WH[0].getM_Warehouse_ID());
+		}
 		//	Invoice Rule
 		if(m_InvoiceRule != null
 				&& m_InvoiceRule.trim().length() > 0)
@@ -944,8 +949,8 @@ public class FTULoadOrder {
 		m_FTU_LoadOrder.saveEx();
 		//	Complete Order - removed 03/10/2022
 		m_FTU_LoadOrder.setDocStatus(X_FTU_LoadOrder.DOCSTATUS_Drafted);
-		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Prepare);
-		m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Prepare);
+		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Complete);
+		//m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Prepare);
 		m_FTU_LoadOrder.saveEx();
 		//	Valid Error
 		String errorMsg = m_FTU_LoadOrder.getProcessMsg();

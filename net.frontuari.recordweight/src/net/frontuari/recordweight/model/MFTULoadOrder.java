@@ -209,6 +209,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
 						return DOCSTATUS_Invalid;
 					}
+					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType())) {
 					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
 						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
 							if (line.getM_AttributeSetInstance_ID() == 0) {
@@ -229,9 +230,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						}else {
 							
 							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
-					}					
+						}					
+					}
 				}
-				
 				//
 				/*if (line.getM_AttributeSetInstance_ID() == 0)
 				{
