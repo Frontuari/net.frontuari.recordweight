@@ -1760,7 +1760,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				// Complete Previous Shipment
 				completeShipment(m_Current_Shipment);
 				// Initialize Order and
-				m_Current_Warehouse_ID = oLine.getM_Warehouse_ID();
+				//	Modified by Jorge Colmenarez, 2022-11-19 18:02
+				//	Get Warehouse from RecordWeight
+				//m_Current_Warehouse_ID = oLine.getM_Warehouse_ID();
+				m_Current_Warehouse_ID = (getM_Warehouse_ID()>0 ? getM_Warehouse_ID() : oLine.getM_Warehouse_ID());
+				//	End Jorge Colmenarez
 				m_Current_BPartner_ID = oLine.getC_BPartner_ID();
 				// Get Warehouse
 				MWarehouse warehouse = MWarehouse.get(getCtx(), m_Current_Warehouse_ID, get_TrxName());

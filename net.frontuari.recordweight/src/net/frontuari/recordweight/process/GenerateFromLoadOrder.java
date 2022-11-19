@@ -4,7 +4,6 @@
 package net.frontuari.recordweight.process;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -686,7 +685,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 				invoiceLine.setC_Tax_ID(oLine.getC_Tax_ID());
 				invoiceLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
-				
+				//	Added by Jorge Colmenarez, 2022-11-19 18:02
+				//	Related invoice with shipment
+				if(line.getM_InOutLine_ID()>0)
+					invoiceLine.setM_InOutLine_ID(line.getM_InOutLine_ID());
+				//	End Jorge Colmenarez
 				invoiceLine.save(get_TrxName());
 				//
 				if (line.getFTU_LoadOrder_ID() != 0) {
