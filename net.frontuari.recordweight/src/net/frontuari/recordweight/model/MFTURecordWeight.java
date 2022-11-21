@@ -378,8 +378,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		boolean withDDOrder = false;		
 		/*
 		 * Commented by Jorge Colmenarez, 2021-07-20 14:56, request by Coposa
-		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
+		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 			
 			//if(getHRS_Analysis_ID() <= 0) {
 				if(!getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
@@ -738,6 +738,28 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
 			setVoidItToMMovmenete(et);
 		}
+		
+		//Added  by david castillo 21/11/2022 delete weighted qty
+		
+		MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
+		if (lo == null || lo.get_ID() <= 0) {
+			m_processMsg = m_processMsg + " @FTU_LoadOrder_ID@ @NotFound@";
+			return false;
+		}
+		//	Added by Jorge Colmenarez
+		//	Apply validations by products
+		
+		BigDecimal confirmedWeight = getNetWeight();
+		for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
+		{
+				line.setConfirmedWeight(line.getConfirmedWeight().subtract(confirmedWeight));
+				if (line.getConfirmedWeight().compareTo(Env.ZERO)==0)
+				line.setIsConfirmed(false);
+				
+				line.saveEx();
+
+		}
+		
 
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
