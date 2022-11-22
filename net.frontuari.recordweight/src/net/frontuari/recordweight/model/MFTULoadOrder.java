@@ -1230,7 +1230,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	public void checkMaterialPolicy(MFTULoadOrderLine line,BigDecimal qty)
 	{
 			
-		int no = MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrder_ID(), get_TrxName());
+		int no = MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrderLine_ID(), get_TrxName());
 		if (no > 0)
 			if (log.isLoggable(Level.CONFIG)) log.config("Delete old #" + no);
 		

@@ -1016,7 +1016,7 @@ public class WFTULoadOrder extends FTULoadOrder
 			m_AD_Org_ID = ((Integer)(value != null? value: -1)).intValue();
 			KeyNamePair[] data = getDataWarehouse();
 			warehouseSearch.removeActionListener(this);
-			m_M_Warehouse_ID = loadComboBoxW(warehouseSearch, data);
+			m_M_Warehouse_ID = loadComboBoxW(warehouseSearch, data,true);
 			warehouseSearch.addEventListener(Events.ON_SELECT, this);
 			if (m_OperationType != null)
 			{
