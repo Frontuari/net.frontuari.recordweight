@@ -1263,7 +1263,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			BigDecimal qtyToDeliver = qty;
 			for (MStorageOnHand storage: storages)
 			{
-				BigDecimal available = storage.getQtyOnHand().subtract(getReservedforLoadOrder(storage, line.getFTU_LoadOrder_ID())); 
+				BigDecimal reserved = getReservedforLoadOrder(storage, line.getFTU_LoadOrder_ID());
+				BigDecimal available = storage.getQtyOnHand().subtract(reserved);
 				if (available.compareTo(qtyToDeliver) >= 0)
 				{
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
@@ -1278,7 +1279,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 							storage.getM_AttributeSetInstance_ID(),
 							available,storage.getDateMaterialPolicy(),true);
 					ma.saveEx();
-					qtyToDeliver = qtyToDeliver.subtract(storage.getQtyOnHand());
+					qtyToDeliver = qtyToDeliver.subtract(available);
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
 				}
 					if (qtyToDeliver.signum() == 0)

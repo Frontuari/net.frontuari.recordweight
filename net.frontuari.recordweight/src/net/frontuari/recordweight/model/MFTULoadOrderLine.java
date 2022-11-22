@@ -111,7 +111,15 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 				if(m_ConfirmedWeight == null)
 					m_ConfirmedWeight = Env.ZERO;
 				if (m_ConfirmedWeight.compareTo(Env.ZERO) == 0)
-				setConfirmedWeight(m_ConfirmedQty.multiply(m_Weight));
+					setConfirmedWeight(m_ConfirmedQty.multiply(m_Weight));
+				else {
+					BigDecimal oldConfirmedQty = (BigDecimal)get_ValueOld("ConfirmedQty");
+					if(oldConfirmedQty==null) 
+						oldConfirmedQty = BigDecimal.ZERO;
+					m_ConfirmedQty = m_ConfirmedQty.subtract(oldConfirmedQty);
+					m_ConfirmedWeight = m_ConfirmedWeight.add(m_ConfirmedQty.multiply(m_Weight));
+					setConfirmedWeight(m_ConfirmedWeight);
+				}
 			}	
 		}
 		//	Add Warehouse
