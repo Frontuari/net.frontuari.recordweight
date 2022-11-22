@@ -14,7 +14,6 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
-import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
@@ -1264,7 +1263,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			BigDecimal qtyToDeliver = qty;
 			for (MStorageOnHand storage: storages)
 			{
-				if (storage.getQtyOnHand().compareTo(qtyToDeliver) >= 0)
+				BigDecimal available = storage.getQtyOnHand().subtract(getReservedforLoadOrder(storage, line.getFTU_LoadOrder_ID())); 
+				if (available.compareTo(qtyToDeliver) >= 0)
 				{
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
@@ -1276,7 +1276,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				{
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
-							storage.getQtyOnHand(),storage.getDateMaterialPolicy(),true);
+							available,storage.getDateMaterialPolicy(),true);
 					ma.saveEx();
 					qtyToDeliver = qtyToDeliver.subtract(storage.getQtyOnHand());
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
@@ -1298,4 +1298,19 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			line.saveEx();
 		}
 	}	//	checkMaterialPolicy
+	
+	private BigDecimal getReservedforLoadOrder(MStorageOnHand storage, int FTU_LoadOrder_ID) {
+		BigDecimal reservedForLoadOrder = BigDecimal.ZERO;
+		
+		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
+				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
+				+" WHERE lol.FTU_LoadOrder_ID = ? AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
+		
+		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {FTU_LoadOrder_ID,storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
+		
+		if(reservedForLoadOrder == null)
+			reservedForLoadOrder = BigDecimal.ZERO;
+		
+		return reservedForLoadOrder;
+	}
 }

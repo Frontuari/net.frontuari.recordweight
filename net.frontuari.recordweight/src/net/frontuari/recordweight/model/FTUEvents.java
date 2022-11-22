@@ -16,7 +16,6 @@ import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.PO;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
 import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.base.FTUModelEvents;
@@ -53,7 +52,7 @@ public class FTUEvents extends FTUModelEvents {
 						MFTULoadOrderLine lin = 
 								new MFTULoadOrderLine(mInOutLine.getCtx(), p_FTU_LoadOrderLine_ID, mInOutLine.get_TrxName());
 						lin.setM_InOutLine_ID(0);
-						lin.setConfirmedQty(Env.ZERO);
+						lin.setConfirmedQty(lin.getConfirmedQty().subtract(mInOutLine.getQtyEntered()));
 						lin.saveEx();
 						
 						MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
@@ -94,7 +93,7 @@ public class FTUEvents extends FTUModelEvents {
 					MFTULoadOrderLine lin = 
 							new MFTULoadOrderLine(m_MovementLine.getCtx(), p_FTU_LoadOrderLine_ID, m_MovementLine.get_TrxName());
 					lin.setM_MovementLine_ID(0);
-					lin.setConfirmedQty(Env.ZERO);
+					lin.setConfirmedQty(lin.getConfirmedQty().subtract(m_MovementLine.getMovementQty()));
 					lin.saveEx();
 					
 					MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());

@@ -432,7 +432,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						// Manually Process Shipment
 						// Added
 						if (!m_Added) {
-							m_FTU_LoadOrderLine.setConfirmedQty(m_Qty);
+							m_FTU_LoadOrderLine.setConfirmedQty(m_FTU_LoadOrderLine.getConfirmedQty().add(m_Qty));
 							
 							m_FTU_LoadOrderLine.setM_InOutLine_ID(shipmentLine.get_ID());
 						}
@@ -557,7 +557,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Manually Process Shipment
 				// Added
 				if (!m_Added) {
-					m_FTU_LoadOrderLine.setConfirmedQty(m_Qty);
+					m_FTU_LoadOrderLine.setConfirmedQty(m_FTU_LoadOrderLine.getConfirmedQty().add(m_Qty));
 					
 					m_FTU_LoadOrderLine.setM_InOutLine_ID(shipmentLine.get_ID());
 				}
@@ -1031,7 +1031,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				m_MovementLine.setMovementQty(m_Qty);
 				m_MovementLine.saveEx();
 				m_FTU_LoadOrderLine.setM_MovementLine_ID(m_MovementLine.getM_MovementLine_ID());
-				m_FTU_LoadOrderLine.setConfirmedQty(m_Qty);
+				m_FTU_LoadOrderLine.setConfirmedQty(m_FTU_LoadOrderLine.getConfirmedQty().add(m_Qty));
 				m_FTU_LoadOrderLine.saveEx();
 				// Instance MFTULoadOrder
 				MFTULoadOrder lo = new MFTULoadOrder(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrder_ID(),
