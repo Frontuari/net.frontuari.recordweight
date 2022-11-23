@@ -201,6 +201,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
 		
 				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
+				if(i.getDescription()==null)
+					continue;
 				String[] attrVal = i.getDescription().split("_");
 				for (String a : attrVal) {
 				if (a.equals("Observacion") ) {						
@@ -214,6 +216,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			
 				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
 					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
+					if(i.getDescription() == null)
+						continue;
 					String[] attrVal = i.getDescription().split("_");
 					for (String a : attrVal) {					
 						if (a.equals("Observacion") ) {
@@ -639,6 +643,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			boolean isOk = true;
 			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
 				MAttributeSetInstance i = new MAttributeSetInstance(m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID(), m_FTU_LoadOrderLine.get_TrxName());
+				if(i.getDescription()==null)
+					continue;
 				String[] attrVal = i.getDescription().split("_");
 				for (String a : attrVal) {
 					if (a.equalsIgnoreCase("Observacion") ) {
@@ -651,6 +657,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			if (lineAttr.length > 0 ) {//if has attribute line
 				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
 					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
+					if(i.getDescription()==null)
+						continue;
 					String[] attrVal = i.getDescription().split("_");
 					for (String a : attrVal) {
 						if (a.equalsIgnoreCase("Observacion") ) {
