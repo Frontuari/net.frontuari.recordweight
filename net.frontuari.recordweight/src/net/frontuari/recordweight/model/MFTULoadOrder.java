@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
@@ -1260,10 +1261,22 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			String MMPolicy = product.getMMPolicy();
 			Timestamp minGuaranteeDate = getDateDoc();
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
-					minGuaranteeDate, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
+					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
 			BigDecimal qtyToDeliver = qty;
 			for (MStorageOnHand storage: storages)
 			{
+				boolean observacion = false;
+				MAttributeSetInstance ins = new MAttributeSetInstance(getCtx(), storage.getM_AttributeSetInstance_ID(), get_TrxName());
+				if(ins.getDescription()==null)
+					continue;
+				String[] attrVal = ins.getDescription().split("_");
+				for (String a : attrVal) {
+					if (a.equalsIgnoreCase("Observacion") ) {				
+						observacion = true;
+					}
+				}
+				if (observacion)
+					continue;
 				BigDecimal reserved = getReservedforLoadOrder(storage, line.getFTU_LoadOrder_ID());
 				BigDecimal available = storage.getQtyOnHand().subtract(reserved);
 				if(available.compareTo(BigDecimal.ZERO) <= 0)
@@ -1355,8 +1368,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
 		else
 			sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-		sql += " AND s.M_Product_ID=?"
-			 + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
+		sql += " AND s.M_Product_ID=?";
+		if (M_AttributeSetInstance_ID > 0)
+			sql= sql + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
 		if (positiveOnly)
 		{
 			sql += " AND s.QtyOnHand > 0 ";
@@ -1428,6 +1442,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			pstmt.setInt(2, M_Product_ID);
 			if (!allAttributeInstances)
 			{
+				if (M_AttributeSetInstance_ID > 0)
 				pstmt.setInt(3, M_AttributeSetInstance_ID);
 			}
 			else if (minGuaranteeDate != null)

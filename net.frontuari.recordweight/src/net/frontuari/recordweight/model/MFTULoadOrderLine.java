@@ -5,8 +5,11 @@ package net.frontuari.recordweight.model;
 
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.compiere.model.MProduct;
 import org.compiere.model.MStorageOnHand;
@@ -203,7 +206,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		}
 
 		//	Get existing Location
-		int M_Locator_ID = MStorageOnHand.getM_Locator_ID (getM_Warehouse_ID(),
+		int M_Locator_ID = getM_Locator_ID (getM_Warehouse_ID(),
 				getM_Product_ID(), getM_AttributeSetInstance_ID(),
 				Qty, get_TrxName());
 		//	Get default Location
@@ -214,5 +217,68 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		}
 		setM_Locator_ID(M_Locator_ID);
 	}	//	setM_Locator_ID
+	/**************************************************************************
+	 * 	Get Location with highest Locator Priority and a sufficient OnHand Qty
+	 * 	@param M_Warehouse_ID warehouse
+	 * 	@param M_Product_ID product
+	 * 	@param M_AttributeSetInstance_ID asi
+	 * 	@param Qty qty
+	 *	@param trxName transaction
+	 * 	@return id
+	 */
+	public static int getM_Locator_ID (int M_Warehouse_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, BigDecimal Qty,
+		String trxName)
+	{
+		int M_Locator_ID = 0;
+		int firstM_Locator_ID = 0;
+		String sql = "SELECT s.M_Locator_ID, s.QtyOnHand "
+			+ "FROM M_StorageOnHand s"
+			+ " INNER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID)"
+			+ " INNER JOIN M_Product p ON (s.M_Product_ID=p.M_Product_ID)"
+			+ " LEFT OUTER JOIN M_AttributeSet mas ON (p.M_AttributeSet_ID=mas.M_AttributeSet_ID) "
+			+ "WHERE l.M_Warehouse_ID=?"
+			+ " AND s.M_Product_ID=?";
+			if (M_AttributeSetInstance_ID > 0)
+			sql = sql+ " AND (mas.IsInstanceAttribute IS NULL OR mas.IsInstanceAttribute='N' OR s.M_AttributeSetInstance_ID=?)";
+			
+			sql = sql+ " AND l.IsActive='Y' "
+			+ "ORDER BY l.PriorityNo DESC, s.QtyOnHand DESC";
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql, trxName);
+			pstmt.setInt(1, M_Warehouse_ID);
+			pstmt.setInt(2, M_Product_ID);
+			if (M_AttributeSetInstance_ID > 0)
+			pstmt.setInt(3, M_AttributeSetInstance_ID);
+			rs = pstmt.executeQuery();
+			while (rs.next())
+			{
+				BigDecimal QtyOnHand = rs.getBigDecimal(2);
+				if (QtyOnHand != null && Qty.compareTo(QtyOnHand) <= 0)
+				{
+					M_Locator_ID = rs.getInt(1);
+					break;
+				}
+				if (firstM_Locator_ID == 0)
+					firstM_Locator_ID = rs.getInt(1);
+			}
+		}
+		catch (SQLException ex)
+		{
+
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		if (M_Locator_ID != 0)
+			return M_Locator_ID;
+		return firstM_Locator_ID;
+	}	//	getM_Locator_ID
 
 }
