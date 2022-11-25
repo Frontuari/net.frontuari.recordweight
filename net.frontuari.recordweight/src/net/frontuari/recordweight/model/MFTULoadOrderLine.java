@@ -235,6 +235,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		String sql = "SELECT s.M_Locator_ID, s.QtyOnHand "
 			+ "FROM M_StorageOnHand s"
 			+ " INNER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID)"
+			+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID=lt.M_LocatorType_ID)"
 			+ " INNER JOIN M_Product p ON (s.M_Product_ID=p.M_Product_ID)"
 			+ " LEFT OUTER JOIN M_AttributeSet mas ON (p.M_AttributeSet_ID=mas.M_AttributeSet_ID) "
 			+ "WHERE l.M_Warehouse_ID=?"
@@ -242,7 +243,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 			if (M_AttributeSetInstance_ID > 0)
 			sql = sql+ " AND (mas.IsInstanceAttribute IS NULL OR mas.IsInstanceAttribute='N' OR s.M_AttributeSetInstance_ID=?)";
 			
-			sql = sql+ " AND l.IsActive='Y' "
+			sql = sql+ " AND l.IsActive='Y' AND 'Y' = (CASE WHEN l.M_LocatorType_ID is not null THEN lt.IsAvailableForShipping ELSE 'N' END)  "
 			+ "ORDER BY l.PriorityNo DESC, s.QtyOnHand DESC";
 		
 		PreparedStatement pstmt = null;
