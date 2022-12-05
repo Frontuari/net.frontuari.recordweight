@@ -55,6 +55,7 @@ import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
 import net.frontuari.recordweight.model.MFTUMobilizationGuide;
 import net.frontuari.recordweight.model.MFTUMovement;
+import net.frontuari.recordweight.model.MFTUQualityParam;
 import net.frontuari.recordweight.model.MFTURecordWeight;
 import net.frontuari.recordweight.model.MFTUScreenConfig;
 import net.frontuari.recordweight.model.MFTUSerialPortConfig;
@@ -68,7 +69,6 @@ import net.frontuari.recordweight.model.MHRSAnalysisLine;
 import net.frontuari.recordweight.model.MHRSAnalysisValuation;
 import net.frontuari.recordweight.model.MHRSQualityParameter;
 import net.frontuari.recordweight.model.X_FTU_Functions_Formule;
-import net.frontuari.recordweight.model.X_FTU_Quality_Param;
 import net.frontuari.recordweight.model.X_FTU_RW_ApprovalMotive;
 import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
 import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
@@ -120,7 +120,7 @@ public class ModelFactory extends FTUModelFactory {
 		registerModel(I_FTU_Analysis_Type.Table_Name, MFTUAnalysisType.class);
 		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
 		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
-		registerModel(I_FTU_Quality_Param.Table_Name, X_FTU_Quality_Param.class);
+		registerModel(I_FTU_Quality_Param.Table_Name, MFTUQualityParam.class);
 		registerModel(I_HRS_AnalysisLine.Table_Name, MHRSAnalysisLine.class);
 		registerModel(I_HRS_AnalysisValuation.Table_Name, MHRSAnalysisValuation.class);
 		//	End Jorge Colmenarez

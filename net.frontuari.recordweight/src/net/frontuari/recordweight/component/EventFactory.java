@@ -25,8 +25,10 @@ import org.compiere.model.I_M_Movement;
 import org.compiere.model.MMovement;
 
 import net.frontuari.recordweight.base.FTUEventFactory;
+import net.frontuari.recordweight.events.AnalysisEvent;
 import net.frontuari.recordweight.model.FTUEvents;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
+import net.frontuari.recordweight.model.MHRSAnalysis;
 
 /**
  * Event Factory
@@ -60,6 +62,10 @@ public class EventFactory extends FTUEventFactory {
 		registerEvent(IEventTopics.DOC_AFTER_COMPLETE, MMovement.Table_Name, FTUEvents.class);
 		//End By Argenis Rodríguez
 		registerEvent(IEventTopics.PO_BEFORE_DELETE, MFTULoadOrderLine.Table_Name, FTUEvents.class);
+		//	Added By Jorge Colmenarez, 2022-12-03 10:24
+		registerEvent(IEventTopics.PO_AFTER_NEW, MHRSAnalysis.Table_Name, AnalysisEvent.class);
+		registerEvent(IEventTopics.PO_AFTER_CHANGE, MHRSAnalysis.Table_Name, AnalysisEvent.class);
+		//	End Jorge Colmenarez
 	}
 
 }

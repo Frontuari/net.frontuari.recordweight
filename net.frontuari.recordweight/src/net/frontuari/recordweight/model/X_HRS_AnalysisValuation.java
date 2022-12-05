@@ -30,7 +30,7 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20221104L;
+	private static final long serialVersionUID = 20221202L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisValuation (Properties ctx, int HRS_AnalysisValuation_ID, String trxName)
@@ -95,6 +95,11 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 			 return 0;
 		return ii.intValue();
 	}
+
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
+    {
+		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_Name)
+			.getPO(getHRS_Analysis_ID(), get_TrxName());	}
 
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis	  */

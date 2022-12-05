@@ -3,7 +3,6 @@
  */
 package net.frontuari.recordweight.callouts;
 
-import org.compiere.model.MInOutLine;
 import org.compiere.util.DB;
 import org.eevolution.model.X_PP_Order;
 
@@ -28,6 +27,10 @@ public class CalloutAnalysis extends FTUCallout {
 			X_PP_Order ppOrder = new X_PP_Order(getCtx(), m_PP_Order_ID, null);
 			if(ppOrder.getM_Product_ID() > 0) 
 				setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, ppOrder.getM_Product_ID());
+			//	Added by Jorge Colmenarez, 2022-12-03 09:11
+			if(ppOrder.getM_AttributeSetInstance_ID()>0)
+				setValue(I_HRS_Analysis.COLUMNNAME_Analysis_ID, ppOrder.getM_AttributeSetInstance_ID());
+			//	End Jorge Colmenarez
 			
 		} 
 		if(getColumnName().equals(I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID)) {
@@ -50,7 +53,20 @@ public class CalloutAnalysis extends FTUCallout {
 			}
 			if(m_Product_ID > 0 )
 				setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, m_Product_ID );
+			//	Added by Jorge Colmenarez, 2022-12-03 09:06
+			if(mEntryTicket.getC_BPartner_ID()>0)
+				setValue("C_BPartner_ID",mEntryTicket.getC_BPartner_ID());
+			if(mEntryTicket.getC_BPartner_ID()<=0) {
+				if(mEntryTicket.getC_Order_ID()>0)
+					setValue("C_BPartner_ID",mEntryTicket.getC_Order().getC_BPartner_ID());
+			}
+			if(mEntryTicket.getC_OrderLine_ID()>0)
+				setValue("Qty", mEntryTicket.getC_OrderLine().getQtyOrdered());
+			//	End Jorge Colmenarez
 		}
+		/***
+		 * Comment by Jorge Colmenarez, 2022-12-03 09:01 
+		 * Depreciated, drop column of table.
 		if(getColumnName().equals("M_InOutLine_ID"))
 		{
 			Integer m_InOutLine_ID = (Integer) getValue();
@@ -62,7 +78,7 @@ public class CalloutAnalysis extends FTUCallout {
 			setValue("M_Warehouse_ID", iol.getM_Locator().getM_Warehouse_ID());
 			setValue("M_Locator_ID", iol.getM_Locator_ID());
 			
-		}
+		}*/
 		return "";
 	}
 

@@ -11,21 +11,31 @@ import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
 import org.compiere.model.MPeriod;
+import org.compiere.model.MQuery;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
+import org.compiere.model.PrintInfo;
 import org.compiere.model.Query;
+import org.compiere.print.MPrintFormat;
+import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
+import org.compiere.process.ProcessInfo;
+import org.compiere.process.ServerProcessCtl;
+import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 import org.compiere.util.Msg;
 
 /**
@@ -256,10 +266,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	String sql = "SELECT "+ColumnSql+" FROM FTU_RecordWeight " +
         			" LEFT JOIN HRS_Analysis ON HRS_Analysis.HRS_Analysis_ID = FTU_RecordWeight.HRS_Analysis_ID " + 
 					" LEFT JOIN AD_Org ON AD_Org.AD_Org_ID =FTU_RecordWeight.AD_Org_ID " + 
-					" LEFT JOIN AD_Client ON AD_Client.AD_Client_ID = FTU_RecordWeight.AD_Client_ID " + 
-					" LEFT JOIN C_BPartner ON C_BPartner.C_BPartner_ID  = FTU_RecordWeight.C_BPartner_ID " + 
-					" LEFT JOIN M_Product ON M_Product.M_Product_ID = HRS_Analysis.M_Product_ID " + 
-					" LEFT JOIN AD_User ON AD_User.C_BPartner_ID = C_BPartner.C_BPartner_ID " +
+					" LEFT JOIN AD_Client ON AD_Client.AD_Client_ID = FTU_RecordWeight.AD_Client_ID " +  
+					" LEFT JOIN M_Product ON M_Product.M_Product_ID = HRS_Analysis.M_Product_ID " +
 					" WHERE FTU_RecordWeight.FTU_EntryTicket_ID="+FTU_EntryTicket_ID;
         	PreparedStatement pstmt = null;
         	ResultSet rs = null;
@@ -414,6 +422,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			{
 				String code=rs.getString("code");
 				int ftu_quality_param_id=rs.getInt("ftu_quality_param_id");
+				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), ftu_quality_param_id, get_TrxName());
 				//	Replace Code
 				code = getFormulas(code);
 				code = replaceBasicCode(code);
@@ -429,7 +438,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_Quality_Param_ID(ftu_quality_param_id);
 					lcr.setResult_Human(result.toUpperCase());
-					lcr.setResult_System(result);
+					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
+					lcr.setResult_System(SysResult);
 					lcr.saveEx();
 				}
 			}
@@ -453,10 +463,17 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 		//	ER [ 8 ]
 		//Add Validation by Argenis Rodríguez
-		m_processMsg = validateETReferenceDuplicated();
-		
-		if (m_processMsg != null)
-			return STATUS_Invalid;
+		//	Added by Jorge Colmenarez, 2022-12-03 12:03
+		//	Validate Ticket Duplicated only for Receipt
+		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_ImportRawMaterial)
+				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_ReceiptMoreThanOneProduct)
+				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_ProductBulkReceipt) 
+				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt)) {
+			m_processMsg = validateETReferenceDuplicated();
+			if (m_processMsg != null)
+				return STATUS_Invalid;
+		}
+		//	End Jorge Colmenarez
 		//End By Argenis Rodríguez
 		
 		//	Clasificar
@@ -663,6 +680,9 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		return true;
 	} // reActivateIt 
 
+	/** Logger */
+	private static CLogger log = CLogger.getCLogger(MHRSAnalysis.class);
+	
 	/**
 	 * Create PDF file
 	 * 
@@ -670,8 +690,119 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	 * @return file if success
 	 */
 	public File createPDF(File file) {
-		return null;
+		ReportEngine re = getDocumentPrintEngine(getCtx(), getHRS_Analysis_ID(), get_TrxName());
+		if (re == null)
+			return null;
+		MPrintFormat format = re.getPrintFormat();
+		// We have a Jasper Print Format
+		// ==============================
+		if(format.getJasperProcess_ID() > 0)
+		{
+			ProcessInfo pi = new ProcessInfo ("", format.getJasperProcess_ID());
+			pi.setRecord_ID ( getHRS_Analysis_ID() );
+			pi.setIsBatch(true);
+			
+			ServerProcessCtl.process(pi, null);
+			
+			return pi.getPDFReport();
+		}
+		// Standard Print Format (Non-Jasper)
+		// ==================================
+		return re.getPDF(file);
 	} // createPDF
+	
+	/**************************************************************************
+	 * 	Get Document Print Engine for Request Type Document Type.
+	 *  @author Jorge Colmenarez, 2022-12-05 09:05, jcolmenarez@frontuari.net
+	 * 	@param ctx context
+	 * 	@param Record_ID id
+	 *  @param trxName
+	 * 	@return Report Engine or null
+	 */
+	public static ReportEngine getDocumentPrintEngine (Properties ctx, int Record_ID, String trxName)
+	{
+		if (Record_ID < 1)
+		{
+			log.log(Level.WARNING, "No PrintFormat for Record_ID=" + Record_ID);
+			return null;
+		}
+
+		int AD_PrintFormat_ID = 0;
+		int C_BPartner_ID = 0;
+		String DocumentNo = null;
+		int copies = 1;
+
+		//	Language
+		MClient client = MClient.get(ctx);
+		Language language = client.getLanguage();	
+		//	Get Document Info
+		StringBuilder sql = new StringBuilder("SELECT COALESCE(dt.AD_PrintFormat_ID, pf.AD_PrintFormat_ID),")
+				.append(" c.IsMultiLingualDocument,NULL AS AD_Language,a.C_BPartner_ID,a.DocumentNo ")
+				.append("FROM HRS_Analysis a ")
+				.append(" INNER JOIN C_DocType dt ON (a.C_DocType_ID=dt.C_DocType_ID)")
+				.append(" INNER JOIN AD_Client c ON (a.AD_Client_ID=c.AD_Client_ID),")
+				.append(" AD_PrintFormat pf ")
+				.append("WHERE pf.AD_Client_ID IN (0,a.AD_Client_ID)")
+				.append(" AND pf.AD_Table_ID="+Table_ID+" AND (pf.IsTableBased='N' OR pf.AD_PrintFormat_ID = dt.AD_PrintFormat_ID)")	//	from HRS_Analysis
+				.append(" AND a.HRS_Analysis_ID=? ")				//	Info from HRS_Analysis
+				.append("ORDER BY dt.AD_PrintFormat_ID, pf.AD_Client_ID DESC, pf.AD_Org_ID DESC");
+		//
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql.toString(), trxName);
+			pstmt.setInt(1, Record_ID);
+			rs = pstmt.executeQuery();
+			if (rs.next())	//	first record only
+			{
+				AD_PrintFormat_ID = rs.getInt(1);
+				copies = 1;
+				//	Set Language when enabled
+				String AD_Language = rs.getString(3);
+				if (AD_Language != null)// && "Y".equals(rs.getString(2)))	//	IsMultiLingualDocument
+					language = Language.getLanguage(AD_Language);
+				C_BPartner_ID = rs.getInt(4);
+				DocumentNo = rs.getString(5);
+			}
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, "Record_ID=" + Record_ID + ", SQL=" + sql, e);
+		}
+		finally {
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		if (AD_PrintFormat_ID == 0)
+		{
+			log.log(Level.SEVERE, "No PrintFormat found for Record_ID=" + Record_ID);
+			return null;
+		}
+
+		//	Get Format & Data
+		MPrintFormat format = MPrintFormat.get (ctx, AD_PrintFormat_ID, false);
+		format.setLanguage(language);		//	BP Language if Multi-Lingual
+		format.setTranslationLanguage(language);
+		//	query
+		MQuery query = new MQuery(format.getAD_Table_ID());
+		query.addRestriction("HRS_Analysis", MQuery.EQUAL, Record_ID);
+		//
+		if (DocumentNo == null || DocumentNo.length() == 0)
+			DocumentNo = "DocPrint";
+		PrintInfo info = new PrintInfo(
+			DocumentNo,
+			Table_ID,
+			Record_ID,
+			C_BPartner_ID);
+		info.setCopies(copies);
+		info.setDocumentCopy(false);		//	true prints "Copy" on second
+		info.setPrinterName(format.getPrinterName());
+		
+		//	Engine
+		ReportEngine re = new ReportEngine(ctx, format, query, info, trxName);
+		return re;
+	}	//	getDocumentPrintEngine
 
 	@Override
 	public String getSummary() {

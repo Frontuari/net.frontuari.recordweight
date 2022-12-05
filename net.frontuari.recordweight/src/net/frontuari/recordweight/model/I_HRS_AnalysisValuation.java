@@ -100,6 +100,8 @@ public interface I_HRS_AnalysisValuation
 	/** Get Analysis	  */
 	public int getHRS_Analysis_ID();
 
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
+
     /** Column name HRS_AnalysisValuation_ID */
     public static final String COLUMNNAME_HRS_AnalysisValuation_ID = "HRS_AnalysisValuation_ID";
 

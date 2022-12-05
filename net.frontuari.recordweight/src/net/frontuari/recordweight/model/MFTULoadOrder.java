@@ -1259,7 +1259,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			 
 			// Create consume the Attribute Set Instance using policy FIFO/LIFO
 			String MMPolicy = product.getMMPolicy();
-			Timestamp minGuaranteeDate = getDateDoc();
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
 					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
 			BigDecimal qtyToDeliver = qty;
@@ -1277,7 +1276,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				}
 				if (observacion)
 					continue;
-				BigDecimal reserved = getReservedforLoadOrder(storage, line.getFTU_LoadOrder_ID());
+				BigDecimal reserved = getReservedforLoadOrder(storage);
 				BigDecimal available = storage.getQtyOnHand().subtract(reserved);
 				if(available.compareTo(BigDecimal.ZERO) <= 0)
 					continue;
@@ -1316,14 +1315,15 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		}
 	}	//	checkMaterialPolicy
 	
-	private BigDecimal getReservedforLoadOrder(MStorageOnHand storage, int FTU_LoadOrder_ID) {
+	private BigDecimal getReservedforLoadOrder(MStorageOnHand storage) {
 		BigDecimal reservedForLoadOrder = BigDecimal.ZERO;
 		
 		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
 				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
-				+" WHERE lol.FTU_LoadOrder_ID = ? AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
+				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
+				+" WHERE lo.DocStatus NOT IN ('RE','VO') AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
 		
-		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {FTU_LoadOrder_ID,storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
+		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
 		
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
@@ -1363,6 +1363,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			+ "s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
 			+ "FROM M_StorageOnHand s"
 			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) "
+			+ " INNER JOIN M_Warehouse w ON (l.M_Warehouse_ID = w.M_Warehouse_ID AND w.IsInTransit = 'N') "
 			+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) ";
 		if (M_Locator_ID > 0)
 			sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";

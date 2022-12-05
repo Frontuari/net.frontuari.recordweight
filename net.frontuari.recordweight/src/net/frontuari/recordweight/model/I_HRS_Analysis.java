@@ -64,6 +64,21 @@ public interface I_HRS_Analysis
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name AD_User_ID */
+    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
+
+	/** Set User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public void setAD_User_ID (int AD_User_ID);
+
+	/** Get User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public int getAD_User_ID();
+
+	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+
     /** Column name Analysis_ID */
     public static final String COLUMNNAME_Analysis_ID = "Analysis_ID";
 
@@ -74,6 +89,21 @@ public interface I_HRS_Analysis
 	public int getAnalysis_ID();
 
 	public I_M_AttributeSetInstance getAnalysis() throws RuntimeException;
+
+    /** Column name C_BPartner_ID */
+    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
+
+	/** Set Business Partner .
+	  * Identifies a Business Partner
+	  */
+	public void setC_BPartner_ID (int C_BPartner_ID);
+
+	/** Get Business Partner .
+	  * Identifies a Business Partner
+	  */
+	public int getC_BPartner_ID();
+
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
@@ -118,17 +148,6 @@ public interface I_HRS_Analysis
 	  * Date of the Document
 	  */
 	public Timestamp getDateDoc();
-
-    /** Column name DD_Order_ID */
-    public static final String COLUMNNAME_DD_Order_ID = "DD_Order_ID";
-
-	/** Set Distribution Order	  */
-	public void setDD_Order_ID (int DD_Order_ID);
-
-	/** Get Distribution Order	  */
-	public int getDD_Order_ID();
-
-	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -191,8 +210,6 @@ public interface I_HRS_Analysis
 	/** Get Entry Ticket	  */
 	public int getFTU_EntryTicket_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException;
-
     /** Column name GenerateDoc */
     public static final String COLUMNNAME_GenerateDoc = "GenerateDoc";
 
@@ -205,6 +222,19 @@ public interface I_HRS_Analysis
 	  * Process generate document
 	  */
 	public String getGenerateDoc();
+
+    /** Column name Help */
+    public static final String COLUMNNAME_Help = "Help";
+
+	/** Set Comment/Help.
+	  * Comment or Hint
+	  */
+	public void setHelp (String Help);
+
+	/** Get Comment/Help.
+	  * Comment or Hint
+	  */
+	public String getHelp();
 
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
@@ -268,51 +298,6 @@ public interface I_HRS_Analysis
 	/** Get IsValidAnalysis	  */
 	public boolean isValidAnalysis();
 
-    /** Column name M_InOut_ID */
-    public static final String COLUMNNAME_M_InOut_ID = "M_InOut_ID";
-
-	/** Set Shipment/Receipt.
-	  * Material Shipment Document
-	  */
-	public void setM_InOut_ID (int M_InOut_ID);
-
-	/** Get Shipment/Receipt.
-	  * Material Shipment Document
-	  */
-	public int getM_InOut_ID();
-
-	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException;
-
-    /** Column name M_InOutLine_ID */
-    public static final String COLUMNNAME_M_InOutLine_ID = "M_InOutLine_ID";
-
-	/** Set Shipment/Receipt Line.
-	  * Line on Shipment or Receipt document
-	  */
-	public void setM_InOutLine_ID (int M_InOutLine_ID);
-
-	/** Get Shipment/Receipt Line.
-	  * Line on Shipment or Receipt document
-	  */
-	public int getM_InOutLine_ID();
-
-	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException;
-
-    /** Column name M_Locator_ID */
-    public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
-
-	/** Set Locator.
-	  * Warehouse Locator
-	  */
-	public void setM_Locator_ID (int M_Locator_ID);
-
-	/** Get Locator.
-	  * Warehouse Locator
-	  */
-	public int getM_Locator_ID();
-
-	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException;
-
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
@@ -327,21 +312,6 @@ public interface I_HRS_Analysis
 	public int getM_Product_ID();
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
-
-    /** Column name M_Warehouse_ID */
-    public static final String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
-
-	/** Set Warehouse.
-	  * Storage Warehouse and Service Point
-	  */
-	public void setM_Warehouse_ID (int M_Warehouse_ID);
-
-	/** Get Warehouse.
-	  * Storage Warehouse and Service Point
-	  */
-	public int getM_Warehouse_ID();
-
-	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException;
 
     /** Column name OperationType */
     public static final String COLUMNNAME_OperationType = "OperationType";
@@ -388,6 +358,15 @@ public interface I_HRS_Analysis
 
 	/** Get Process Now	  */
 	public boolean isProcessing();
+
+    /** Column name SamplingDate */
+    public static final String COLUMNNAME_SamplingDate = "SamplingDate";
+
+	/** Set Sampling Date	  */
+	public void setSamplingDate (Timestamp SamplingDate);
+
+	/** Get Sampling Date	  */
+	public Timestamp getSamplingDate();
 
     /** Column name Status */
     public static final String COLUMNNAME_Status = "Status";

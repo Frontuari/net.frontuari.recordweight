@@ -32,7 +32,7 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20221104L;
+	private static final long serialVersionUID = 20221202L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisLine (Properties ctx, int HRS_AnalysisLine_ID, String trxName)
@@ -40,6 +40,8 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
       super (ctx, HRS_AnalysisLine_ID, trxName);
       /** if (HRS_AnalysisLine_ID == 0)
         {
+			setFTU_Analysis_Type_ID (0);
+			setHRS_Analysis_ID (0);
 			setHRS_AnalysisLine_ID (0);
 			setHRS_AnalysisLine_UU (null);
 			setResult (Env.ZERO);
@@ -84,9 +86,9 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	public void setFTU_Analysis_Type_ID (int FTU_Analysis_Type_ID)
 	{
 		if (FTU_Analysis_Type_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_Analysis_Type_ID, null);
+			set_Value (COLUMNNAME_FTU_Analysis_Type_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_Analysis_Type_ID, Integer.valueOf(FTU_Analysis_Type_ID));
+			set_Value (COLUMNNAME_FTU_Analysis_Type_ID, Integer.valueOf(FTU_Analysis_Type_ID));
 	}
 
 	/** Get Analysis_Type_ID.

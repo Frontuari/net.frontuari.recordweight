@@ -89,6 +89,8 @@ public interface I_HRS_AnalysisLine
 	/** Get Analysis_Type_ID	  */
 	public int getFTU_Analysis_Type_ID();
 
+	public net.frontuari.recordweight.model.I_FTU_Analysis_Type getFTU_Analysis_Type() throws RuntimeException;
+
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
 

@@ -258,7 +258,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		//David castillo 2021-08-05 added percentage tolerance
 		int tolerance = MSysConfig.getIntValue("FTU_RW_TOLERANCE", 0,getAD_Client_ID());
 		int tolerancePercentage = MSysConfig.getIntValue("FTU_RW_TOLERANCE_PRC", 0,getAD_Client_ID());
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt) && !isApproved())
+		if((getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt) || getOperationType().equalsIgnoreCase("IRM")) && !isApproved())
 		{
 			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
@@ -700,7 +700,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_processMsg = validMGReference();
 			if (m_processMsg != null)
 				return false;
-		} else if (getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)) {
+		} else if (getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt) || getOperationType().equalsIgnoreCase("IRM")) {
 			// Valid QualityAnalysis Reference
 			
 			//Valid form exists QA Carlos Vargas
@@ -712,7 +712,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Reverse only M_InOut record
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
+				&& !getOperationType().equals("IRM")) {
 			// Reverse In/Out
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
@@ -734,32 +735,32 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
 		
-		if(et.get_ValueAsInt("DD_Order_ID") > 0) {
+		if(et.get_ValueAsInt("DD_Order_ID") > 0 && !getOperationType().equals("IRM")) {
 			setVoidItToMMovmenete(et);
 		}
 		
 		//Added  by david castillo 21/11/2022 delete weighted qty
-		
-		MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
-		if (lo == null || lo.get_ID() <= 0) {
-			m_processMsg = m_processMsg + " @FTU_LoadOrder_ID@ @NotFound@";
-			return false;
+		if(getFTU_LoadOrder_ID() > 0) {
+			MFTULoadOrder lo = (MFTULoadOrder) getFTU_LoadOrder();
+			if (lo == null || lo.get_ID() <= 0) {
+				m_processMsg = m_processMsg + " @FTU_LoadOrder_ID@ @NotFound@";
+				return false;
+			}
+			//	Added by Jorge Colmenarez
+			//	Apply validations by products
+			
+			BigDecimal confirmedWeight = getNetWeight();
+			for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
+			{
+					line.setConfirmedWeight(line.getConfirmedWeight().subtract(confirmedWeight));
+					if (line.getConfirmedWeight().compareTo(Env.ZERO)==0)
+					line.setIsConfirmed(false);
+					
+					line.saveEx();
+	
+			}
 		}
-		//	Added by Jorge Colmenarez
-		//	Apply validations by products
 		
-		BigDecimal confirmedWeight = getNetWeight();
-		for(MFTULoadOrderLine line : lo.getLines(true, " IsConfirmed = 'N' AND M_Product_ID = "+getM_Product_ID()))
-		{
-				line.setConfirmedWeight(line.getConfirmedWeight().subtract(confirmedWeight));
-				if (line.getConfirmedWeight().compareTo(Env.ZERO)==0)
-				line.setIsConfirmed(false);
-				
-				line.saveEx();
-
-		}
-		
-
 		setProcessed(true);
 		setDocAction(DOCACTION_None);
 		return true;
