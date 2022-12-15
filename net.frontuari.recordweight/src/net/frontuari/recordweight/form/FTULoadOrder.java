@@ -190,7 +190,7 @@ public class FTULoadOrder {
 					"LEFT JOIN (SELECT lord.DD_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
+					"				CASE WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus IN ('DR','IP','CO')) " +
 					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
@@ -255,7 +255,7 @@ public class FTULoadOrder {
 					"LEFT JOIN (SELECT lord.C_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('CO','IP','DR') " +
+					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('CO','IP','DR')) " +
 					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
@@ -404,7 +404,7 @@ public class FTULoadOrder {
 					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, 0 QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
+					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus IN ('DR','IP','CO')) " +
 					"			THEN lc.Qty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
@@ -412,7 +412,7 @@ public class FTULoadOrder {
 					"(COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyInTransit, 0) - COALESCE(lord.QtyDelivered, 0) - " +
 					"	SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
+					"			WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus IN ('DR','IP','CO')) " +
 					"			THEN lc.Qty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
@@ -456,7 +456,7 @@ public class FTULoadOrder {
 			sql.append("HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyInTransit, 0) - COALESCE(lord.QtyDelivered, 0) - " + 
 					"								SUM(" +
 					"									COALESCE(CASE " +
-					"										WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus = 'CO') " +
+					"										WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus IN ('DR','IP','CO')) " +
 					"											THEN lc.Qty " +
 					"											ELSE 0 " +
 					"										END, 0)" +
@@ -486,7 +486,7 @@ public class FTULoadOrder {
 					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, lord.QtyInvoiced, lord.QtyDelivered, " +
 					"SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
+					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('DR','IP','CO')) " +
 					"			THEN lc.Qty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
@@ -498,7 +498,7 @@ public class FTULoadOrder {
 					
 					"	SUM(" +
 					"		COALESCE(CASE " +
-					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
+					"			WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('DR','IP','CO')) " +
 					"			THEN lc.Qty " +
 					"			ELSE 0 " +
 					"		END, 0)" +
@@ -545,7 +545,7 @@ public class FTULoadOrder {
 							: "HAVING (COALESCE(lord.QtyOrdered, 0) - COALESCE(lord.QtyDelivered, 0) - ") +
 					"									SUM(" +
 					"										COALESCE(CASE " +
-					"											WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
+					"											WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('DR','IP','CO')) " +
 					"											THEN lc.Qty " +
 					"											ELSE 0 " +
 					"										END, 0)" +
@@ -1159,7 +1159,7 @@ public class FTULoadOrder {
 				+ "INNER JOIN FTU_LoadOrderLine lc ON(lc.FTU_LoadOrder_ID = c.FTU_LoadOrder_ID) "
 				+ "WHERE lc.M_Product_ID = ? "
 				+ "AND lc.M_Warehouse_ID = ? "
-				+ "AND c.DocStatus = 'CO' "
+				+ "AND c.DocStatus IN ('DR','IP','CO') "
 				+ "AND ("
 				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND lc.M_InOutLine_ID IS NULL) "
 				+ "			OR "
