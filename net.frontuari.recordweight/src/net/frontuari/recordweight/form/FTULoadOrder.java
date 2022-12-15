@@ -255,7 +255,7 @@ public class FTULoadOrder {
 					"LEFT JOIN (SELECT lord.C_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
+					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('CO','IP','DR') " +
 					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
