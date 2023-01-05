@@ -41,7 +41,7 @@ import org.compiere.util.Util;
 /**
  */
 public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOptions {
-	
+
 	/**
 	 * 
 	 */
@@ -1129,6 +1129,21 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		return true;
 	}//	End beforeSave
 	
+	/***
+	 * Delete lines
+	 * @author Jorge Colmenarez, 2022-12-21 10:20
+	 */
+	@Override
+	protected boolean beforeDelete() {
+		//	Delete Lines
+		MFTULoadOrderLine[] lines = getLines(true);
+		if(lines.length > 0)
+			for(MFTULoadOrderLine line : lines)
+				line.deleteEx(true);
+		
+		return true;
+	}
+	
 	/** Logger */
 	private static CLogger log = CLogger.getCLogger(MFTULoadOrder.class);
 	
@@ -1302,10 +1317,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			}
 			if (qtyToDeliver.signum() != 0)
 			{					
+				throw new AdempiereException("Error no hay suficiente inventario para despachar las "+qtyToDeliver+" unidades el producto "+product.getValue()+" "+product.getName());
 				//Over Delivery
-				MFTULoadOrderLineMA ma = MFTULoadOrderLineMA.addOrCreate(line, line.getM_AttributeSetInstance_ID(), qtyToDeliver, getDateDoc(),true);
+				/*MFTULoadOrderLineMA ma = MFTULoadOrderLineMA.addOrCreate(line, line.getM_AttributeSetInstance_ID(), qtyToDeliver, getDateDoc(),true);
 				ma.saveEx();
-				if (log.isLoggable(Level.FINE)) log.fine("##: " + ma);
+				if (log.isLoggable(Level.FINE)) log.fine("##: " + ma);*/
 			}
 		}	//	attributeSetInstance
 
@@ -1321,7 +1337,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
 				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
 				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
-				+" WHERE lo.DocStatus NOT IN ('RE','VO') AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
+				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND lo.IsDelivered = 'N' AND lo.IsMoved = 'N' "
+				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
 		

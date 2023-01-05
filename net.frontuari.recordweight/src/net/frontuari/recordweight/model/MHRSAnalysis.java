@@ -465,10 +465,10 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		//Add Validation by Argenis Rodríguez
 		//	Added by Jorge Colmenarez, 2022-12-03 12:03
 		//	Validate Ticket Duplicated only for Receipt
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_ImportRawMaterial)
+		if(getOperationType() != null && (getOperationType().equalsIgnoreCase(OPERATIONTYPE_ImportRawMaterial)
 				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_ReceiptMoreThanOneProduct)
 				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_ProductBulkReceipt) 
-				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt)) {
+				|| getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt))) {
 			m_processMsg = validateETReferenceDuplicated();
 			if (m_processMsg != null)
 				return STATUS_Invalid;

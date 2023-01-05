@@ -31,8 +31,8 @@ public class AnalysisEvent extends FTUModelEvents {
 			if(type.equalsIgnoreCase(IEventTopics.PO_AFTER_CHANGE)) {
 				if(a.is_ValueChanged(MHRSAnalysis.COLUMNNAME_Analysis_ID) 
 						|| a.is_ValueChanged(MHRSAnalysis.COLUMNNAME_M_Product_ID)) {
-					if(a.getM_Product_ID()==(int)a.get_ValueOld(MHRSAnalysis.COLUMNNAME_M_Product_ID) 
-							&& a.getAnalysis_ID()==(int)a.get_ValueOld(MHRSAnalysis.COLUMNNAME_Analysis_ID))
+					if((a.get_ValueOld(MHRSAnalysis.COLUMNNAME_M_Product_ID) != null && a.getM_Product_ID()==(int)a.get_ValueOld(MHRSAnalysis.COLUMNNAME_M_Product_ID)) 
+							&& (a.get_ValueOld(MHRSAnalysis.COLUMNNAME_Analysis_ID) != null && a.getAnalysis_ID()==(int)a.get_ValueOld(MHRSAnalysis.COLUMNNAME_Analysis_ID)))
 						return;
 					//	Delete last analysis lines
 					DB.executeUpdate("DELETE FROM HRS_AnalysisLine WHERE HRS_Analysis_ID = ?", a.get_ID(), a.get_TrxName());

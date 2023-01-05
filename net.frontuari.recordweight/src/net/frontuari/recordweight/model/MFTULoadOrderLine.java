@@ -8,12 +8,12 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import org.compiere.model.MProduct;
-import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MWarehouse;
+import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -149,6 +149,48 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		}
 		//	
 		return super.beforeSave(newRecord);
+	}
+	
+	/** Lines					*/
+	private MFTULoadOrderLineMA[]		m_lines = null;
+	
+	/**
+	 * 	Get Lines
+	 *	@param requery requery
+	 *	@param whereClause
+	 *	@return lines
+	 */
+	public MFTULoadOrderLineMA[] getLines (boolean requery, String whereClause)
+	{
+		if (m_lines != null && !requery)
+		{
+			set_TrxName(m_lines, get_TrxName());
+			return m_lines;
+		}
+		List<MFTULoadOrderLineMA> list = new Query(getCtx(), MFTULoadOrderLineMA.Table_Name, "FTU_LoadOrderLine_ID=?"
+				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
+		.setParameters(getFTU_LoadOrderLine_ID())
+		.setOrderBy(MFTULoadOrderLineMA.COLUMNNAME_DateMaterialPolicy)
+		.list();
+		
+		m_lines = new MFTULoadOrderLineMA[list.size ()];
+		list.toArray (m_lines);
+		return m_lines;
+	}	//	getLines
+	
+	/***
+	 * Delete lines MA
+	 * @author Jorge Colmenarez, 2022-12-21 10:20
+	 */
+	@Override
+	protected boolean beforeDelete() {
+		//	Delete Lines
+		MFTULoadOrderLineMA[] lines = getLines(true, "");
+		if(lines.length > 0)
+			for(MFTULoadOrderLineMA line : lines)
+				line.deleteEx(true);
+		
+		return true;
 	}
 	
 	@Override

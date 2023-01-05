@@ -27,13 +27,6 @@ public class FTUEvents extends FTUModelEvents {
 	
 		PO po = getPO();		
 		String type = getEventType();
-		if (type.equalsIgnoreCase(IEventTopics.PO_BEFORE_DELETE)) {
-			if (po.get_TableName().equals(MFTULoadOrderLine.Table_Name)) {
-				MFTULoadOrderLine line = (MFTULoadOrderLine) po;
-				MFTULoadOrderLineMA.deleteAllLoadOrderLineMA(line.getFTU_LoadOrderLine_ID(), line.get_TrxName());
-			}
-				
-		}
 		
 		if(getEventType().equals(IEventTopics.DOC_AFTER_VOID)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSECORRECT)

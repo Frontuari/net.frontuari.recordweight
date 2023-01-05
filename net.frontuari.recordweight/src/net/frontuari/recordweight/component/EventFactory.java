@@ -61,7 +61,6 @@ public class EventFactory extends FTUEventFactory {
 		//Add Event After Complete Movement for Update Qty Delivered in Distribution Order Line By Argenis Rodríguez
 		registerEvent(IEventTopics.DOC_AFTER_COMPLETE, MMovement.Table_Name, FTUEvents.class);
 		//End By Argenis Rodríguez
-		registerEvent(IEventTopics.PO_BEFORE_DELETE, MFTULoadOrderLine.Table_Name, FTUEvents.class);
 		//	Added By Jorge Colmenarez, 2022-12-03 10:24
 		registerEvent(IEventTopics.PO_AFTER_NEW, MHRSAnalysis.Table_Name, AnalysisEvent.class);
 		registerEvent(IEventTopics.PO_AFTER_CHANGE, MHRSAnalysis.Table_Name, AnalysisEvent.class);
