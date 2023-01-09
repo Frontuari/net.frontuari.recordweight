@@ -12,11 +12,9 @@ import org.compiere.model.MMovementLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
-import org.compiere.process.DocOptions;
-import org.compiere.process.DocumentEngine;
 import org.compiere.util.Env;
 
-public class MFTUMovement extends MMovement implements DocOptions {
+public class MFTUMovement extends MMovement{
 	
 	private static final long serialVersionUID = 1L;
 
@@ -173,27 +171,5 @@ public class MFTUMovement extends MMovement implements DocOptions {
 		
 		return true;
 	}	//	reverseAccrualIt
-	
-	@Override
-	public int customizeValidActions(String docStatus, Object processing, String orderType, String isSOTrx,
-			int AD_Table_ID, String[] docAction, String[] options, int index) {
-		// Valid Document Action
-		if (AD_Table_ID == Table_ID) {
-			if (docStatus.equals(DocumentEngine.STATUS_Drafted) || docStatus.equals(DocumentEngine.STATUS_InProgress)
-					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
-				options[index++] = DocumentEngine.ACTION_Prepare;
-				options[index++] = DocumentEngine.ACTION_Complete;
-				options[index++] = DocumentEngine.ACTION_Void;
-			}
-			// Complete .. CO
-			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
-				options[index++] = DocumentEngine.ACTION_Close;
-				options[index++] = DocumentEngine.ACTION_Reverse_Correct;
-				options[index++] = DocumentEngine.ACTION_Reverse_Accrual;
-			}
-		}
-
-		return index;
-	}
 
 }

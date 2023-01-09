@@ -11,14 +11,14 @@ import org.compiere.util.Env;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
 
-import net.frontuari.recordweight.base.FTUCallout;
+import net.frontuari.recordweight.base.CustomCallout;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
 import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 
 /**
  *
  */
-public class CallOutEntryTicket extends FTUCallout {
+public class CallOutEntryTicket extends CustomCallout {
 
 	@Override
 	protected String start() {

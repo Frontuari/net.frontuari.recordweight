@@ -8,14 +8,14 @@ import org.compiere.model.MProduct;
 import org.compiere.model.MUOMConversion;
 import org.eevolution.model.I_DD_OrderLine;
 
-import net.frontuari.recordweight.base.FTUCallout;
+import net.frontuari.recordweight.base.CustomCallout;
 
 /**
  * Add Support for Conversion in DD Order Line
  * @author Argenis Rodríguez
  *
  */
-public class FTU_CalloutDDOrderLine extends FTUCallout {
+public class FTU_CalloutDDOrderLine extends CustomCallout {
 
 	private boolean isCalloutActive() {
 		

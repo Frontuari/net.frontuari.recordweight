@@ -13,29 +13,31 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2022 Frontuari, C.A. <https://frontuari.net> and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUProcessFactory;
-import net.frontuari.recordweight.process.AnalysisPrintFormat;
+import net.frontuari.recordweight.base.CustomProcessFactory;
 import net.frontuari.recordweight.process.ChangePrintedStatus;
 import net.frontuari.recordweight.process.ChangePrintedStatusRecordWeight;
 import net.frontuari.recordweight.process.EntryTicketChange;
 import net.frontuari.recordweight.process.FTUApproveQualityAnalysis;
+import net.frontuari.recordweight.process.FTUConfirmedCheckPoint;
 import net.frontuari.recordweight.process.FTUGenerateFreightCost;
 import net.frontuari.recordweight.process.GenerateFromLoadOrder;
 import net.frontuari.recordweight.process.GenerateMovementFromAnalysis;
 import net.frontuari.recordweight.process.ImportEntryTicket;
 import net.frontuari.recordweight.process.LoadOrderGuideGenerate;
-import net.frontuari.recordweight.process.LoadOrderPrintFormat;
 import net.frontuari.recordweight.process.ValidateDriver;
+import net.frontuari.recordweight.process.AssignmentCancellationSeals;
+import net.frontuari.recordweight.process.QAAssignmentCancellationSeals;
+import net.frontuari.recordweight.process.SerializeProducts;
 
 /**
  * Process Factory
  */
-public class ProcessFactory extends FTUProcessFactory {
+public class ProcessFactory extends CustomProcessFactory {
 
 	/**
 	 * For initialize class. Register the process to build
@@ -58,8 +60,11 @@ public class ProcessFactory extends FTUProcessFactory {
 		registerProcess(ImportEntryTicket.class);
 		registerProcess(ValidateDriver.class);
 		registerProcess(FTUApproveQualityAnalysis.class);
-		registerProcess(LoadOrderPrintFormat.class);
-		registerProcess(AnalysisPrintFormat.class);
+		registerProcess(SerializeProducts.class);
+		registerProcess(AssignmentCancellationSeals.class);
+		registerProcess(QAAssignmentCancellationSeals.class);
+		registerProcess(FTUConfirmedCheckPoint.class);
+		
 	}
 
 }

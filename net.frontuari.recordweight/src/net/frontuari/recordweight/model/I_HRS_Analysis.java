@@ -32,7 +32,7 @@ public interface I_HRS_Analysis
     /** TableName=HRS_Analysis */
     public static final String Table_Name = "HRS_Analysis";
 
-    /** AD_Table_ID=1000044 */
+    /** AD_Table_ID=1000037 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,21 +64,6 @@ public interface I_HRS_Analysis
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name AD_User_ID */
-    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
-
-	/** Set User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public void setAD_User_ID (int AD_User_ID);
-
-	/** Get User/Contact.
-	  * User within the system - Internal or Business Partner Contact
-	  */
-	public int getAD_User_ID();
-
-	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
-
     /** Column name Analysis_ID */
     public static final String COLUMNNAME_Analysis_ID = "Analysis_ID";
 
@@ -89,21 +74,6 @@ public interface I_HRS_Analysis
 	public int getAnalysis_ID();
 
 	public I_M_AttributeSetInstance getAnalysis() throws RuntimeException;
-
-    /** Column name C_BPartner_ID */
-    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
-
-	/** Set Business Partner .
-	  * Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID);
-
-	/** Get Business Partner .
-	  * Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID();
-
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
@@ -148,6 +118,17 @@ public interface I_HRS_Analysis
 	  * Date of the Document
 	  */
 	public Timestamp getDateDoc();
+
+    /** Column name DD_Order_ID */
+    public static final String COLUMNNAME_DD_Order_ID = "DD_Order_ID";
+
+	/** Set Distribution Order	  */
+	public void setDD_Order_ID (int DD_Order_ID);
+
+	/** Get Distribution Order	  */
+	public int getDD_Order_ID();
+
+	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -210,31 +191,7 @@ public interface I_HRS_Analysis
 	/** Get Entry Ticket	  */
 	public int getFTU_EntryTicket_ID();
 
-    /** Column name GenerateDoc */
-    public static final String COLUMNNAME_GenerateDoc = "GenerateDoc";
-
-	/** Set Generate Document.
-	  * Process generate document
-	  */
-	public void setGenerateDoc (String GenerateDoc);
-
-	/** Get Generate Document.
-	  * Process generate document
-	  */
-	public String getGenerateDoc();
-
-    /** Column name Help */
-    public static final String COLUMNNAME_Help = "Help";
-
-	/** Set Comment/Help.
-	  * Comment or Hint
-	  */
-	public void setHelp (String Help);
-
-	/** Get Comment/Help.
-	  * Comment or Hint
-	  */
-	public String getHelp();
+	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException;
 
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
@@ -266,15 +223,6 @@ public interface I_HRS_Analysis
 	  * The record is active in the system
 	  */
 	public boolean isActive();
-
-    /** Column name IsApprovedAnalysis */
-    public static final String COLUMNNAME_IsApprovedAnalysis = "IsApprovedAnalysis";
-
-	/** Set Aproved Analysis	  */
-	public void setIsApprovedAnalysis (boolean IsApprovedAnalysis);
-
-	/** Get Aproved Analysis	  */
-	public boolean isApprovedAnalysis();
 
     /** Column name IsManufactured */
     public static final String COLUMNNAME_IsManufactured = "IsManufactured";
@@ -359,15 +307,6 @@ public interface I_HRS_Analysis
 	/** Get Process Now	  */
 	public boolean isProcessing();
 
-    /** Column name SamplingDate */
-    public static final String COLUMNNAME_SamplingDate = "SamplingDate";
-
-	/** Set Sampling Date	  */
-	public void setSamplingDate (Timestamp SamplingDate);
-
-	/** Get Sampling Date	  */
-	public Timestamp getSamplingDate();
-
     /** Column name Status */
     public static final String COLUMNNAME_Status = "Status";
 
@@ -380,6 +319,15 @@ public interface I_HRS_Analysis
 	  * Status of the currently running check
 	  */
 	public String getStatus();
+
+    /** Column name TypeCalculation */
+    public static final String COLUMNNAME_TypeCalculation = "TypeCalculation";
+
+	/** Set Type Calculation	  */
+	public void setTypeCalculation (int TypeCalculation);
+
+	/** Get Type Calculation	  */
+	public int getTypeCalculation();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

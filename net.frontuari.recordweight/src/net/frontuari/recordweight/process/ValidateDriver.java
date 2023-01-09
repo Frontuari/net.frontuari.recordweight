@@ -1,21 +1,31 @@
 package net.frontuari.recordweight.process;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import org.compiere.process.ProcessInfoParameter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
 import net.frontuari.recordweight.model.MFTUDriver;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 
-public class ValidateDriver extends FTUProcess{
+public class ValidateDriver extends CustomProcess{
 	
 	String Cedula;
 	int FTU_Driver_ID;
 	private String ConsultarDatos() throws IOException {
 		Document doc = Jsoup.connect("http://www.cne.gob.ve/web/registro_electoral/ce.php?nacionalidad=V&cedula="+Cedula).get();
+		//System.out.println((doc.title()));
 		String Nombre = doc.select("body > table > tbody > tr > td > table > tbody > tr:nth-child(5) > td > table > tbody > tr:nth-child(2) > td > table:nth-child(1) > tbody > tr:nth-child(2) > td:nth-child(2) > b").text();
+		//System.out.println(Nombre);
 		if (Nombre==null || Nombre.contentEquals("")) {
 			
 			addLog("La cédula: " + Cedula + " No está registrada en el CNE");

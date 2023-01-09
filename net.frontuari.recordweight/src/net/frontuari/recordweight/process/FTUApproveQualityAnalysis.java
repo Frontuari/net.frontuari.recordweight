@@ -5,10 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 
 /**
@@ -16,18 +15,10 @@ import net.frontuari.recordweight.model.MHRSAnalysis;
  * @author Argenis Rodríguez
  *
  */
-public class FTUApproveQualityAnalysis extends FTUProcess {
+public class FTUApproveQualityAnalysis extends CustomProcess {
 
-	private String p_Help = "";
-	
 	@Override
 	protected void prepare() {
-		for (ProcessInfoParameter para:getParameter()){
-			String name = para.getParameterName();
-			if (para.getParameter() == null);
-			else if(name.equals("Help"))
-				p_Help = para.getParameterAsString();
-		}
 	}
 
 	@Override
@@ -46,9 +37,8 @@ public class FTUApproveQualityAnalysis extends FTUProcess {
 			while (rs.next())
 			{
 				MHRSAnalysis analysis = new MHRSAnalysis(getCtx(), rs.getInt(1), get_TrxName());
-				analysis.setIsApprovedAnalysis(!analysis.isApprovedAnalysis());
-				analysis.setIsValidAnalysis(true);
-				analysis.setHelp(p_Help);
+				analysis.set_ValueOfColumn(MHRSAnalysis.COLUMNNAME_IsApprovedAnalysis
+						, !analysis.get_ValueAsBoolean(MHRSAnalysis.COLUMNNAME_IsApprovedAnalysis));
 				analysis.saveEx();
 				updated++;
 			}

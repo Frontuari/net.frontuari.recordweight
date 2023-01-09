@@ -15,21 +15,20 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MFTUBillOfLading;
 import net.frontuari.recordweight.model.MFTUBillOfLadingLine;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.X_FTU_BillOfLading;
 
-public class FTUGenerateFreightCost extends FTUProcess{
+public class FTUGenerateFreightCost extends CustomProcess{
 	String p_FTU_ZeroCost;
 	String p_FTU_AdjustPrice;
 	BigDecimal p_qtyCalc;
 	
 	BigDecimal FTU_Capacity;
 	BigDecimal FTU_Diference;
-	Timestamp P_DateConvertion;
 	@Override
 	protected void prepare() {
 		for (ProcessInfoParameter para:getParameter()){
@@ -41,8 +40,6 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				p_FTU_AdjustPrice = para.getParameterAsString();
 			else if(name.equals("qtyCalc"))
 				p_qtyCalc = para.getParameterAsBigDecimal();
-			else if(name.equals("DateFrom"))
-				P_DateConvertion = para.getParameterAsTimestamp();
 		}
 	}
 
@@ -58,11 +55,11 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
 		int CurrencyID = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 		
-		/*if(!lo.get_ValueAsBoolean("IsDelivered"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));*/
+		if(!lo.get_ValueAsBoolean("IsDelivered"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));
 		
-		/*if(!lo.get_ValueAsBoolean("IsInvoiced"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));*/
+		if(!lo.get_ValueAsBoolean("IsInvoiced"))
+			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));
 		
 		if(getQtyFreightCostByLoadOrder(lo.get_ID()) > 0)
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgExistsFreightCostCompleted"));
@@ -93,8 +90,8 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				+ "	SUM(COUNT(distinct mio.m_inout_id)) over (partition by lol.FTU_DeliveryRute_ID) AS QtyTravel "
 				+ "	FROM FTU_LoadOrderLine as lol"
 				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID "
-				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID AND mio.DocStatus = 'CO') "
-				+ "	LEFT JOIN C_InvoiceLine as il on (il.C_OrderLine_ID = lol.C_OrderLine_ID) "
+				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID) "
+				+ "	JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
 				+ "	WHERE lol.FTU_LoadOrder_ID = ? "
 				+ "	GROUP BY miol.M_InOut_ID,il.C_Invoice_ID,lol.FTU_DeliveryRute_ID";
 		
@@ -123,7 +120,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
 						+ "	(CurrencyConvert((CASE WHEN ? >= ValueMax::numeric THEN pft.PriceActual ELSE pft.Price END),pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, P_DateConvertion,p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
+						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
 				
 				if(price == null)
 				{

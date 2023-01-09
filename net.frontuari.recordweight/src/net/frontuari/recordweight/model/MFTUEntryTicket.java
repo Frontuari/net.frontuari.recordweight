@@ -475,6 +475,7 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		return true;
 	}
 
+	
 	/**
 	 * Get Load Order from Entry Ticket
 	 * @param whereClause
@@ -491,42 +492,6 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		MFTULoadOrder[] m_lo = new MFTULoadOrder[list.size ()];
 		list.toArray (m_lo);
 		return m_lo;
-	}	//	getLoadOrder
-	
-	/**
-	 * Get Bill of Lading from Entry Ticket
-	 * @author Jorge Colmenarez, 2021-08-31 16:02
-	 * @param whereClause
-	 * @return MFTUBillOfLading[]
-	 */
-	public MFTUBillOfLading[] getBillOfLading(String whereClause) {
-		List<MFTUBillOfLading> list = new Query(getCtx(), 
-				I_FTU_BillOfLading.Table_Name, "FTU_EntryTicket_ID=?"
-						+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
-		.setParameters(getFTU_EntryTicket_ID())
-		.list();
-
-		MFTUBillOfLading[] m_bol = new MFTUBillOfLading[list.size ()];
-		list.toArray (m_bol);
-		return m_bol;
-	}	//	getBillOfLading
-	
-	/**
-	 * Get Record Weight from Entry Ticket
-	 * @author Jorge Colmenarez, 2021-10-28 14:37
-	 * @param whereClause
-	 * @return MFTURecordWeight[]
-	 */
-	public MFTURecordWeight[] getRecordWeight(String whereClause) {
-		List<MFTURecordWeight> list = new Query(getCtx(), 
-				I_FTU_RecordWeight.Table_Name, "FTU_EntryTicket_ID=?"
-						+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
-		.setParameters(getFTU_EntryTicket_ID())
-		.list();
-
-		MFTURecordWeight[] m_rw = new MFTURecordWeight[list.size ()];
-		list.toArray (m_rw);
-		return m_rw;
-	}	//	getLoadOrder
+	}	//	getQualityAnalysis
 	
 }

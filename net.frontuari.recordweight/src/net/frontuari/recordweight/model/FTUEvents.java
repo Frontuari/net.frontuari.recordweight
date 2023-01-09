@@ -5,40 +5,37 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.adempiere.base.event.IEventTopics;
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_M_InOut;
+import org.compiere.model.I_M_Inventory;
 import org.compiere.model.I_M_Movement;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
+import org.compiere.model.MInventory;
+import org.compiere.model.MInventoryLine;
+import org.compiere.model.MInventoryLineMA;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
-import org.compiere.model.PO;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.eevolution.model.MDDOrderLine;
 
-import net.frontuari.recordweight.base.FTUModelEvents;
+import net.frontuari.recordweight.base.CustomEvent;
 
-public class FTUEvents extends FTUModelEvents {
+public class FTUEvents extends CustomEvent {
 
 	@Override
 	protected void doHandleEvent() {
-	
-		PO po = getPO();		
-		String type = getEventType();
-		if (type.equalsIgnoreCase(IEventTopics.PO_BEFORE_DELETE)) {
-			if (po.get_TableName().equals(MFTULoadOrderLine.Table_Name)) {
-				MFTULoadOrderLine line = (MFTULoadOrderLine) po;
-				MFTULoadOrderLineMA.deleteAllLoadOrderLineMA(line.getFTU_LoadOrderLine_ID(), line.get_TrxName());
-			}
-				
-		}
+		String eventType = getEventType();
+		String tableName = getPO().get_TableName();
 		
 		if(getEventType().equals(IEventTopics.DOC_AFTER_VOID)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSECORRECT)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSEACCRUAL)) {
-			String tableName = getPO().get_TableName();
+		
 			if(tableName.equals(I_M_InOut.Table_Name)) {
 				MInOut inout = (MInOut) getPO();
 				if(inout.isSOTrx()) {
@@ -52,7 +49,7 @@ public class FTUEvents extends FTUModelEvents {
 						MFTULoadOrderLine lin = 
 								new MFTULoadOrderLine(mInOutLine.getCtx(), p_FTU_LoadOrderLine_ID, mInOutLine.get_TrxName());
 						lin.setM_InOutLine_ID(0);
-						lin.setConfirmedQty(lin.getConfirmedQty().subtract(mInOutLine.getQtyEntered()));
+						lin.setConfirmedQty(Env.ZERO);
 						lin.saveEx();
 						
 						MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
@@ -93,7 +90,7 @@ public class FTUEvents extends FTUModelEvents {
 					MFTULoadOrderLine lin = 
 							new MFTULoadOrderLine(m_MovementLine.getCtx(), p_FTU_LoadOrderLine_ID, m_MovementLine.get_TrxName());
 					lin.setM_MovementLine_ID(0);
-					lin.setConfirmedQty(lin.getConfirmedQty().subtract(m_MovementLine.getMovementQty()));
+					lin.setConfirmedQty(Env.ZERO);
 					lin.saveEx();
 					
 					MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
@@ -107,6 +104,21 @@ public class FTUEvents extends FTUModelEvents {
 		else if (IEventTopics.DOC_AFTER_COMPLETE.equals(getEventType())
 				 && getPO().get_TableName().equals(MMovement.Table_Name))
 			setQtyDelivered();		
+		else if 	(eventType.equals(IEventTopics.DOC_BEFORE_VOID)
+				|| eventType.equals(IEventTopics.DOC_BEFORE_REVERSECORRECT) 
+				|| eventType.equals(IEventTopics.DOC_BEFORE_REVERSEACCRUAL)) {
+	if(tableName.equals(I_M_Inventory.Table_Name)) {
+		MInventory inventory = (MInventory) getPO();
+		MInventoryLine[] lines = inventory.getLines(true);
+		for (MInventoryLine line : lines) {
+			MInventoryLineMA[] lineMaArray = MInventoryLineMA.get(inventory.getCtx(), line.getM_InventoryLine_ID(), inventory.get_TrxName());
+			for (MInventoryLineMA lineMa : lineMaArray) {
+				if(lineMa.get_ValueAsBoolean("IsVoided"))
+					throw new AdempiereException("Atributo @IsVoided@");
+			}
+		}
+	}
+}
 	}
 	
 	/**

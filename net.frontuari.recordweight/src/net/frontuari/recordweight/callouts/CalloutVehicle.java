@@ -3,7 +3,7 @@
  */
 package net.frontuari.recordweight.callouts;
 
-import net.frontuari.recordweight.base.FTUCallout;
+import net.frontuari.recordweight.base.CustomCallout;
 import net.frontuari.recordweight.model.I_FTU_Vehicle;
 import net.frontuari.recordweight.model.I_FTU_VehicleType;
 import net.frontuari.recordweight.model.MFTUVehicleModel;
@@ -13,7 +13,7 @@ import net.frontuari.recordweight.model.MFTUVehicleType;
  * @author dixon
  *
  */
-public class CalloutVehicle extends FTUCallout {
+public class CalloutVehicle extends CustomCallout {
 
 	@Override
 	protected String start() {

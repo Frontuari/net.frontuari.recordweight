@@ -10,10 +10,10 @@ import org.compiere.model.MMovementLine;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.Msg;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 
-public class GenerateMovementFromAnalysis extends FTUProcess {
+public class GenerateMovementFromAnalysis extends CustomProcess {
 
 	/**	Parameters for generate Movement Document */
 	private int p_C_DocTypeMovement_ID = 0;

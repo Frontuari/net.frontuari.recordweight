@@ -13,18 +13,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2022 Frontuari, C.A. <https://frontuari.net> and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
 import org.eevolution.model.I_DD_OrderLine;
 
-import net.frontuari.recordweight.base.FTUCalloutFactory;
+import net.frontuari.recordweight.base.CustomCalloutFactory;
 import net.frontuari.recordweight.callouts.CallOutEntryTicket;
 import net.frontuari.recordweight.callouts.CalloutAnalysis;
-import net.frontuari.recordweight.callouts.CalloutLoadOrder;
-import net.frontuari.recordweight.callouts.CalloutQualityParam;
 import net.frontuari.recordweight.callouts.CalloutRecordWeight;
 import net.frontuari.recordweight.callouts.CalloutVehicle;
 import net.frontuari.recordweight.callouts.FTU_CalloutDDOrderLine;
@@ -32,12 +30,11 @@ import net.frontuari.recordweight.model.I_FTU_EntryTicket;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 import net.frontuari.recordweight.model.I_FTU_Vehicle;
 import net.frontuari.recordweight.model.I_HRS_Analysis;
-import net.frontuari.recordweight.model.X_FTU_LoadOrderLine;
 
 /**
  * Callout Factory
  */
-public class CalloutFactory extends FTUCalloutFactory {
+public class CalloutFactory extends CustomCalloutFactory {
 
 	/**
 	 * For initialize class. Register the custom callout to build
@@ -79,14 +76,6 @@ public class CalloutFactory extends FTUCalloutFactory {
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_C_UOM_ID, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_QtyOrdered, FTU_CalloutDDOrderLine.class);
 		registerCallout(I_DD_OrderLine.Table_Name, I_DD_OrderLine.COLUMNNAME_M_Product_ID, FTU_CalloutDDOrderLine.class);
-		//	Load Order
-		registerCallout(X_FTU_LoadOrderLine.Table_Name, X_FTU_LoadOrderLine.COLUMNNAME_C_OrderLine_ID, CalloutLoadOrder.class);
-		//	Quality Param
-		registerCallout("FTU_Quality_Param", "AD_Column_ID", CalloutQualityParam.class);
-		registerCallout("FTU_Quality_Param", "FTU_Analysis_Type_ID", CalloutQualityParam.class);
-		registerCallout("FTU_Quality_Param", "Update_Code_Human", CalloutQualityParam.class);
-		registerCallout("FTU_Quality_Param", "FTU_Parent_ID", CalloutQualityParam.class);
-		registerCallout("FTU_Quality_Param", "FTU_Functions_Formule_ID", CalloutQualityParam.class);
 	}
 
 }

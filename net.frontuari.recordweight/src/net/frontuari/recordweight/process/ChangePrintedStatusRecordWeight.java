@@ -14,12 +14,12 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 
 /**
  *
  */
-public class ChangePrintedStatusRecordWeight extends FTUProcess {
+public class ChangePrintedStatusRecordWeight extends CustomProcess {
 
 	/**	Record Identifier	*/
 	private int p_Record_ID = 0;
@@ -27,7 +27,9 @@ public class ChangePrintedStatusRecordWeight extends FTUProcess {
 	protected void prepare() {
 		p_Record_ID = getRecord_ID();
 
-		String sql = " update FTU_RecordWeight set isprinted = 'Y' WHERE FTU_RecordWeight_ID = "    + p_Record_ID; 
+		String sql = " update FTU_RecordWeight set isprinted = 'Y' WHERE FTU_RecordWeight_ID = "    + p_Record_ID;
+		
+		System.out.println(sql); 
 		
 		PreparedStatement pstmt = null;
 		pstmt = DB.prepareStatement(sql, get_TrxName());

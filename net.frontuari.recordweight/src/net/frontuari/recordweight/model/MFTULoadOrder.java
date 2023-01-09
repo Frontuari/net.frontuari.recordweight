@@ -8,35 +8,20 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.model.MAttributeSetInstance;
-import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MPeriod;
-import org.compiere.model.MProduct;
-import org.compiere.model.MQuery;
-import org.compiere.model.MStorageOnHand;
-import org.compiere.model.MUOMConversion;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
-import org.compiere.model.PrintInfo;
 import org.compiere.model.Query;
-import org.compiere.print.MPrintFormat;
-import org.compiere.print.ReportEngine;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
-import org.compiere.process.ProcessInfo;
-import org.compiere.process.ServerProcessCtl;
-import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.compiere.util.Language;
 import org.compiere.util.Msg;
-import org.compiere.util.Util;
 
 /**
  */
@@ -104,25 +89,10 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public File createPDF (File file)
 	{
-		ReportEngine re = getDocumentPrintEngine (getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
-		if (re == null)
+	//	ReportEngine re = ReportEngine.get (getCtx(), ReportEngine.INVOICE, getC_Invoice_ID());
+	//	if (re == null)
 			return null;
-		MPrintFormat format = re.getPrintFormat();
-		// We have a Jasper Print Format
-		// ==============================
-		if(format.getJasperProcess_ID() > 0)
-		{
-			ProcessInfo pi = new ProcessInfo ("", format.getJasperProcess_ID());
-			pi.setRecord_ID ( getFTU_LoadOrder_ID());
-			pi.setIsBatch(true);
-			
-			ServerProcessCtl.process(pi, null);
-			
-			return pi.getPDFReport();
-		}
-		// Standard Print Format (Non-Jasper)
-		// ==================================
-		return re.getPDF(file);
+	//	return re.getPDF(file);
 	}	//	createPDF
 
 	
@@ -191,74 +161,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		MDocType m_DocType = MDocType.get(Env.getCtx(), getC_DocType_ID());
 
 		setIsImmediateDelivery(m_DocType.get_ValueAsBoolean("IsImmediateDelivery"));
-		//
-//		Create ProductMA
-			for(MFTULoadOrderLine line : getLines(true))
-			{
-				MProduct product = (MProduct) line.getM_Product();
-				//	Stock Movement 
-				if (product != null
-					&& product.isStocked() )
-				{
-					BigDecimal movementQty = MUOMConversion.convertProductFrom (getCtx(), line.getM_Product_ID(),
-							line.getC_UOM_ID(), line.getQty());
-					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(line.getFTU_LoadOrderLine_ID(), get_TrxName());				
-					
-					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
-						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
-						// More then line qty on attribute tab for line 10
-						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
-						return DOCSTATUS_Invalid;
-					}
-					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType())) {
-					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
-						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
-							if (line.getM_AttributeSetInstance_ID() == 0) {
-								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-										line.getFTU_LoadOrderLine_ID(), get_TrxName());		
-									if (mas.length < 1) {
-									StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
-										.append(line.getLine())
-										.append(", @M_Product_ID@=")
-										.append(product.getValue())
-										.append(")");
-									m_processMsg = msg.toString();
-									return DocAction.STATUS_Invalid;
-									}
-								}
-							}					
-						
-						}else {
-							
-							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
-						}					
-					}
-				}
-				//
-				/*if (line.getM_AttributeSetInstance_ID() == 0)
-				{
-					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-						line.getFTU_LoadOrderLine_ID(), get_TrxName());
-					for (int j = 0; j < mas.length; j++)
-					{
-						MFTULoadOrderLineMA ma = mas[j];
-						BigDecimal QtyMA = ma.getQty().negate();
-
-						//	Update Storage - see also VMatch.createMatchRecord
-						if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
-							line.getM_Locator_ID(),
-							line.getM_Product_ID(),
-							ma.getM_AttributeSetInstance_ID(),
-							QtyMA,ma.getDateMaterialPolicy(),
-							get_TrxName()))
-						{
-							String lastError = CLogger.retrieveErrorString("");
-							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
-							return DocAction.STATUS_Invalid;
-						}
-					}
-				}*/
-			}
+		
 		//	Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -801,13 +704,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		if (m_processMsg != null)
 			return false; 
 		
-		for (MFTULoadOrderLine line : getLines(true)) {
-			if (line.getConfirmedWeight().compareTo(Env.ZERO) > 0 ) {
-				m_processMsg = m_processMsg + " No puede reactivar porque ya se ha pesado la orden de carga";
-				return false;
-			}
-		}
-		setDocStatus(STATUS_InProgress);
 		setDocAction(DOCACTION_Complete);
 		setProcessed(false);
 		return true;
@@ -1090,7 +986,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			else if(docStatus.equals(DocumentEngine.STATUS_Completed)){
 				options[index++] = DocumentEngine.ACTION_Close;
 				options[index++] = DocumentEngine.ACTION_Void;
-				options[index++] = DocumentEngine.ACTION_ReActivate;
 			}else
 				options[index++] = DocumentEngine.ACTION_None;
 		}
@@ -1128,354 +1023,4 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		}
 		return true;
 	}//	End beforeSave
-	
-	/** Logger */
-	private static CLogger log = CLogger.getCLogger(MFTULoadOrder.class);
-	
-	/**************************************************************************
-	 * 	Get Document Print Engine for Withholding Document Type.
-	 *  @author Jorge Colmenarez, 2021-07-13 13:25, jcolmenarez@frontuari.net
-	 * 	@param ctx context
-	 * 	@param Record_ID id
-	 *  @param trxName
-	 * 	@return Report Engine or null
-	 */
-	public static ReportEngine getDocumentPrintEngine (Properties ctx, int Record_ID, String trxName)
-	{
-		if (Record_ID < 1)
-		{
-			log.log(Level.WARNING, "No PrintFormat for Record_ID=" + Record_ID);
-			return null;
-		}
-
-		int AD_PrintFormat_ID = 0;
-		int C_BPartner_ID = 0;
-		String DocumentNo = null;
-		int copies = 1;
-
-		//	Language
-		MClient client = MClient.get(ctx);
-		Language language = client.getLanguage();	
-		//	Get Document Info
-		StringBuilder sql = new StringBuilder("SELECT COALESCE(dt.AD_PrintFormat_ID, pf.AD_PrintFormat_ID),")
-				.append(" c.IsMultiLingualDocument,c.AD_Language,lo.DocumentNo ")
-				.append("FROM FTU_LoadOrder lo ")
-				.append(" INNER JOIN C_DocType dt ON (lo.C_DocType_ID=dt.C_DocType_ID)")
-				.append(" INNER JOIN AD_Client c ON (lo.AD_Client_ID=c.AD_Client_ID),")
-				.append(" AD_PrintFormat pf ")
-				.append("WHERE pf.AD_Client_ID IN (0,lo.AD_Client_ID)")
-				.append(" AND pf.AD_Table_ID="+Table_ID+" AND (pf.IsTableBased='N' OR pf.AD_PrintFormat_ID = dt.AD_PrintFormat_ID)")	//	from FTU_LoadOrder 
-				.append(" AND lo.FTU_LoadOrder_ID=? ")				//	Info from FTU_LoadOrder
-				.append("ORDER BY dt.AD_PrintFormat_ID, pf.AD_Client_ID DESC, pf.AD_Org_ID DESC");
-		//
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement(sql.toString(), trxName);
-			pstmt.setInt(1, Record_ID);
-			rs = pstmt.executeQuery();
-			if (rs.next())	//	first record only
-			{
-				AD_PrintFormat_ID = rs.getInt(1);
-				copies = 1;
-				//	Set Language when enabled
-				String AD_Language = rs.getString(3);
-				if (AD_Language != null)// && "Y".equals(rs.getString(2)))	//	IsMultiLingualDocument
-					language = Language.getLanguage(AD_Language);
-				C_BPartner_ID = 0;
-				DocumentNo = rs.getString(4);
-			}
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, "Record_ID=" + Record_ID + ", SQL=" + sql, e);
-		}
-		finally {
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		if (AD_PrintFormat_ID == 0)
-		{
-			log.log(Level.SEVERE, "No PrintFormat found for Record_ID=" + Record_ID);
-			return null;
-		}
-
-		//	Get Format & Data
-		MPrintFormat format = MPrintFormat.get (ctx, AD_PrintFormat_ID, false);
-		format.setLanguage(language);		//	BP Language if Multi-Lingual
-		format.setTranslationLanguage(language);
-		//	query
-		MQuery query = new MQuery(format.getAD_Table_ID());
-		query.addRestriction("FTU_LoadOrder_ID", MQuery.EQUAL, Record_ID);
-		//
-		if (DocumentNo == null || DocumentNo.length() == 0)
-			DocumentNo = "DocPrint";
-		PrintInfo info = new PrintInfo(
-			DocumentNo,
-			Table_ID,
-			Record_ID,
-			C_BPartner_ID);
-		info.setCopies(copies);
-		info.setDocumentCopy(false);		//	true prints "Copy" on second
-		info.setPrinterName(format.getPrinterName());
-		
-		//	Engine
-		ReportEngine re = new ReportEngine(ctx, format, query, info, trxName);
-		return re;
-	}	//	getDocumentPrintEngine	
-	/**
-	 * 	Check Material Policy
-	 * 	Sets line ASI
-	 */
-	public void checkMaterialPolicy(MFTULoadOrderLine line,BigDecimal qty)
-	{
-			
-		int no = MFTULoadOrderLineMA.deleteLoadOrderLineMA(line.getFTU_LoadOrderLine_ID(), get_TrxName());
-		if (no > 0)
-			if (log.isLoggable(Level.CONFIG)) log.config("Delete old #" + no);
-		
-		if(Env.ZERO.compareTo(qty)==0)
-			return;
-
-		boolean needSave = false;
-
-		MProduct product = (MProduct) line.getM_Product();
-
-		//	Need to have Location
-		if (product != null
-				&& line.getM_Locator_ID() == 0)
-		{
-			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
-			line.setM_Warehouse_ID(getM_Warehouse_ID());
-			line.setM_Locator_ID(line.getQty());	//	default Locator
-			needSave = true;
-		}
-
-		//	Attribute Set Instance
-		//  Create an  Attribute Set Instance to any receipt FIFO/LIFO
-		if (product != null && line.getM_AttributeSetInstance_ID() == 0)
-		{
-			 
-			// Create consume the Attribute Set Instance using policy FIFO/LIFO
-			String MMPolicy = product.getMMPolicy();
-			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
-					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
-			BigDecimal qtyToDeliver = qty;
-			for (MStorageOnHand storage: storages)
-			{
-				boolean observacion = false;
-				MAttributeSetInstance ins = new MAttributeSetInstance(getCtx(), storage.getM_AttributeSetInstance_ID(), get_TrxName());
-				if(ins.getDescription()==null)
-					continue;
-				String[] attrVal = ins.getDescription().split("_");
-				for (String a : attrVal) {
-					if (a.equalsIgnoreCase("Observacion") ) {				
-						observacion = true;
-					}
-				}
-				if (observacion)
-					continue;
-				BigDecimal reserved = getReservedforLoadOrder(storage);
-				BigDecimal available = storage.getQtyOnHand().subtract(reserved);
-				if(available.compareTo(BigDecimal.ZERO) <= 0)
-					continue;
-				if (available.compareTo(qtyToDeliver) >= 0)
-				{
-					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
-							storage.getM_AttributeSetInstance_ID(),
-							qtyToDeliver,storage.getDateMaterialPolicy(),true);
-					ma.saveEx();
-					qtyToDeliver = Env.ZERO;
-				}
-				else
-				{
-					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
-							storage.getM_AttributeSetInstance_ID(),
-							available,storage.getDateMaterialPolicy(),true);
-					ma.saveEx();
-					qtyToDeliver = qtyToDeliver.subtract(available);
-					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
-				}
-					if (qtyToDeliver.signum() == 0)
-					break;
-			}
-			if (qtyToDeliver.signum() != 0)
-			{					
-				//Over Delivery
-				MFTULoadOrderLineMA ma = MFTULoadOrderLineMA.addOrCreate(line, line.getM_AttributeSetInstance_ID(), qtyToDeliver, getDateDoc(),true);
-				ma.saveEx();
-				if (log.isLoggable(Level.FINE)) log.fine("##: " + ma);
-			}
-		}	//	attributeSetInstance
-
-		if (needSave)
-		{
-			line.saveEx();
-		}
-	}	//	checkMaterialPolicy
-	
-	private BigDecimal getReservedforLoadOrder(MStorageOnHand storage) {
-		BigDecimal reservedForLoadOrder = BigDecimal.ZERO;
-		
-		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
-				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
-				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
-				+" WHERE lo.DocStatus NOT IN ('RE','VO') AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
-		
-		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
-		
-		if(reservedForLoadOrder == null)
-			reservedForLoadOrder = BigDecimal.ZERO;
-		
-		return reservedForLoadOrder;
-	}
-	
-	/**
-	 * 	Get Storage Info for Warehouse or locator
-	 *	@param ctx context
-	 *	@param M_Warehouse_ID ignore if M_Locator_ID > 0
-	 *	@param M_Product_ID product
-	 *	@param M_AttributeSetInstance_ID instance id, 0 to retrieve all instance
-	 *	@param minGuaranteeDate optional minimum guarantee date if all attribute instances
-	 *	@param FiFo first in-first-out
-	 *  @param positiveOnly if true, only return storage records with qtyOnHand > 0
-	 *  @param M_Locator_ID optional locator id
-	 *	@param trxName transaction
-	 *  @param forUpdate
-	 *	@return existing - ordered by location priority (desc) and/or guarantee date
-	 */
-	private MStorageOnHand[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
-		int M_Product_ID, int M_AttributeSetInstance_ID, Timestamp minGuaranteeDate,
-		boolean FiFo, boolean positiveOnly, int M_Locator_ID, String trxName, boolean forUpdate, int timeout)
-	{
-		if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
-			return new MStorageOnHand[0];
-		
-		boolean allAttributeInstances = false;
-		if (M_AttributeSetInstance_ID == 0)
-			allAttributeInstances = true;		
-		
-		ArrayList<MStorageOnHand> list = new ArrayList<MStorageOnHand>();
-		//	Specific Attribute Set Instance
-		String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
-			+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
-			+ "s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
-			+ "FROM M_StorageOnHand s"
-			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) "
-			+ " INNER JOIN M_Warehouse w ON (l.M_Warehouse_ID = w.M_Warehouse_ID AND w.IsInTransit = 'N') "
-			+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) ";
-		if (M_Locator_ID > 0)
-			sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-		else
-			sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-		sql += " AND s.M_Product_ID=?";
-		if (M_AttributeSetInstance_ID > 0)
-			sql= sql + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
-		if (positiveOnly)
-		{
-			sql += " AND s.QtyOnHand > 0 ";
-		}
-		else
-		{
-			sql += " AND s.QtyOnHand <> 0 ";
-		}
-		sql += "ORDER BY l.PriorityNo DESC, DateMaterialPolicy ";
-		if (!FiFo)
-			sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
-		else
-			sql += ", s.M_AttributeSetInstance_ID ";
-		//	All Attribute Set Instances
-		if (allAttributeInstances)
-		{
-			sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
-				+ " s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
-				+ " s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
-				+ " FROM M_StorageOnHand s"
-				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
-				+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) "
-				+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
-			if (M_Locator_ID > 0)
-				sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-			else
-				sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-			sql += " AND s.M_Product_ID=? ";
-			if (positiveOnly)
-			{
-				sql += " AND s.QtyOnHand > 0 ";
-			}
-			else
-			{
-				sql += " AND s.QtyOnHand <> 0 ";
-			}
-			
-			if (minGuaranteeDate != null)
-			{
-				sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
-			}
-			
-			MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
-			
-			if(product.isUseGuaranteeDateForMPolicy()){
-				sql += "ORDER BY l.PriorityNo DESC, COALESCE(asi.GuaranteeDate,s.DateMaterialPolicy)";
-				if (!FiFo)
-					sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
-				else
-					sql += ", s.M_AttributeSetInstance_ID ";
-			}
-			else
-			{
-				sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.DateMaterialPolicy";
-				if (!FiFo)
-					sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
-				else
-					sql += ", s.M_AttributeSetInstance_ID ";
-			}
-			
-			sql += ", s.QtyOnHand DESC";
-		} 
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try
-		{
-			pstmt = DB.prepareStatement(sql, trxName);
-			pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
-			pstmt.setInt(2, M_Product_ID);
-			if (!allAttributeInstances)
-			{
-				if (M_AttributeSetInstance_ID > 0)
-				pstmt.setInt(3, M_AttributeSetInstance_ID);
-			}
-			else if (minGuaranteeDate != null)
-			{
-				pstmt.setTimestamp(3, minGuaranteeDate);
-			}
-			rs = pstmt.executeQuery();
-			while (rs.next())
-			{	
-				if(rs.getBigDecimal(11).signum() != 0)
-				{
-					MStorageOnHand storage = new MStorageOnHand (ctx, rs, trxName);
-					if (!Util.isEmpty(trxName) && forUpdate)
-					{
-						DB.getDatabase().forUpdate(storage, timeout);
-					}
-					list.add (storage);
-				}
-			}	
-		}
-		catch (Exception e)
-		{
-			log.log(Level.SEVERE, sql, e);
-		}
-		finally
-		{
-			DB.close(rs, pstmt);
-			rs = null; pstmt = null;
-		}
-		MStorageOnHand[] retValue = new MStorageOnHand[list.size()];
-		list.toArray(retValue);
-		return retValue;
-	}	//	getWarehouse
-	
 }

@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.KeyNamePair;
 
 /** Generated Model for HRS_Analysis
  *  @author iDempiere (generated) 
@@ -31,7 +32,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20221202L;
+	private static final long serialVersionUID = 20200504L;
 
     /** Standard Constructor */
     public X_HRS_Analysis (Properties ctx, int HRS_Analysis_ID, String trxName)
@@ -39,6 +40,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
       super (ctx, HRS_Analysis_ID, trxName);
       /** if (HRS_Analysis_ID == 0)
         {
+			setAnalysis_ID (0);
 			setC_DocType_ID (0);
 			setDocStatus (null);
 // DR
@@ -74,34 +76,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
       return sb.toString();
     }
 
-	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_Name)
-			.getPO(getAD_User_ID(), get_TrxName());	}
-
-	/** Set User/Contact.
-		@param AD_User_ID 
-		User within the system - Internal or Business Partner Contact
-	  */
-	public void setAD_User_ID (int AD_User_ID)
-	{
-		if (AD_User_ID < 1) 
-			set_Value (COLUMNNAME_AD_User_ID, null);
-		else 
-			set_Value (COLUMNNAME_AD_User_ID, Integer.valueOf(AD_User_ID));
-	}
-
-	/** Get User/Contact.
-		@return User within the system - Internal or Business Partner Contact
-	  */
-	public int getAD_User_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_User_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public I_M_AttributeSetInstance getAnalysis() throws RuntimeException
     {
 		return (I_M_AttributeSetInstance)MTable.get(getCtx(), I_M_AttributeSetInstance.Table_Name)
@@ -122,34 +96,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public int getAnalysis_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_Analysis_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
-			.getPO(getC_BPartner_ID(), get_TrxName());	}
-
-	/** Set Business Partner .
-		@param C_BPartner_ID 
-		Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID)
-	{
-		if (C_BPartner_ID < 1) 
-			set_Value (COLUMNNAME_C_BPartner_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
-	}
-
-	/** Get Business Partner .
-		@return Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -198,6 +144,31 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public Timestamp getDateDoc () 
 	{
 		return (Timestamp)get_Value(COLUMNNAME_DateDoc);
+	}
+
+	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException
+    {
+		return (org.eevolution.model.I_DD_Order)MTable.get(getCtx(), org.eevolution.model.I_DD_Order.Table_Name)
+			.getPO(getDD_Order_ID(), get_TrxName());	}
+
+	/** Set Distribution Order.
+		@param DD_Order_ID Distribution Order	  */
+	public void setDD_Order_ID (int DD_Order_ID)
+	{
+		if (DD_Order_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_DD_Order_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_DD_Order_ID, Integer.valueOf(DD_Order_ID));
+	}
+
+	/** Get Distribution Order.
+		@return Distribution Order	  */
+	public int getDD_Order_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_DD_Order_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Description.
@@ -326,6 +297,11 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
 
+	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException
+    {
+		return (net.frontuari.recordweight.model.I_FTU_EntryTicket)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_EntryTicket.Table_Name)
+			.getPO(getFTU_EntryTicket_ID(), get_TrxName());	}
+
 	/** Set Entry Ticket.
 		@param FTU_EntryTicket_ID Entry Ticket	  */
 	public void setFTU_EntryTicket_ID (int FTU_EntryTicket_ID)
@@ -344,40 +320,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Generate Document.
-		@param GenerateDoc 
-		Process generate document
-	  */
-	public void setGenerateDoc (String GenerateDoc)
-	{
-		set_Value (COLUMNNAME_GenerateDoc, GenerateDoc);
-	}
-
-	/** Get Generate Document.
-		@return Process generate document
-	  */
-	public String getGenerateDoc () 
-	{
-		return (String)get_Value(COLUMNNAME_GenerateDoc);
-	}
-
-	/** Set Comment/Help.
-		@param Help 
-		Comment or Hint
-	  */
-	public void setHelp (String Help)
-	{
-		set_Value (COLUMNNAME_Help, Help);
-	}
-
-	/** Get Comment/Help.
-		@return Comment or Hint
-	  */
-	public String getHelp () 
-	{
-		return (String)get_Value(COLUMNNAME_Help);
 	}
 
 	/** Set Analysis.
@@ -412,27 +354,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public String getHRS_Analysis_UU () 
 	{
 		return (String)get_Value(COLUMNNAME_HRS_Analysis_UU);
-	}
-
-	/** Set Aproved Analysis.
-		@param IsApprovedAnalysis Aproved Analysis	  */
-	public void setIsApprovedAnalysis (boolean IsApprovedAnalysis)
-	{
-		set_Value (COLUMNNAME_IsApprovedAnalysis, Boolean.valueOf(IsApprovedAnalysis));
-	}
-
-	/** Get Aproved Analysis.
-		@return Aproved Analysis	  */
-	public boolean isApprovedAnalysis () 
-	{
-		Object oo = get_Value(COLUMNNAME_IsApprovedAnalysis);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
 	}
 
 	/** Set Manufactured.
@@ -508,6 +429,14 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return ii.intValue();
 	}
 
+    /** Get Record ID/ColumnName
+        @return ID/ColumnName pair
+      */
+    public KeyNamePair getKeyNamePair() 
+    {
+        return new KeyNamePair(get_ID(), String.valueOf(getM_Product_ID()));
+    }
+
 	/** Delivery Bulk Material = DBM */
 	public static final String OPERATIONTYPE_DeliveryBulkMaterial = "DBM";
 	/** Delivery Finished Product = DFP */
@@ -524,10 +453,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public static final String OPERATIONTYPE_ReceiptMoreThanOneProduct = "RMP";
 	/** Raw Material Receipt = RMR */
 	public static final String OPERATIONTYPE_RawMaterialReceipt = "RMR";
-	/** Delivery Multiple Products = DMP */
-	public static final String OPERATIONTYPE_DeliveryMultipleProducts = "DMP";
-	/** Import Raw Material = IRM */
-	public static final String OPERATIONTYPE_ImportRawMaterial = "IRM";
 	/** Set OperationType.
 		@param OperationType OperationType	  */
 	public void setOperationType (String OperationType)
@@ -616,20 +541,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return false;
 	}
 
-	/** Set Sampling Date.
-		@param SamplingDate Sampling Date	  */
-	public void setSamplingDate (Timestamp SamplingDate)
-	{
-		set_Value (COLUMNNAME_SamplingDate, SamplingDate);
-	}
-
-	/** Get Sampling Date.
-		@return Sampling Date	  */
-	public Timestamp getSamplingDate () 
-	{
-		return (Timestamp)get_Value(COLUMNNAME_SamplingDate);
-	}
-
 	/** Status AD_Reference_ID=53239 */
 	public static final int STATUS_AD_Reference_ID=53239;
 	/** In Progress = IP */
@@ -654,5 +565,22 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public String getStatus () 
 	{
 		return (String)get_Value(COLUMNNAME_Status);
+	}
+
+	/** Set Type Calculation.
+		@param TypeCalculation Type Calculation	  */
+	public void setTypeCalculation (int TypeCalculation)
+	{
+		set_Value (COLUMNNAME_TypeCalculation, Integer.valueOf(TypeCalculation));
+	}
+
+	/** Get Type Calculation.
+		@return Type Calculation	  */
+	public int getTypeCalculation () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_TypeCalculation);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 }

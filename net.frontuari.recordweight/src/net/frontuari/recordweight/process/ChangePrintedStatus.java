@@ -17,13 +17,13 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
-import net.frontuari.recordweight.base.FTUProcess;
+import net.frontuari.recordweight.base.CustomProcess;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 
 /**
  *
  */
-public class ChangePrintedStatus extends FTUProcess {
+public class ChangePrintedStatus extends CustomProcess {
 
 	/**	Record Identifier	*/
 	private int p_Record_ID = 0;

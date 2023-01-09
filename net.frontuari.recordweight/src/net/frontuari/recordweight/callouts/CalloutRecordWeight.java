@@ -11,7 +11,7 @@ import org.compiere.model.MDocType;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
-import net.frontuari.recordweight.base.FTUCallout;
+import net.frontuari.recordweight.base.CustomCallout;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
 import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
@@ -31,7 +31,7 @@ import net.frontuari.recordweight.model.X_FTU_RecordWeight;
  *			<li><a href="https://bitbucket.org/djmartinez/record-weight/issues/7/null-pointer-callaout-registro-de-peso"> BR [ 7 ] NULL Pointer Callaout Registro de peso</a></li
 */
 
-public class CalloutRecordWeight extends FTUCallout {
+public class CalloutRecordWeight extends CustomCallout {
 
 	@Override
 	protected String start() {

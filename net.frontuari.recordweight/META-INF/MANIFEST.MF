@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-Category: idempiere-plugin
 Bundle-ManifestVersion: 2
-Bundle-Name: Record Weight
-Bundle-SymbolicName: net.frontuari.recordweight;singleton:=true
-Bundle-Version: 7.1.0.qualifier
-Bundle-Vendor: FRONTUARI <https://www.frontuari.net>
+Bundle-Name: net.frontuari.recordweight
+Bundle-SymbolicName: net.frontuari.recordweight
+Bundle-Version: 9.0.0.qualifier
+Bundle-Vendor: Frontuari, C.A. <https://frontuari.net>
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.apache.commons.lang3,
  org.adempiere.base,
@@ -19,8 +19,7 @@ Require-Bundle: org.apache.commons.lang3,
  zul,
  zweb,
  slf4j.api,
- org.adempiere.ui,
- com.itextpdf;bundle-version="5.5.13"
+ org.adempiere.ui
 Import-Package: org.apache.ecs.xhtml,
  org.compiere.grid,
  org.compiere.minigrid,
@@ -29,7 +28,8 @@ Service-Component: OSGI-INF/ModelFactory.xml,OSGI-INF/EventFactory.xml,OSGI-INF/
  OSGI-INF/CreteFromFactory.xml
 Bundle-ClassPath: .,
  lib/velocity-engine-core.jar,
- lib/jsoup.jar
+ lib/jsoup.jar,
+ lib/freemarker.jar
 Bundle-Activator: org.adempiere.plugin.utils.AdempiereActivator
 Export-Package: net.frontuari.recordweight.form,
  net.frontuari.recordweight.model

@@ -13,13 +13,10 @@ import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.WListbox;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MDocType;
-import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
-import org.compiere.model.MUOMConversion;
-import org.compiere.model.MWarehouse;
 import org.compiere.model.X_C_Order;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -30,7 +27,6 @@ import org.compiere.util.Util;
 
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
-import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
 import net.frontuari.recordweight.model.MFTUVehicle;
 import net.frontuari.recordweight.model.MFTUVehicleType;
 import net.frontuari.recordweight.model.MFTUWeightScale;
@@ -210,8 +206,8 @@ public class FTULoadOrder {
 					"AND ord.AD_Client_ID=? ");
 			if (m_AD_Org_ID > 0)
 				sql.append("AND lord.AD_Org_ID=? ");
-			/*if (m_M_Warehouse_ID > 0 )
-				sql.append("AND ord.M_Warehouse_ID=? ");*/
+			if (m_M_Warehouse_ID > 0 )
+				sql.append("AND lord.M_Warehouse_ID=? ");
 			if (m_C_SalesRegion_ID > 0 )
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
 			if (m_SalesRep_ID > 0 )
@@ -255,7 +251,7 @@ public class FTULoadOrder {
 					"LEFT JOIN (SELECT lord.C_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus IN ('CO','IP','DR') " +
+					"				CASE WHEN (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND c.DocStatus = 'CO') " +
 					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
@@ -276,8 +272,8 @@ public class FTULoadOrder {
 					"AND ord.AD_Client_ID=? ");
 			if (m_AD_Org_ID > 0)
 				sql.append("AND lord.AD_Org_ID=? ");
-			/*if (m_M_Warehouse_ID > 0 )
-				sql.append("AND ord.M_Warehouse_ID=? ");*/
+			if (m_M_Warehouse_ID > 0 )
+				sql.append("AND ord.M_Warehouse_ID=? ");
 			if (m_C_SalesRegion_ID > 0 )
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
 			if (m_SalesRep_ID > 0 )
@@ -320,8 +316,8 @@ public class FTULoadOrder {
 			
 			if (m_AD_Org_ID != 0)
 				pstmt.setInt(param++, m_AD_Org_ID);
-			/*if (m_M_Warehouse_ID > 0 )
-				pstmt.setInt(param++, m_M_Warehouse_ID);*/
+			if (m_M_Warehouse_ID > 0 )
+				pstmt.setInt(param++, m_M_Warehouse_ID);
 			if (m_C_SalesRegion_ID > 0 )
 				pstmt.setInt(param++, m_C_SalesRegion_ID);
 			if (m_SalesRep_ID > 0 )
@@ -858,12 +854,8 @@ public class FTULoadOrder {
 		//	Set Is Handle Record Weight
 		m_FTU_LoadOrder.setIsHandleRecordWeight(MFTUWeightScale.isWeightScaleOrg(m_AD_Org_ID, trxName));
 		//	Set Warehouse
-		if(m_M_Warehouse_ID != 0) {
+		if(m_M_Warehouse_ID != 0)
 			m_FTU_LoadOrder.setM_Warehouse_ID(m_M_Warehouse_ID);
-		}else {
-		MWarehouse[] WH = MWarehouse.getForOrg(Env.getCtx(), m_AD_Org_ID);
-		m_FTU_LoadOrder.setM_Warehouse_ID(WH[0].getM_Warehouse_ID());
-		}
 		//	Invoice Rule
 		if(m_InvoiceRule != null
 				&& m_InvoiceRule.trim().length() > 0)
@@ -920,25 +912,6 @@ public class FTULoadOrder {
 				m_FTU_LoadOrderLine.saveEx();
 				//	Add Count
 				m_gen ++;
-				// create MA
-				MProduct product = (MProduct) m_FTU_LoadOrderLine.getM_Product();
-				//	Stock Movement 
-				if (product != null
-					&& product.isStocked() )
-				{
-					BigDecimal movementQty = MUOMConversion.convertProductFrom (m_FTU_LoadOrderLine.getCtx(), m_FTU_LoadOrderLine.getM_Product_ID(),
-							m_FTU_LoadOrderLine.getC_UOM_ID(), m_FTU_LoadOrderLine.getQty());
-					BigDecimal qtyOnLineMA = MFTULoadOrderLineMA.getManualQty(m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), m_FTU_LoadOrderLine.get_TrxName());				
-					
-					if (   (movementQty.signum() != 0 && qtyOnLineMA.signum() != 0 && movementQty.signum() != qtyOnLineMA.signum()) // must have same sign
-						|| (qtyOnLineMA.abs().compareTo(movementQty.abs())>0)) { // compare absolute values
-						// More then line qty on attribute tab for line 10
-						throw new AdempiereException("@Over_Qty_On_Attribute_Tab@ " + m_FTU_LoadOrderLine.getLine());
-						
-					}
-					
-					m_FTU_LoadOrder.checkMaterialPolicy(m_FTU_LoadOrderLine, movementQty.subtract(qtyOnLineMA));	
-				}
 			}
 		}
 		//	Set Header Weight
@@ -947,10 +920,9 @@ public class FTULoadOrder {
 		m_FTU_LoadOrder.setVolume(totalVolume);
 		//	Save Header
 		m_FTU_LoadOrder.saveEx();
-		//	Complete Order - removed 03/10/2022
-		m_FTU_LoadOrder.setDocStatus(X_FTU_LoadOrder.DOCSTATUS_Drafted);
+		//	Complete Order
 		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Complete);
-		//m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Prepare);
+		m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Complete);
 		m_FTU_LoadOrder.saveEx();
 		//	Valid Error
 		String errorMsg = m_FTU_LoadOrder.getProcessMsg();
@@ -1161,9 +1133,9 @@ public class FTULoadOrder {
 				+ "AND lc.M_Warehouse_ID = ? "
 				+ "AND c.DocStatus = 'CO' "
 				+ "AND ("
-				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP') AND lc.M_InOutLine_ID IS NULL) "
+				+ "			(c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP')) "
 				+ "			OR "
-				+ "			(c.IsMoved = 'N' AND c.OperationType = 'MOM' AND lc.M_MovementLine_ID IS NULL)"
+				+ "			(c.IsMoved = 'N' AND c.OperationType = 'MOM')"
 				+ "		)";
 		//	Query
 		BigDecimal m_QtyInTransit = DB.getSQLValueBD(null, sql, new Object[]{p_M_Product_ID, p_M_Warehouse_ID});
