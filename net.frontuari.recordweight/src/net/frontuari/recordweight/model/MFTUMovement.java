@@ -7,11 +7,14 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.PeriodClosedException;
+import org.compiere.model.MDocType;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.MMovementLineMA;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
+import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.Env;
@@ -160,7 +163,7 @@ public class MFTUMovement extends MMovement implements DocOptions {
 			return false;
 		}
 		
-		MMovement reversal = reverse(true);
+		MFTUMovement reversal = this.reverse(true);
 		if (reversal == null)
 			return false;
 		
@@ -173,6 +176,104 @@ public class MFTUMovement extends MMovement implements DocOptions {
 		
 		return true;
 	}	//	reverseAccrualIt
+	
+	protected MFTUMovement reverse(boolean accrual)
+	{
+		Timestamp reversalDate = accrual ? Env.getContextAsDate(getCtx(), "#Date") : getMovementDate();
+		if (reversalDate == null) {
+			reversalDate = new Timestamp(System.currentTimeMillis());
+		}
+		
+		MDocType dt = MDocType.get(getCtx(), getC_DocType_ID());
+		if (!MPeriod.isOpen(getCtx(), reversalDate, dt.getDocBaseType(), getAD_Org_ID()))
+		{
+			m_processMsg = "@PeriodClosed@";
+			return null;
+		}
+
+		//	Deep Copy
+		MFTUMovement reversal = new MFTUMovement(getCtx(), 0, get_TrxName());
+		copyValues(this, reversal, getAD_Client_ID(), getAD_Org_ID());
+		reversal.setDocStatus(DOCSTATUS_Drafted);
+		reversal.setDocAction(DOCACTION_Complete);
+		reversal.setIsApproved (false);
+		reversal.setIsInTransit (false);
+		reversal.setPosted(false);
+		reversal.setProcessed(false);
+		reversal.setMovementDate(reversalDate);
+		reversal.setDocumentNo(getDocumentNo() + REVERSE_INDICATOR);	//	indicate reversals
+		reversal.addDescription("{->" + getDocumentNo() + ")");
+		//FR [ 1948157  ]
+		reversal.setReversal_ID(getM_Movement_ID());
+		if (!reversal.save())
+		{
+			m_processMsg = "Could not create Movement Reversal";
+			return null;
+		}
+		reversal.setReversal(true);
+		//	Reverse Line Qty
+		MMovementLine[] oLines = getLines(true);
+		for (int i = 0; i < oLines.length; i++)
+		{
+			MMovementLine oLine = oLines[i];
+			MMovementLine rLine = new MMovementLine(getCtx(), 0, get_TrxName());
+			copyValues(oLine, rLine, oLine.getAD_Client_ID(), oLine.getAD_Org_ID());
+			rLine.setM_Movement_ID(reversal.getM_Movement_ID());
+			//AZ Goodwill			
+			// store original (voided/reversed) document line
+			rLine.setReversalLine_ID(oLine.getM_MovementLine_ID());
+			rLine.setM_Locator_ID(oLine.getM_Locator_ID());
+			rLine.setM_LocatorTo_ID(oLine.getM_LocatorTo_ID());
+			rLine.setM_AttributeSetInstance_ID(oLine.getM_AttributeSetInstance_ID());
+			rLine.setM_AttributeSetInstanceTo_ID(oLine.getM_AttributeSetInstanceTo_ID());
+			//
+			rLine.setMovementQty(rLine.getMovementQty().negate());
+			rLine.setTargetQty(Env.ZERO);
+			rLine.setScrappedQty(Env.ZERO);
+			rLine.setConfirmedQty(Env.ZERO);
+			rLine.setProcessed(false);
+			if (!rLine.save())
+			{
+				m_processMsg = "Could not create Movement Reversal Line for @Line@ " + rLine.getLine() + ", @M_Product_ID@=" + rLine.getProduct().getValue();
+				return null;
+			}
+			
+			//We need to copy MA
+			if (rLine.getM_AttributeSetInstance_ID() == 0)
+			{
+				MMovementLineMA mas[] = MMovementLineMA.get(getCtx(),
+						oLine.getM_MovementLine_ID(), get_TrxName());
+				for (int j = 0; j < mas.length; j++)
+				{
+					MMovementLineMA ma = new MMovementLineMA (rLine, 
+							mas[j].getM_AttributeSetInstance_ID(),
+							mas[j].getMovementQty().negate(),mas[j].getDateMaterialPolicy(),true);
+					ma.saveEx();
+				}
+			}
+			
+		}
+		//
+		if (!reversal.processIt(DocAction.ACTION_Complete))
+		{
+			m_processMsg = "Reversal ERROR: " + reversal.getProcessMsg();
+			return null;
+		}
+		reversal.closeIt();
+		reversal.setDocStatus(DOCSTATUS_Reversed);
+		reversal.setDocAction(DOCACTION_None);
+		reversal.saveEx();
+		
+		//	Update Reversed (this)
+		addDescription("(" + reversal.getDocumentNo() + "<-)");
+		//FR [ 1948157  ]
+		setReversal_ID(reversal.getM_Movement_ID());
+		setProcessed(true);
+		setDocStatus(DOCSTATUS_Reversed);	//	may come from void
+		setDocAction(DOCACTION_None);
+			
+		return reversal;
+	} //	reverse
 	
 	@Override
 	public int customizeValidActions(String docStatus, Object processing, String orderType, String isSOTrx,
