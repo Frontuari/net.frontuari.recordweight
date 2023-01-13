@@ -32,7 +32,7 @@ public interface I_FTU_RW_ApprovalMotive
     /** TableName=FTU_RW_ApprovalMotive */
     public static final String Table_Name = "FTU_RW_ApprovalMotive";
 
-    /** AD_Table_ID=1000024 */
+    /** AD_Table_ID=1000060 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

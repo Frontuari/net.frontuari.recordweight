@@ -102,8 +102,7 @@ public class ModelFactory extends CustomModelFactory {
 		registerModel(I_FTU_WeightScale.Table_Name, MFTUWeightScale.class);
 		registerModel(I_FTU_WeightScale_Role.Table_Name, X_FTU_WeightScale_Role.class);
 		registerModel(I_FTU_WS_Warehouse.Table_Name, X_FTU_WS_Warehouse.class);
-		registerModel(I_FTU_Chute.Table_Name, MFTUChute.class);
-		
+		registerModel(I_FTU_Chute.Table_Name, MFTUChute.class);		
 		registerModel(I_HRS_Analysis.Table_Name, MHRSAnalysis.class);
 		registerModel(I_HRS_QualityParameter.Table_Name, MHRSQualityParameter.class);
 		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);

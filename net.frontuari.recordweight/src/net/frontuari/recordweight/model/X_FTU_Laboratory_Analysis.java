@@ -17,17 +17,15 @@
 /** Generated Model - DO NOT CHANGE */
 package net.frontuari.recordweight.model;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
-import org.compiere.util.Env;
 
-/** Generated Model for FTU_MobilizationGuide
+/** Generated Model for FTU_Laboratory_Analysis
  *  @author iDempiere (generated) 
  *  @version Release 7.1 - $Id$ */
-public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGuide, I_Persistent 
+public class X_FTU_Laboratory_Analysis extends PO implements I_FTU_Laboratory_Analysis, I_Persistent 
 {
 
 	/**
@@ -36,27 +34,18 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
-    public X_FTU_MobilizationGuide (Properties ctx, int FTU_MobilizationGuide_ID, String trxName)
+    public X_FTU_Laboratory_Analysis (Properties ctx, int FTU_Laboratory_Analysis_ID, String trxName)
     {
-      super (ctx, FTU_MobilizationGuide_ID, trxName);
-      /** if (FTU_MobilizationGuide_ID == 0)
+      super (ctx, FTU_Laboratory_Analysis_ID, trxName);
+      /** if (FTU_Laboratory_Analysis_ID == 0)
         {
-			setC_DocType_ID (0);
-			setDateDoc (new Timestamp( System.currentTimeMillis() ));
-// @#Date@
-			setDocAction (null);
-// CO
-			setDocStatus (null);
-// DR
-			setDocumentNo (null);
-			setFTU_MobilizationGuide_ID (0);
-			setFTU_VehicleType_ID (0);
-			setQtyToDeliver (Env.ZERO);
+			setFTU_Laboratory_Analysis_ID (0);
+			setFTU_Laboratory_Analysis_UU (null);
         } */
     }
 
     /** Load Constructor */
-    public X_FTU_MobilizationGuide (Properties ctx, ResultSet rs, String trxName)
+    public X_FTU_Laboratory_Analysis (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
@@ -78,61 +67,10 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_MobilizationGuide[")
+      StringBuffer sb = new StringBuffer ("X_FTU_Laboratory_Analysis[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
-
-	/** Set Trx Organization.
-		@param AD_OrgTrx_ID 
-		Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID)
-	{
-		if (AD_OrgTrx_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_AD_OrgTrx_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_AD_OrgTrx_ID, Integer.valueOf(AD_OrgTrx_ID));
-	}
-
-	/** Get Trx Organization.
-		@return Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_OrgTrx_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
-			.getPO(getC_BPartner_ID(), get_TrxName());	}
-
-	/** Set Business Partner .
-		@param C_BPartner_ID 
-		Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID)
-	{
-		if (C_BPartner_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
-	}
-
-	/** Get Business Partner .
-		@return Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
     {
@@ -305,144 +243,140 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
 
-	/** Set Ext_Guide.
-		@param Ext_Guide Ext_Guide	  */
-	public void setExt_Guide (String Ext_Guide)
-	{
-		set_Value (COLUMNNAME_Ext_Guide, Ext_Guide);
-	}
-
-	/** Get Ext_Guide.
-		@return Ext_Guide	  */
-	public String getExt_Guide () 
-	{
-		return (String)get_Value(COLUMNNAME_Ext_Guide);
-	}
-
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
+	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException
     {
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_Name)
-			.getPO(getFTU_LoadOrder_ID(), get_TrxName());	}
+		return (net.frontuari.recordweight.model.I_FTU_EntryTicket)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_EntryTicket.Table_Name)
+			.getPO(getFTU_EntryTicket_ID(), get_TrxName());	}
 
-	/** Set Load Order.
-		@param FTU_LoadOrder_ID Load Order	  */
-	public void setFTU_LoadOrder_ID (int FTU_LoadOrder_ID)
+	/** Set Entry Ticket.
+		@param FTU_EntryTicket_ID Entry Ticket	  */
+	public void setFTU_EntryTicket_ID (int FTU_EntryTicket_ID)
 	{
-		if (FTU_LoadOrder_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_LoadOrder_ID, null);
+		if (FTU_EntryTicket_ID < 1) 
+			set_Value (COLUMNNAME_FTU_EntryTicket_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_LoadOrder_ID, Integer.valueOf(FTU_LoadOrder_ID));
+			set_Value (COLUMNNAME_FTU_EntryTicket_ID, Integer.valueOf(FTU_EntryTicket_ID));
 	}
 
-	/** Get Load Order.
-		@return Load Order	  */
-	public int getFTU_LoadOrder_ID () 
+	/** Get Entry Ticket.
+		@return Entry Ticket	  */
+	public int getFTU_EntryTicket_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_LoadOrder_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_EntryTicket_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set Mobilization Guide.
-		@param FTU_MobilizationGuide_ID Mobilization Guide	  */
-	public void setFTU_MobilizationGuide_ID (int FTU_MobilizationGuide_ID)
+	/** Set FTU_Laboratory_Analysis.
+		@param FTU_Laboratory_Analysis_ID FTU_Laboratory_Analysis	  */
+	public void setFTU_Laboratory_Analysis_ID (int FTU_Laboratory_Analysis_ID)
 	{
-		if (FTU_MobilizationGuide_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_MobilizationGuide_ID, null);
+		if (FTU_Laboratory_Analysis_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_FTU_Laboratory_Analysis_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_MobilizationGuide_ID, Integer.valueOf(FTU_MobilizationGuide_ID));
+			set_ValueNoCheck (COLUMNNAME_FTU_Laboratory_Analysis_ID, Integer.valueOf(FTU_Laboratory_Analysis_ID));
 	}
 
-	/** Get Mobilization Guide.
-		@return Mobilization Guide	  */
-	public int getFTU_MobilizationGuide_ID () 
+	/** Get FTU_Laboratory_Analysis.
+		@return FTU_Laboratory_Analysis	  */
+	public int getFTU_Laboratory_Analysis_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_MobilizationGuide_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Laboratory_Analysis_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set FTU_MobilizationGuide_UU.
-		@param FTU_MobilizationGuide_UU FTU_MobilizationGuide_UU	  */
-	public void setFTU_MobilizationGuide_UU (String FTU_MobilizationGuide_UU)
+	/** Set FTU_Laboratory_Analysis_UU.
+		@param FTU_Laboratory_Analysis_UU FTU_Laboratory_Analysis_UU	  */
+	public void setFTU_Laboratory_Analysis_UU (String FTU_Laboratory_Analysis_UU)
 	{
-		set_Value (COLUMNNAME_FTU_MobilizationGuide_UU, FTU_MobilizationGuide_UU);
+		set_ValueNoCheck (COLUMNNAME_FTU_Laboratory_Analysis_UU, FTU_Laboratory_Analysis_UU);
 	}
 
-	/** Get FTU_MobilizationGuide_UU.
-		@return FTU_MobilizationGuide_UU	  */
-	public String getFTU_MobilizationGuide_UU () 
+	/** Get FTU_Laboratory_Analysis_UU.
+		@return FTU_Laboratory_Analysis_UU	  */
+	public String getFTU_Laboratory_Analysis_UU () 
 	{
-		return (String)get_Value(COLUMNNAME_FTU_MobilizationGuide_UU);
+		return (String)get_Value(COLUMNNAME_FTU_Laboratory_Analysis_UU);
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_RecordWeight)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_RecordWeight.Table_Name)
-			.getPO(getFTU_RecordWeight_ID(), get_TrxName());	}
-
-	/** Set Record Weight.
-		@param FTU_RecordWeight_ID Record Weight	  */
-	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID)
+	/** Set FTU_Norma_ID.
+		@param FTU_Norma_ID FTU_Norma_ID	  */
+	public void setFTU_Norma_ID (int FTU_Norma_ID)
 	{
-		if (FTU_RecordWeight_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_RecordWeight_ID, null);
+		if (FTU_Norma_ID < 1) 
+			set_Value (COLUMNNAME_FTU_Norma_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_RecordWeight_ID, Integer.valueOf(FTU_RecordWeight_ID));
+			set_Value (COLUMNNAME_FTU_Norma_ID, Integer.valueOf(FTU_Norma_ID));
 	}
 
-	/** Get Record Weight.
-		@return Record Weight	  */
-	public int getFTU_RecordWeight_ID () 
+	/** Get FTU_Norma_ID.
+		@return FTU_Norma_ID	  */
+	public int getFTU_Norma_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_RecordWeight_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Norma_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_VehicleType getFTU_VehicleType() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_VehicleType)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_VehicleType.Table_Name)
-			.getPO(getFTU_VehicleType_ID(), get_TrxName());	}
-
-	/** Set Vehicle Type.
-		@param FTU_VehicleType_ID Vehicle Type	  */
-	public void setFTU_VehicleType_ID (int FTU_VehicleType_ID)
+	/** Set Quality Param.
+		@param FTU_Quality_Param_ID Quality Param	  */
+	public void setFTU_Quality_Param_ID (int FTU_Quality_Param_ID)
 	{
-		if (FTU_VehicleType_ID < 1) 
-			set_Value (COLUMNNAME_FTU_VehicleType_ID, null);
+		if (FTU_Quality_Param_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_FTU_Quality_Param_ID, null);
 		else 
-			set_Value (COLUMNNAME_FTU_VehicleType_ID, Integer.valueOf(FTU_VehicleType_ID));
+			set_ValueNoCheck (COLUMNNAME_FTU_Quality_Param_ID, Integer.valueOf(FTU_Quality_Param_ID));
 	}
 
-	/** Get Vehicle Type.
-		@return Vehicle Type	  */
-	public int getFTU_VehicleType_ID () 
+	/** Get Quality Param.
+		@return Quality Param	  */
+	public int getFTU_Quality_Param_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_VehicleType_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Quality_Param_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set Sales Transaction.
-		@param IsSOTrx 
-		This is a Sales Transaction
+	/** Set Recipe.
+		@param FTU_Recipe_ID Recipe	  */
+	public void setFTU_Recipe_ID (int FTU_Recipe_ID)
+	{
+		if (FTU_Recipe_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_FTU_Recipe_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_FTU_Recipe_ID, Integer.valueOf(FTU_Recipe_ID));
+	}
+
+	/** Get Recipe.
+		@return Recipe	  */
+	public int getFTU_Recipe_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Recipe_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Approved.
+		@param IsApproved 
+		Indicates if this document requires approval
 	  */
-	public void setIsSOTrx (boolean IsSOTrx)
+	public void setIsApproved (boolean IsApproved)
 	{
-		set_ValueNoCheck (COLUMNNAME_IsSOTrx, Boolean.valueOf(IsSOTrx));
+		set_ValueNoCheck (COLUMNNAME_IsApproved, Boolean.valueOf(IsApproved));
 	}
 
-	/** Get Sales Transaction.
-		@return This is a Sales Transaction
+	/** Get Approved.
+		@return Indicates if this document requires approval
 	  */
-	public boolean isSOTrx () 
+	public boolean isApproved () 
 	{
-		Object oo = get_Value(COLUMNNAME_IsSOTrx);
+		Object oo = get_Value(COLUMNNAME_IsApproved);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
@@ -450,34 +384,6 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 			return "Y".equals(oo);
 		}
 		return false;
-	}
-
-	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_Name)
-			.getPO(getM_Warehouse_ID(), get_TrxName());	}
-
-	/** Set Warehouse.
-		@param M_Warehouse_ID 
-		Storage Warehouse and Service Point
-	  */
-	public void setM_Warehouse_ID (int M_Warehouse_ID)
-	{
-		if (M_Warehouse_ID < 1) 
-			set_Value (COLUMNNAME_M_Warehouse_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
-	}
-
-	/** Get Warehouse.
-		@return Storage Warehouse and Service Point
-	  */
-	public int getM_Warehouse_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	/** Set Processed.
@@ -504,37 +410,24 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 		return false;
 	}
 
-	/** Set Qty to deliver.
-		@param QtyToDeliver Qty to deliver	  */
-	public void setQtyToDeliver (BigDecimal QtyToDeliver)
+	/** Set Process Now.
+		@param Processing Process Now	  */
+	public void setProcessing (boolean Processing)
 	{
-		set_ValueNoCheck (COLUMNNAME_QtyToDeliver, QtyToDeliver);
+		set_Value (COLUMNNAME_Processing, Boolean.valueOf(Processing));
 	}
 
-	/** Get Qty to deliver.
-		@return Qty to deliver	  */
-	public BigDecimal getQtyToDeliver () 
+	/** Get Process Now.
+		@return Process Now	  */
+	public boolean isProcessing () 
 	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_QtyToDeliver);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
-	}
-
-	/** Set Valid to.
-		@param ValidTo 
-		Valid to including this date (last day)
-	  */
-	public void setValidTo (Timestamp ValidTo)
-	{
-		set_Value (COLUMNNAME_ValidTo, ValidTo);
-	}
-
-	/** Get Valid to.
-		@return Valid to including this date (last day)
-	  */
-	public Timestamp getValidTo () 
-	{
-		return (Timestamp)get_Value(COLUMNNAME_ValidTo);
+		Object oo = get_Value(COLUMNNAME_Processing);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 }

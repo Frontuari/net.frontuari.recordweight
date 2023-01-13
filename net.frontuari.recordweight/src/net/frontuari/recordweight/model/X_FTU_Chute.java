@@ -33,7 +33,7 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_Chute (Properties ctx, int FTU_Chute_ID, String trxName)

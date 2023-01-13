@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FTU_SerialPortConfig
+/** Generated Interface for FTU_Laboratory_A_Line
  *  @author iDempiere (generated) 
  *  @version Release 7.1
  */
 @SuppressWarnings("all")
-public interface I_FTU_SerialPortConfig 
+public interface I_FTU_Laboratory_A_Line 
 {
 
-    /** TableName=FTU_SerialPortConfig */
-    public static final String Table_Name = "FTU_SerialPortConfig";
+    /** TableName=FTU_Laboratory_A_Line */
+    public static final String Table_Name = "FTU_Laboratory_A_Line";
 
-    /** AD_Table_ID=1000065 */
+    /** AD_Table_ID=1000082 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -64,14 +64,18 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public int getAD_Org_ID();
 
-    /** Column name Bauds */
-    public static final String COLUMNNAME_Bauds = "Bauds";
+    /** Column name Code */
+    public static final String COLUMNNAME_Code = "Code";
 
-	/** Set Bauds	  */
-	public void setBauds (String Bauds);
+	/** Set Validation code.
+	  * Validation Code
+	  */
+	public void setCode (String Code);
 
-	/** Get Bauds	  */
-	public String getBauds();
+	/** Get Validation code.
+	  * Validation Code
+	  */
+	public String getCode();
 
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
@@ -89,45 +93,58 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public int getCreatedBy();
 
-    /** Column name DataBits */
-    public static final String COLUMNNAME_DataBits = "DataBits";
+    /** Column name Description */
+    public static final String COLUMNNAME_Description = "Description";
 
-	/** Set DataBits	  */
-	public void setDataBits (String DataBits);
-
-	/** Get DataBits	  */
-	public String getDataBits();
-
-    /** Column name FlowControl */
-    public static final String COLUMNNAME_FlowControl = "FlowControl";
-
-	/** Set FlowControl	  */
-	public void setFlowControl (String FlowControl);
-
-	/** Get FlowControl	  */
-	public String getFlowControl();
-
-    /** Column name FTU_SerialPortConfig_ID */
-    public static final String COLUMNNAME_FTU_SerialPortConfig_ID = "FTU_SerialPortConfig_ID";
-
-	/** Set Serial Port Configuration.
-	  * Serial Port Configuration example: COM1 or tty01, 9600...
+	/** Set Description.
+	  * Optional short description of the record
 	  */
-	public void setFTU_SerialPortConfig_ID (int FTU_SerialPortConfig_ID);
+	public void setDescription (String Description);
 
-	/** Get Serial Port Configuration.
-	  * Serial Port Configuration example: COM1 or tty01, 9600...
+	/** Get Description.
+	  * Optional short description of the record
 	  */
-	public int getFTU_SerialPortConfig_ID();
+	public String getDescription();
 
-    /** Column name FTU_SerialPortConfig_UU */
-    public static final String COLUMNNAME_FTU_SerialPortConfig_UU = "FTU_SerialPortConfig_UU";
+    /** Column name FTU_Analysis_Type_ID */
+    public static final String COLUMNNAME_FTU_Analysis_Type_ID = "FTU_Analysis_Type_ID";
 
-	/** Set FTU_SerialPortConfig_UU	  */
-	public void setFTU_SerialPortConfig_UU (String FTU_SerialPortConfig_UU);
+	/** Set Analysis_Type_ID	  */
+	public void setFTU_Analysis_Type_ID (int FTU_Analysis_Type_ID);
 
-	/** Get FTU_SerialPortConfig_UU	  */
-	public String getFTU_SerialPortConfig_UU();
+	/** Get Analysis_Type_ID	  */
+	public int getFTU_Analysis_Type_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_Analysis_Type getFTU_Analysis_Type() throws RuntimeException;
+
+    /** Column name FTU_Laboratory_A_Line_ID */
+    public static final String COLUMNNAME_FTU_Laboratory_A_Line_ID = "FTU_Laboratory_A_Line_ID";
+
+	/** Set FTU_Laboratory_A_Line	  */
+	public void setFTU_Laboratory_A_Line_ID (int FTU_Laboratory_A_Line_ID);
+
+	/** Get FTU_Laboratory_A_Line	  */
+	public int getFTU_Laboratory_A_Line_ID();
+
+    /** Column name FTU_Laboratory_A_Line_UU */
+    public static final String COLUMNNAME_FTU_Laboratory_A_Line_UU = "FTU_Laboratory_A_Line_UU";
+
+	/** Set FTU_Laboratory_A_Line_UU	  */
+	public void setFTU_Laboratory_A_Line_UU (String FTU_Laboratory_A_Line_UU);
+
+	/** Get FTU_Laboratory_A_Line_UU	  */
+	public String getFTU_Laboratory_A_Line_UU();
+
+    /** Column name FTU_Laboratory_Analysis_ID */
+    public static final String COLUMNNAME_FTU_Laboratory_Analysis_ID = "FTU_Laboratory_Analysis_ID";
+
+	/** Set FTU_Laboratory_Analysis	  */
+	public void setFTU_Laboratory_Analysis_ID (int FTU_Laboratory_Analysis_ID);
+
+	/** Get FTU_Laboratory_Analysis	  */
+	public int getFTU_Laboratory_Analysis_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_Laboratory_Analysis getFTU_Laboratory_Analysis() throws RuntimeException;
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -142,45 +159,18 @@ public interface I_FTU_SerialPortConfig
 	  */
 	public boolean isActive();
 
-    /** Column name Name */
-    public static final String COLUMNNAME_Name = "Name";
+    /** Column name Result */
+    public static final String COLUMNNAME_Result = "Result";
 
-	/** Set Name.
-	  * Alphanumeric identifier of the entity
+	/** Set Result.
+	  * Result of the action taken
 	  */
-	public void setName (String Name);
+	public void setResult (BigDecimal Result);
 
-	/** Get Name.
-	  * Alphanumeric identifier of the entity
+	/** Get Result.
+	  * Result of the action taken
 	  */
-	public String getName();
-
-    /** Column name Parity */
-    public static final String COLUMNNAME_Parity = "Parity";
-
-	/** Set Parity	  */
-	public void setParity (String Parity);
-
-	/** Get Parity	  */
-	public String getParity();
-
-    /** Column name SerialPort */
-    public static final String COLUMNNAME_SerialPort = "SerialPort";
-
-	/** Set SerialPort	  */
-	public void setSerialPort (String SerialPort);
-
-	/** Get SerialPort	  */
-	public String getSerialPort();
-
-    /** Column name StopBits */
-    public static final String COLUMNNAME_StopBits = "StopBits";
-
-	/** Set StopBits	  */
-	public void setStopBits (String StopBits);
-
-	/** Get StopBits	  */
-	public String getStopBits();
+	public BigDecimal getResult();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

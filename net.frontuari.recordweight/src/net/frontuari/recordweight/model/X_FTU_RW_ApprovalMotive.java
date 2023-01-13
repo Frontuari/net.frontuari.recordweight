@@ -30,7 +30,7 @@ public class X_FTU_RW_ApprovalMotive extends PO implements I_FTU_RW_ApprovalMoti
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_RW_ApprovalMotive (Properties ctx, int FTU_RW_ApprovalMotive_ID, String trxName)

@@ -32,7 +32,7 @@ public interface I_FTU_EntryTicket
     /** TableName=FTU_EntryTicket */
     public static final String Table_Name = "FTU_EntryTicket";
 
-    /** AD_Table_ID=1000036 */
+    /** AD_Table_ID=1000049 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -163,6 +163,19 @@ public interface I_FTU_EntryTicket
 	  * Date of the Document
 	  */
 	public Timestamp getDateDoc();
+
+    /** Column name DatePrinted */
+    public static final String COLUMNNAME_DatePrinted = "DatePrinted";
+
+	/** Set Date printed.
+	  * Date the document was printed.
+	  */
+	public void setDatePrinted (Timestamp DatePrinted);
+
+	/** Get Date printed.
+	  * Date the document was printed.
+	  */
+	public Timestamp getDatePrinted();
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";

@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FTU_MobilizationGuide
+/** Generated Interface for FTU_Laboratory_Analysis
  *  @author iDempiere (generated) 
  *  @version Release 7.1
  */
 @SuppressWarnings("all")
-public interface I_FTU_MobilizationGuide 
+public interface I_FTU_Laboratory_Analysis 
 {
 
-    /** TableName=FTU_MobilizationGuide */
-    public static final String Table_Name = "FTU_MobilizationGuide";
+    /** TableName=FTU_Laboratory_Analysis */
+    public static final String Table_Name = "FTU_Laboratory_Analysis";
 
-    /** AD_Table_ID=1000069 */
+    /** AD_Table_ID=1000079 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,34 +63,6 @@ public interface I_FTU_MobilizationGuide
 	  * Organizational entity within client
 	  */
 	public int getAD_Org_ID();
-
-    /** Column name AD_OrgTrx_ID */
-    public static final String COLUMNNAME_AD_OrgTrx_ID = "AD_OrgTrx_ID";
-
-	/** Set Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public void setAD_OrgTrx_ID (int AD_OrgTrx_ID);
-
-	/** Get Trx Organization.
-	  * Performing or initiating organization
-	  */
-	public int getAD_OrgTrx_ID();
-
-    /** Column name C_BPartner_ID */
-    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
-
-	/** Set Business Partner .
-	  * Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID);
-
-	/** Get Business Partner .
-	  * Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID();
-
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
@@ -188,65 +160,61 @@ public interface I_FTU_MobilizationGuide
 	  */
 	public String getDocumentNo();
 
-    /** Column name Ext_Guide */
-    public static final String COLUMNNAME_Ext_Guide = "Ext_Guide";
+    /** Column name FTU_EntryTicket_ID */
+    public static final String COLUMNNAME_FTU_EntryTicket_ID = "FTU_EntryTicket_ID";
 
-	/** Set Ext_Guide	  */
-	public void setExt_Guide (String Ext_Guide);
+	/** Set Entry Ticket	  */
+	public void setFTU_EntryTicket_ID (int FTU_EntryTicket_ID);
 
-	/** Get Ext_Guide	  */
-	public String getExt_Guide();
+	/** Get Entry Ticket	  */
+	public int getFTU_EntryTicket_ID();
 
-    /** Column name FTU_LoadOrder_ID */
-    public static final String COLUMNNAME_FTU_LoadOrder_ID = "FTU_LoadOrder_ID";
+	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException;
 
-	/** Set Load Order	  */
-	public void setFTU_LoadOrder_ID (int FTU_LoadOrder_ID);
+    /** Column name FTU_Laboratory_Analysis_ID */
+    public static final String COLUMNNAME_FTU_Laboratory_Analysis_ID = "FTU_Laboratory_Analysis_ID";
 
-	/** Get Load Order	  */
-	public int getFTU_LoadOrder_ID();
+	/** Set FTU_Laboratory_Analysis	  */
+	public void setFTU_Laboratory_Analysis_ID (int FTU_Laboratory_Analysis_ID);
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
+	/** Get FTU_Laboratory_Analysis	  */
+	public int getFTU_Laboratory_Analysis_ID();
 
-    /** Column name FTU_MobilizationGuide_ID */
-    public static final String COLUMNNAME_FTU_MobilizationGuide_ID = "FTU_MobilizationGuide_ID";
+    /** Column name FTU_Laboratory_Analysis_UU */
+    public static final String COLUMNNAME_FTU_Laboratory_Analysis_UU = "FTU_Laboratory_Analysis_UU";
 
-	/** Set Mobilization Guide	  */
-	public void setFTU_MobilizationGuide_ID (int FTU_MobilizationGuide_ID);
+	/** Set FTU_Laboratory_Analysis_UU	  */
+	public void setFTU_Laboratory_Analysis_UU (String FTU_Laboratory_Analysis_UU);
 
-	/** Get Mobilization Guide	  */
-	public int getFTU_MobilizationGuide_ID();
+	/** Get FTU_Laboratory_Analysis_UU	  */
+	public String getFTU_Laboratory_Analysis_UU();
 
-    /** Column name FTU_MobilizationGuide_UU */
-    public static final String COLUMNNAME_FTU_MobilizationGuide_UU = "FTU_MobilizationGuide_UU";
+    /** Column name FTU_Norma_ID */
+    public static final String COLUMNNAME_FTU_Norma_ID = "FTU_Norma_ID";
 
-	/** Set FTU_MobilizationGuide_UU	  */
-	public void setFTU_MobilizationGuide_UU (String FTU_MobilizationGuide_UU);
+	/** Set FTU_Norma_ID	  */
+	public void setFTU_Norma_ID (int FTU_Norma_ID);
 
-	/** Get FTU_MobilizationGuide_UU	  */
-	public String getFTU_MobilizationGuide_UU();
+	/** Get FTU_Norma_ID	  */
+	public int getFTU_Norma_ID();
 
-    /** Column name FTU_RecordWeight_ID */
-    public static final String COLUMNNAME_FTU_RecordWeight_ID = "FTU_RecordWeight_ID";
+    /** Column name FTU_Quality_Param_ID */
+    public static final String COLUMNNAME_FTU_Quality_Param_ID = "FTU_Quality_Param_ID";
 
-	/** Set Record Weight	  */
-	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID);
+	/** Set Quality Param	  */
+	public void setFTU_Quality_Param_ID (int FTU_Quality_Param_ID);
 
-	/** Get Record Weight	  */
-	public int getFTU_RecordWeight_ID();
+	/** Get Quality Param	  */
+	public int getFTU_Quality_Param_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException;
+    /** Column name FTU_Recipe_ID */
+    public static final String COLUMNNAME_FTU_Recipe_ID = "FTU_Recipe_ID";
 
-    /** Column name FTU_VehicleType_ID */
-    public static final String COLUMNNAME_FTU_VehicleType_ID = "FTU_VehicleType_ID";
+	/** Set Recipe	  */
+	public void setFTU_Recipe_ID (int FTU_Recipe_ID);
 
-	/** Set Vehicle Type	  */
-	public void setFTU_VehicleType_ID (int FTU_VehicleType_ID);
-
-	/** Get Vehicle Type	  */
-	public int getFTU_VehicleType_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_VehicleType getFTU_VehicleType() throws RuntimeException;
+	/** Get Recipe	  */
+	public int getFTU_Recipe_ID();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -261,33 +229,18 @@ public interface I_FTU_MobilizationGuide
 	  */
 	public boolean isActive();
 
-    /** Column name IsSOTrx */
-    public static final String COLUMNNAME_IsSOTrx = "IsSOTrx";
+    /** Column name IsApproved */
+    public static final String COLUMNNAME_IsApproved = "IsApproved";
 
-	/** Set Sales Transaction.
-	  * This is a Sales Transaction
+	/** Set Approved.
+	  * Indicates if this document requires approval
 	  */
-	public void setIsSOTrx (boolean IsSOTrx);
+	public void setIsApproved (boolean IsApproved);
 
-	/** Get Sales Transaction.
-	  * This is a Sales Transaction
+	/** Get Approved.
+	  * Indicates if this document requires approval
 	  */
-	public boolean isSOTrx();
-
-    /** Column name M_Warehouse_ID */
-    public static final String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
-
-	/** Set Warehouse.
-	  * Storage Warehouse and Service Point
-	  */
-	public void setM_Warehouse_ID (int M_Warehouse_ID);
-
-	/** Get Warehouse.
-	  * Storage Warehouse and Service Point
-	  */
-	public int getM_Warehouse_ID();
-
-	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException;
+	public boolean isApproved();
 
     /** Column name Processed */
     public static final String COLUMNNAME_Processed = "Processed";
@@ -302,14 +255,14 @@ public interface I_FTU_MobilizationGuide
 	  */
 	public boolean isProcessed();
 
-    /** Column name QtyToDeliver */
-    public static final String COLUMNNAME_QtyToDeliver = "QtyToDeliver";
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
 
-	/** Set Qty to deliver	  */
-	public void setQtyToDeliver (BigDecimal QtyToDeliver);
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
 
-	/** Get Qty to deliver	  */
-	public BigDecimal getQtyToDeliver();
+	/** Get Process Now	  */
+	public boolean isProcessing();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -326,17 +279,4 @@ public interface I_FTU_MobilizationGuide
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
-
-    /** Column name ValidTo */
-    public static final String COLUMNNAME_ValidTo = "ValidTo";
-
-	/** Set Valid to.
-	  * Valid to including this date (last day)
-	  */
-	public void setValidTo (Timestamp ValidTo);
-
-	/** Get Valid to.
-	  * Valid to including this date (last day)
-	  */
-	public Timestamp getValidTo();
 }

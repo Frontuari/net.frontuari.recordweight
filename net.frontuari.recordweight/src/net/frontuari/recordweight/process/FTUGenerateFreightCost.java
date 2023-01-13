@@ -82,18 +82,19 @@ public class FTUGenerateFreightCost extends CustomProcess{
 		bol.setDateDoc(new Timestamp(System.currentTimeMillis()));
 		bol.saveEx();
 		
-		String sql = "SELECT "
-				+ "	il.C_Invoice_ID,"
-				+ "	miol.M_InOut_ID,"
-				+ "	lol.FTU_DeliveryRute_ID,"
-				+ "	SUM(lol.Weight) as Weight,"
-				+ "	SUM(COUNT(distinct mio.m_inout_id)) over (partition by lol.FTU_DeliveryRute_ID) AS QtyTravel "
-				+ "	FROM FTU_LoadOrderLine as lol"
-				+ "	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID "
-				+ "	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID) "
-				+ "	JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) "
-				+ "	WHERE lol.FTU_LoadOrder_ID = ? "
-				+ "	GROUP BY miol.M_InOut_ID,il.C_Invoice_ID,lol.FTU_DeliveryRute_ID";
+		String sql = "SELECT " + 
+				"	il.C_Invoice_ID," + 
+				"	miol.M_InOut_ID," + 
+				"	bl.C_SalesRegion_ID," + 
+				"	sum(lol.Weight) as Weight," + 
+				"	sum(count(distinct mio.m_inout_id)) over (partition by bl.C_SalesRegion_ID) AS QtyTravel " + 
+				"	from FTU_LoadOrderLine as lol" + 
+				"	JOIN M_InOutLine as miol on miol.M_InOutLine_ID = lol.M_InOutLine_ID" + 
+				"	JOIN M_InOut as mio on (mio.M_InOut_ID = miol.M_InOut_ID)" + 
+				"	JOIN C_BPartner_Location as bl on (bl.C_BPartner_Location_ID = mio.C_BPartner_Location_ID)" + 
+				"	LEFT JOIN C_InvoiceLine as il on (il.C_InvoiceLine_ID = lol.C_InvoiceLine_ID) " + 
+				"	where lol.FTU_LoadOrder_ID = ?" + 
+				"	group by miol.M_InOut_ID,il.C_Invoice_ID,bl.C_SalesRegion_ID";
 		
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -108,23 +109,24 @@ public class FTUGenerateFreightCost extends CustomProcess{
 				MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
 				boll.setAD_Org_ID(bol.getAD_Org_ID());
 				boll.setFTU_BillOfLading_ID(bol.get_ID());
-				//	Search Sales Region
-				int SalesRegionID = DB.getSQLValue(get_TrxName(), "SELECT C_SalesRegion_ID FROM C_BPartner_Location bpl JOIN M_InOut io ON bpl.C_BPartner_Location_ID = io.C_BPartner_Location_ID WHERE io.M_InOut_ID = ?", rs.getInt("M_InOut_ID"));
-				boll.setC_SalesRegion_ID(SalesRegionID);
-				boll.set_ValueOfColumn("FTU_DeliveryRute_ID", rs.getInt("FTU_DeliveryRute_ID"));
+				boll.setC_SalesRegion_ID(rs.getInt("C_SalesRegion_ID"));
 				boll.setC_Invoice_ID(rs.getInt("C_Invoice_ID"));
 				boll.setM_InOut_ID(rs.getInt("M_InOut_ID"));
 				boll.setWeight(rs.getBigDecimal("Weight"));
 				// Calculate Cost Freight
 				// get Price for Trip
 				price = DB.getSQLValueBD(get_TrxName(), "SELECT "
-						+ "	(CurrencyConvert((CASE WHEN ? >= ValueMax::numeric THEN pft.PriceActual ELSE pft.Price END),pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
+						+ "	(CurrencyConvert(pft.Price,pft.C_Currency_ID,?,?,pft.C_ConversionType_ID,pft.AD_Client_ID,pft.AD_Org_ID)/?) AS Price "
 						+ " FROM FTU_PriceForTrip pft " 
-						+ " WHERE pft.FTU_DeliveryRute_ID = ? ", new Object[] { rs.getBigDecimal("QtyTravel"), CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("FTU_DeliveryRute_ID")});
+						+ " WHERE pft.C_SalesRegion_ID = ? ", new Object[] { CurrencyID, bol.getDateDoc(),p_qtyCalc, rs.getInt("C_SalesRegion_ID")});
 				
 				if(price == null)
 				{
 					price = BigDecimal.ZERO;
+				}else {
+					//if(price.doubleValue() > maxPrice.doubleValue()) {
+						maxPrice = price;
+					//}
 				}
 				// set costs
 				if(p_FTU_ZeroCost.equals("N")) {
@@ -137,7 +139,7 @@ public class FTUGenerateFreightCost extends CustomProcess{
 				totalW = totalW.add(rs.getBigDecimal("Weight"));
 				grandTotal = grandTotal.add(costs);
 				
-				SalesRegionParent_ID = getSalesRegionParent(SalesRegionID);
+				SalesRegionParent_ID = getSalesRegionParent(rs.getInt("C_SalesRegion_ID"));
 				
 			}
 		} catch(Exception ex) {

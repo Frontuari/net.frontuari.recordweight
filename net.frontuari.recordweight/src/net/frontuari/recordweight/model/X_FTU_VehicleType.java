@@ -32,7 +32,7 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_VehicleType (Properties ctx, int FTU_VehicleType_ID, String trxName)

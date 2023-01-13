@@ -5,16 +5,11 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.adempiere.base.event.IEventTopics;
-import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_Invoice;
 import org.compiere.model.I_M_InOut;
-import org.compiere.model.I_M_Inventory;
 import org.compiere.model.I_M_Movement;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
-import org.compiere.model.MInventory;
-import org.compiere.model.MInventoryLine;
-import org.compiere.model.MInventoryLineMA;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
 import org.compiere.model.MMovement;
@@ -29,13 +24,10 @@ public class FTUEvents extends CustomEvent {
 
 	@Override
 	protected void doHandleEvent() {
-		String eventType = getEventType();
-		String tableName = getPO().get_TableName();
-		
 		if(getEventType().equals(IEventTopics.DOC_AFTER_VOID)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSECORRECT)
 				|| getEventType().equals(IEventTopics.DOC_AFTER_REVERSEACCRUAL)) {
-		
+			String tableName = getPO().get_TableName();
 			if(tableName.equals(I_M_InOut.Table_Name)) {
 				MInOut inout = (MInOut) getPO();
 				if(inout.isSOTrx()) {
@@ -49,7 +41,20 @@ public class FTUEvents extends CustomEvent {
 						MFTULoadOrderLine lin = 
 								new MFTULoadOrderLine(mInOutLine.getCtx(), p_FTU_LoadOrderLine_ID, mInOutLine.get_TrxName());
 						lin.setM_InOutLine_ID(0);
-						lin.setConfirmedQty(Env.ZERO);
+						//	Added by Jorge Colmenarez, 2021-07-29 14:14
+						//	Support for Substract QtyConfirmed when Operation Type it's DMP
+						if(lin.getFTU_LoadOrder().getOperationType().equalsIgnoreCase(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts))
+						{
+							MFTURecordWeight rw = new MFTURecordWeight(mInOutLine.getCtx(), inout.get_ValueAsInt("FTU_RecordWeight_ID"), mInOutLine.get_TrxName());
+							BigDecimal qtyCount = (BigDecimal) rw.get_Value("QtyCount");
+							if(qtyCount == null)
+								qtyCount = BigDecimal.ZERO;
+							BigDecimal newConfirmedQty = lin.getConfirmedQty().subtract(qtyCount);
+							lin.setConfirmedQty(newConfirmedQty);
+						}
+						else
+							lin.setConfirmedQty(Env.ZERO);
+						//	End Jorge Colmenarez
 						lin.saveEx();
 						
 						MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
@@ -104,21 +109,6 @@ public class FTUEvents extends CustomEvent {
 		else if (IEventTopics.DOC_AFTER_COMPLETE.equals(getEventType())
 				 && getPO().get_TableName().equals(MMovement.Table_Name))
 			setQtyDelivered();		
-		else if 	(eventType.equals(IEventTopics.DOC_BEFORE_VOID)
-				|| eventType.equals(IEventTopics.DOC_BEFORE_REVERSECORRECT) 
-				|| eventType.equals(IEventTopics.DOC_BEFORE_REVERSEACCRUAL)) {
-	if(tableName.equals(I_M_Inventory.Table_Name)) {
-		MInventory inventory = (MInventory) getPO();
-		MInventoryLine[] lines = inventory.getLines(true);
-		for (MInventoryLine line : lines) {
-			MInventoryLineMA[] lineMaArray = MInventoryLineMA.get(inventory.getCtx(), line.getM_InventoryLine_ID(), inventory.get_TrxName());
-			for (MInventoryLineMA lineMa : lineMaArray) {
-				if(lineMa.get_ValueAsBoolean("IsVoided"))
-					throw new AdempiereException("Atributo @IsVoided@");
-			}
-		}
-	}
-}
 	}
 	
 	/**

@@ -218,7 +218,7 @@ public class CalloutRecordWeight extends CustomCallout {
 			setValue("WeightStatus", "G");
 			
 		}
-		//	End Jorge Colmenarez
+	
 		return "";
 	}
 

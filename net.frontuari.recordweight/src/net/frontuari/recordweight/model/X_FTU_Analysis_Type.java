@@ -21,10 +21,10 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
 
-/** Generated Model for FTU_Driver
+/** Generated Model for FTU_Analysis_Type
  *  @author iDempiere (generated) 
  *  @version Release 7.1 - $Id$ */
-public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent 
+public class X_FTU_Analysis_Type extends PO implements I_FTU_Analysis_Type, I_Persistent 
 {
 
 	/**
@@ -33,19 +33,19 @@ public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent
 	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
-    public X_FTU_Driver (Properties ctx, int FTU_Driver_ID, String trxName)
+    public X_FTU_Analysis_Type (Properties ctx, int FTU_Analysis_Type_ID, String trxName)
     {
-      super (ctx, FTU_Driver_ID, trxName);
-      /** if (FTU_Driver_ID == 0)
+      super (ctx, FTU_Analysis_Type_ID, trxName);
+      /** if (FTU_Analysis_Type_ID == 0)
         {
-			setFTU_Driver_ID (0);
+			setFTU_Analysis_Type_ID (0);
+			setFTU_Analysis_Type_UU (null);
 			setName (null);
-			setValue (null);
         } */
     }
 
     /** Load Constructor */
-    public X_FTU_Driver (Properties ctx, ResultSet rs, String trxName)
+    public X_FTU_Analysis_Type (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
@@ -67,38 +67,10 @@ public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_Driver[")
+      StringBuffer sb = new StringBuffer ("X_FTU_Analysis_Type[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
-
-	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
-			.getPO(getC_BPartner_ID(), get_TrxName());	}
-
-	/** Set Business Partner .
-		@param C_BPartner_ID 
-		Identifies a Business Partner
-	  */
-	public void setC_BPartner_ID (int C_BPartner_ID)
-	{
-		if (C_BPartner_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_C_BPartner_ID, Integer.valueOf(C_BPartner_ID));
-	}
-
-	/** Get Business Partner .
-		@return Identifies a Business Partner
-	  */
-	public int getC_BPartner_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
 
 	/** Set Description.
 		@param Description 
@@ -117,66 +89,38 @@ public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set Driver.
-		@param FTU_Driver_ID Driver	  */
-	public void setFTU_Driver_ID (int FTU_Driver_ID)
+	/** Set Analysis_Type_ID.
+		@param FTU_Analysis_Type_ID Analysis_Type_ID	  */
+	public void setFTU_Analysis_Type_ID (int FTU_Analysis_Type_ID)
 	{
-		if (FTU_Driver_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_Driver_ID, null);
+		if (FTU_Analysis_Type_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_FTU_Analysis_Type_ID, null);
 		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_Driver_ID, Integer.valueOf(FTU_Driver_ID));
+			set_ValueNoCheck (COLUMNNAME_FTU_Analysis_Type_ID, Integer.valueOf(FTU_Analysis_Type_ID));
 	}
 
-	/** Get Driver.
-		@return Driver	  */
-	public int getFTU_Driver_ID () 
+	/** Get Analysis_Type_ID.
+		@return Analysis_Type_ID	  */
+	public int getFTU_Analysis_Type_ID () 
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Driver_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Analysis_Type_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set FTU_Driver_UU.
-		@param FTU_Driver_UU FTU_Driver_UU	  */
-	public void setFTU_Driver_UU (String FTU_Driver_UU)
+	/** Set FTU_Analysis_Type_UU.
+		@param FTU_Analysis_Type_UU FTU_Analysis_Type_UU	  */
+	public void setFTU_Analysis_Type_UU (String FTU_Analysis_Type_UU)
 	{
-		set_Value (COLUMNNAME_FTU_Driver_UU, FTU_Driver_UU);
+		set_ValueNoCheck (COLUMNNAME_FTU_Analysis_Type_UU, FTU_Analysis_Type_UU);
 	}
 
-	/** Get FTU_Driver_UU.
-		@return FTU_Driver_UU	  */
-	public String getFTU_Driver_UU () 
+	/** Get FTU_Analysis_Type_UU.
+		@return FTU_Analysis_Type_UU	  */
+	public String getFTU_Analysis_Type_UU () 
 	{
-		return (String)get_Value(COLUMNNAME_FTU_Driver_UU);
-	}
-
-	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Shipper)MTable.get(getCtx(), org.compiere.model.I_M_Shipper.Table_Name)
-			.getPO(getM_Shipper_ID(), get_TrxName());	}
-
-	/** Set Shipper.
-		@param M_Shipper_ID 
-		Method or manner of product delivery
-	  */
-	public void setM_Shipper_ID (int M_Shipper_ID)
-	{
-		if (M_Shipper_ID < 1) 
-			set_Value (COLUMNNAME_M_Shipper_ID, null);
-		else 
-			set_Value (COLUMNNAME_M_Shipper_ID, Integer.valueOf(M_Shipper_ID));
-	}
-
-	/** Get Shipper.
-		@return Method or manner of product delivery
-	  */
-	public int getM_Shipper_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_Shipper_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
+		return (String)get_Value(COLUMNNAME_FTU_Analysis_Type_UU);
 	}
 
 	/** Set Name.
@@ -196,35 +140,18 @@ public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
-	/** Set Phone.
-		@param Phone 
-		Identifies a telephone number
-	  */
-	public void setPhone (String Phone)
+	/** Set Romana_IsActive.
+		@param Romana_IsActive Romana_IsActive	  */
+	public void setRomana_IsActive (boolean Romana_IsActive)
 	{
-		set_ValueNoCheck (COLUMNNAME_Phone, Phone);
+		set_Value (COLUMNNAME_Romana_IsActive, Boolean.valueOf(Romana_IsActive));
 	}
 
-	/** Get Phone.
-		@return Identifies a telephone number
-	  */
-	public String getPhone () 
+	/** Get Romana_IsActive.
+		@return Romana_IsActive	  */
+	public boolean isRomana_IsActive () 
 	{
-		return (String)get_Value(COLUMNNAME_Phone);
-	}
-
-	/** Set Process Now.
-		@param Processing Process Now	  */
-	public void setProcessing (boolean Processing)
-	{
-		set_Value (COLUMNNAME_Processing, Boolean.valueOf(Processing));
-	}
-
-	/** Get Process Now.
-		@return Process Now	  */
-	public boolean isProcessing () 
-	{
-		Object oo = get_Value(COLUMNNAME_Processing);
+		Object oo = get_Value(COLUMNNAME_Romana_IsActive);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
@@ -232,6 +159,43 @@ public class X_FTU_Driver extends PO implements I_FTU_Driver, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Romana_SeqNo.
+		@param Romana_SeqNo Romana_SeqNo	  */
+	public void setRomana_SeqNo (int Romana_SeqNo)
+	{
+		set_Value (COLUMNNAME_Romana_SeqNo, Integer.valueOf(Romana_SeqNo));
+	}
+
+	/** Get Romana_SeqNo.
+		@return Romana_SeqNo	  */
+	public int getRomana_SeqNo () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Romana_SeqNo);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Sequence.
+		@param SeqNo 
+		Method of ordering records; lowest number comes first
+	  */
+	public void setSeqNo (int SeqNo)
+	{
+		set_Value (COLUMNNAME_SeqNo, Integer.valueOf(SeqNo));
+	}
+
+	/** Get Sequence.
+		@return Method of ordering records; lowest number comes first
+	  */
+	public int getSeqNo () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_SeqNo);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Search Key.

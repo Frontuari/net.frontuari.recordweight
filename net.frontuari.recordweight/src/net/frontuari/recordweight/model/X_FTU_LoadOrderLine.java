@@ -33,7 +33,7 @@ public class X_FTU_LoadOrderLine extends PO implements I_FTU_LoadOrderLine, I_Pe
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20220803L;
 
     /** Standard Constructor */
     public X_FTU_LoadOrderLine (Properties ctx, int FTU_LoadOrderLine_ID, String trxName)

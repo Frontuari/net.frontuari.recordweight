@@ -32,7 +32,7 @@ public interface I_FTU_Driver
     /** TableName=FTU_Driver */
     public static final String Table_Name = "FTU_Driver";
 
-    /** AD_Table_ID=1000033 */
+    /** AD_Table_ID=1000059 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -179,6 +179,15 @@ public interface I_FTU_Driver
 	  * Identifies a telephone number
 	  */
 	public String getPhone();
+
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
+
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
+
+	/** Get Process Now	  */
+	public boolean isProcessing();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
