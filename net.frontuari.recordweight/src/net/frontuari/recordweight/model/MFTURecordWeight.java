@@ -555,7 +555,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	}
 
 	/**
-	 * Set the Analysis Id number after completed
 	 * 
 	 * @return
 	 */
@@ -1038,6 +1037,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (docStatus.equals(DocumentEngine.STATUS_Drafted) || docStatus.equals(DocumentEngine.STATUS_InProgress)
 					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
 				options[index++] = DocumentEngine.ACTION_Prepare;
+				options[index++] = DocumentEngine.ACTION_Complete;
 			}
 			// Complete .. CO
 			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
@@ -1045,8 +1045,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				options[index++] = DocumentEngine.ACTION_ReActivate;
 				options[index++] = DocumentEngine.ACTION_Close;
 
-			} else if (docStatus.equals(DocumentEngine.STATUS_Closed))
+			} else if (docStatus.equals(DocumentEngine.STATUS_Closed)) {
 				options[index++] = DocumentEngine.ACTION_None;
+			}	else if (docStatus.equals(DocumentEngine.STATUS_WaitingConfirmation)) {
+				options[index++] = DocumentEngine.ACTION_Prepare;
+				options[index++] = DocumentEngine.ACTION_Complete;
+			}
 		}
 
 		return index;
