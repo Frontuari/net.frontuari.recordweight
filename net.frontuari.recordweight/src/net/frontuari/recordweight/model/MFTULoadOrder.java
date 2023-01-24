@@ -1277,6 +1277,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
 					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
 			BigDecimal qtyToDeliver = qty;
+			BigDecimal available = BigDecimal.ZERO;
 			for (MStorageOnHand storage: storages)
 			{
 				boolean observacion = false;
@@ -1292,7 +1293,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				if (observacion)
 					continue;
 				BigDecimal reserved = getReservedforLoadOrder(storage);
-				BigDecimal available = storage.getQtyOnHand().subtract(reserved);
+				available = storage.getQtyOnHand().subtract(reserved);
 				if(available.compareTo(BigDecimal.ZERO) <= 0)
 					continue;
 				if (available.compareTo(qtyToDeliver) >= 0)
@@ -1312,12 +1313,12 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					qtyToDeliver = qtyToDeliver.subtract(available);
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
 				}
-					if (qtyToDeliver.signum() == 0)
+				if (qtyToDeliver.signum() == 0)
 					break;
 			}
 			if (qtyToDeliver.signum() != 0)
 			{					
-				throw new AdempiereException("Error no hay suficiente inventario para despachar las "+qtyToDeliver+" unidades el producto "+product.getValue()+" "+product.getName());
+				throw new AdempiereException("Error no hay suficiente inventario para despachar las "+qtyToDeliver+" unidades el producto "+product.getValue()+" "+product.getName()+" en el almacen: "+getM_Warehouse().getValue());
 				//Over Delivery
 				/*MFTULoadOrderLineMA ma = MFTULoadOrderLineMA.addOrCreate(line, line.getM_AttributeSetInstance_ID(), qtyToDeliver, getDateDoc(),true);
 				ma.saveEx();

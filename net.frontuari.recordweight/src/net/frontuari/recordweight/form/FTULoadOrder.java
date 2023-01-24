@@ -861,8 +861,8 @@ public class FTULoadOrder {
 		if(m_M_Warehouse_ID != 0) {
 			m_FTU_LoadOrder.setM_Warehouse_ID(m_M_Warehouse_ID);
 		}else {
-		MWarehouse[] WH = MWarehouse.getForOrg(Env.getCtx(), m_AD_Org_ID);
-		m_FTU_LoadOrder.setM_Warehouse_ID(WH[0].getM_Warehouse_ID());
+			MWarehouse[] WH = MWarehouse.getForOrg(Env.getCtx(), m_AD_Org_ID);
+			m_FTU_LoadOrder.setM_Warehouse_ID(WH[0].getM_Warehouse_ID());
 		}
 		//	Invoice Rule
 		if(m_InvoiceRule != null
