@@ -1282,12 +1282,12 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			{
 				boolean observacion = false;
 				MAttributeSetInstance ins = new MAttributeSetInstance(getCtx(), storage.getM_AttributeSetInstance_ID(), get_TrxName());
-				if(ins.getDescription()==null)
-					continue;
+				if(ins.getDescription()!=null) {
 				String[] attrVal = ins.getDescription().split("_");
 				for (String a : attrVal) {
 					if (a.equalsIgnoreCase("Observacion") ) {				
 						observacion = true;
+						}
 					}
 				}
 				if (observacion)
