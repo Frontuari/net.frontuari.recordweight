@@ -192,7 +192,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 
 		setIsImmediateDelivery(m_DocType.get_ValueAsBoolean("IsImmediateDelivery"));
 		//
-//		Create ProductMA
+		//	Create ProductMA
 			for(MFTULoadOrderLine line : getLines(true))
 			{
 				MProduct product = (MProduct) line.getM_Product();
@@ -211,7 +211,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						return DOCSTATUS_Invalid;
 					}
 					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType())) {
-					if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
+						if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
 						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
 							if (line.getM_AttributeSetInstance_ID() == 0) {
 								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
@@ -226,10 +226,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 									return DocAction.STATUS_Invalid;
 									}
 								}
-							}					
-						
+							}
 						}else {
-							
 							checkMaterialPolicy(line,movementQty.subtract(qtyOnLineMA));	
 						}					
 					}
@@ -1282,39 +1280,42 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			{
 				boolean observacion = false;
 				MAttributeSetInstance ins = new MAttributeSetInstance(getCtx(), storage.getM_AttributeSetInstance_ID(), get_TrxName());
-				if(ins.getDescription()==null)
-					continue;
-				String[] attrVal = ins.getDescription().split("_");
-				for (String a : attrVal) {
-					if (a.equalsIgnoreCase("Observacion") ) {				
-						observacion = true;
+				//	Modified by Jorge Colmenarez, 2023-01-25 07:49 
+				//	Change logic for condition process
+				if(ins.getDescription()!=null) {
+					String[] attrVal = ins.getDescription().split("_");
+					for (String a : attrVal) {
+						if (a.equalsIgnoreCase("Observacion") ) {				
+							observacion = true;
+						}
 					}
-				}
-				if (observacion)
+					if (observacion)
+						continue;
+					BigDecimal reserved = getReservedforLoadOrder(storage);
+					available = storage.getQtyOnHand().subtract(reserved);
+					if(available.compareTo(BigDecimal.ZERO) <= 0)
+						continue;
+					if (available.compareTo(qtyToDeliver) >= 0)
+					{
+						MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
+								storage.getM_AttributeSetInstance_ID(),
+								qtyToDeliver,storage.getDateMaterialPolicy(),true);
+						ma.saveEx();
+						qtyToDeliver = Env.ZERO;
+					}
+					else
+					{
+						MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
+								storage.getM_AttributeSetInstance_ID(),
+								available,storage.getDateMaterialPolicy(),true);
+						ma.saveEx();
+						qtyToDeliver = qtyToDeliver.subtract(available);
+						if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
+					}
+					if (qtyToDeliver.signum() == 0)
+						break;
+				}else
 					continue;
-				BigDecimal reserved = getReservedforLoadOrder(storage);
-				available = storage.getQtyOnHand().subtract(reserved);
-				if(available.compareTo(BigDecimal.ZERO) <= 0)
-					continue;
-				if (available.compareTo(qtyToDeliver) >= 0)
-				{
-					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
-							storage.getM_AttributeSetInstance_ID(),
-							qtyToDeliver,storage.getDateMaterialPolicy(),true);
-					ma.saveEx();
-					qtyToDeliver = Env.ZERO;
-				}
-				else
-				{
-					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
-							storage.getM_AttributeSetInstance_ID(),
-							available,storage.getDateMaterialPolicy(),true);
-					ma.saveEx();
-					qtyToDeliver = qtyToDeliver.subtract(available);
-					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
-				}
-				if (qtyToDeliver.signum() == 0)
-					break;
 			}
 			if (qtyToDeliver.signum() != 0)
 			{					
