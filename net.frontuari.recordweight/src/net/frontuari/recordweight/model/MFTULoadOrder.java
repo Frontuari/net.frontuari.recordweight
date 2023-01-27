@@ -1336,7 +1336,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
 				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
 				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
-				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND lo.IsDelivered = 'N' AND lo.IsMoved = 'N' "
+				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND ((lo.IsDelivered = 'N' AND lo.OperationType NOT IN ('MOM','MIM')) OR (lo.IsMoved = 'N' AND lo.OperationType IN ('MOM','MIM'))) "
 				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
