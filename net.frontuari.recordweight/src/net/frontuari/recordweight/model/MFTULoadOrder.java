@@ -1337,10 +1337,14 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
 				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
 				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND ((lo.IsDelivered = 'N' AND lo.OperationType NOT IN ('MOM','MIM')) OR (lo.IsMoved = 'N' AND lo.OperationType IN ('MOM','MIM'))) "
-				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ?";
+				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ? "
+				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
+				//	Support for filter by Warehouse
+				+ " AND lo.M_Warehouse_ID = ? ";
 		
-		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID()});
-		
+		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
+				new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID(),storage.getM_Warehouse_ID()});
+				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
 		
