@@ -1295,7 +1295,10 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				}
 				//	End Jorge Colmenarez
 				reserved = getReservedforLoadOrder(storage);
+				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved);
 				available = storage.getQtyOnHand().subtract(reserved);
+				log.log(Level.SEVERE, "iNVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
+				log.log(Level.SEVERE, "CANTIDAD DISPONIBLE = " + available);
 				if(available.compareTo(BigDecimal.ZERO) <= 0)
 					continue;
 				if (available.compareTo(qtyToDeliver) >= 0)
@@ -1339,11 +1342,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND ((lo.IsDelivered = 'N' AND lo.OperationType NOT IN ('MOM','MIM')) OR (lo.IsMoved = 'N' AND lo.OperationType IN ('MOM','MIM'))) "
 				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ? "
 				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
-				//	Support for filter by Warehouse
-				+ " AND lo.M_Warehouse_ID = ? ";
+				//	Support for filter by Warehouse and not the same loadOrder
+				+ " AND lo.M_Warehouse_ID = ? and lo.FTU_LoadOrder_ID <> ?";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
-				new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID(),storage.getM_Warehouse_ID()});
+				new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID(),storage.getM_Warehouse_ID(),this.getFTU_LoadOrder_ID()});
 				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
