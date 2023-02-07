@@ -163,7 +163,7 @@ public class FTULoadOrder {
 		//	Load Validation Flag
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
-		if(m_C_DocTypeTarget_ID > 0) { 
+		if(m_C_DocTypeTarget_ID > 0) {
 			MDocType m_DocType = MDocType.get(Env.getCtx(), m_C_DocTypeTarget_ID);
 			m_IsValidateQuantity = m_DocType.get_ValueAsBoolean("IsValidateQuantity");
 		}

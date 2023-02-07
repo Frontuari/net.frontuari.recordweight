@@ -1340,13 +1340,17 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
 				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
 				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND ((lo.IsDelivered = 'N' AND lo.OperationType NOT IN ('MOM','MIM')) OR (lo.IsMoved = 'N' AND lo.OperationType IN ('MOM','MIM'))) "
-				+ " AND lol.M_Product_ID = ? AND ma.M_AttributeSetInstance_ID = ? "
+				+ " AND lol.M_Product_ID = ? "
 				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
 				//	Support for filter by Warehouse and not the same loadOrder
-				+ " AND lo.M_Warehouse_ID = ? and lo.FTU_LoadOrder_ID <> ?";
+				+ " AND lo.M_Warehouse_ID = ?";
+		if(storage.getM_AttributeSetInstance_ID()==0)
+			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
+		else 
+			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
-				new Object[] {storage.getM_Product_ID(),storage.getM_AttributeSetInstance_ID(),storage.getM_Warehouse_ID(),this.getFTU_LoadOrder_ID()});
+				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_AttributeSetInstance_ID()});
 				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
