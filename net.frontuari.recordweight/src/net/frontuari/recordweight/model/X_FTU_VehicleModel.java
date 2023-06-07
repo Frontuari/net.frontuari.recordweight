@@ -23,19 +23,32 @@ import org.compiere.model.*;
 
 /** Generated Model for FTU_VehicleModel
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_VehicleModel")
 public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_VehicleModel (Properties ctx, int FTU_VehicleModel_ID, String trxName)
     {
       super (ctx, FTU_VehicleModel_ID, trxName);
+      /** if (FTU_VehicleModel_ID == 0)
+        {
+			setFTU_VehicleBrand_ID (0);
+			setFTU_VehicleModel_ID (0);
+			setName (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_VehicleModel (Properties ctx, int FTU_VehicleModel_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_VehicleModel_ID, trxName, virtualColumns);
       /** if (FTU_VehicleModel_ID == 0)
         {
 			setFTU_VehicleBrand_ID (0);
@@ -67,15 +80,14 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_VehicleModel[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_VehicleModel[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	/** Set Description.
-		@param Description 
-		Optional short description of the record
-	  */
+		@param Description Optional short description of the record
+	*/
 	public void setDescription (String Description)
 	{
 		set_Value (COLUMNNAME_Description, Description);
@@ -84,29 +96,31 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 	/** Get Description.
 		@return Optional short description of the record
 	  */
-	public String getDescription () 
+	public String getDescription()
 	{
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
 	public net.frontuari.recordweight.model.I_FTU_VehicleBrand getFTU_VehicleBrand() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_VehicleBrand)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_VehicleBrand.Table_Name)
-			.getPO(getFTU_VehicleBrand_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_VehicleBrand)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_VehicleBrand.Table_ID)
+			.getPO(getFTU_VehicleBrand_ID(), get_TrxName());
+	}
 
 	/** Set Vehicle Brand.
-		@param FTU_VehicleBrand_ID Vehicle Brand	  */
+		@param FTU_VehicleBrand_ID Vehicle Brand
+	*/
 	public void setFTU_VehicleBrand_ID (int FTU_VehicleBrand_ID)
 	{
-		if (FTU_VehicleBrand_ID < 1) 
+		if (FTU_VehicleBrand_ID < 1)
 			set_Value (COLUMNNAME_FTU_VehicleBrand_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_FTU_VehicleBrand_ID, Integer.valueOf(FTU_VehicleBrand_ID));
 	}
 
 	/** Get Vehicle Brand.
 		@return Vehicle Brand	  */
-	public int getFTU_VehicleBrand_ID () 
+	public int getFTU_VehicleBrand_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_VehicleBrand_ID);
 		if (ii == null)
@@ -115,18 +129,19 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 	}
 
 	/** Set Vehicle Model.
-		@param FTU_VehicleModel_ID Vehicle Model	  */
+		@param FTU_VehicleModel_ID Vehicle Model
+	*/
 	public void setFTU_VehicleModel_ID (int FTU_VehicleModel_ID)
 	{
-		if (FTU_VehicleModel_ID < 1) 
+		if (FTU_VehicleModel_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_VehicleModel_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_VehicleModel_ID, Integer.valueOf(FTU_VehicleModel_ID));
 	}
 
 	/** Get Vehicle Model.
 		@return Vehicle Model	  */
-	public int getFTU_VehicleModel_ID () 
+	public int getFTU_VehicleModel_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_VehicleModel_ID);
 		if (ii == null)
@@ -135,7 +150,8 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 	}
 
 	/** Set FTU_VehicleModel_UU.
-		@param FTU_VehicleModel_UU FTU_VehicleModel_UU	  */
+		@param FTU_VehicleModel_UU FTU_VehicleModel_UU
+	*/
 	public void setFTU_VehicleModel_UU (String FTU_VehicleModel_UU)
 	{
 		set_Value (COLUMNNAME_FTU_VehicleModel_UU, FTU_VehicleModel_UU);
@@ -143,29 +159,31 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 
 	/** Get FTU_VehicleModel_UU.
 		@return FTU_VehicleModel_UU	  */
-	public String getFTU_VehicleModel_UU () 
+	public String getFTU_VehicleModel_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_VehicleModel_UU);
 	}
 
 	public net.frontuari.recordweight.model.I_FTU_VehicleType getFTU_VehicleType() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_VehicleType)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_VehicleType.Table_Name)
-			.getPO(getFTU_VehicleType_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_VehicleType)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_VehicleType.Table_ID)
+			.getPO(getFTU_VehicleType_ID(), get_TrxName());
+	}
 
 	/** Set Vehicle Type.
-		@param FTU_VehicleType_ID Vehicle Type	  */
+		@param FTU_VehicleType_ID Vehicle Type
+	*/
 	public void setFTU_VehicleType_ID (int FTU_VehicleType_ID)
 	{
-		if (FTU_VehicleType_ID < 1) 
+		if (FTU_VehicleType_ID < 1)
 			set_Value (COLUMNNAME_FTU_VehicleType_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_FTU_VehicleType_ID, Integer.valueOf(FTU_VehicleType_ID));
 	}
 
 	/** Get Vehicle Type.
 		@return Vehicle Type	  */
-	public int getFTU_VehicleType_ID () 
+	public int getFTU_VehicleType_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_VehicleType_ID);
 		if (ii == null)
@@ -174,9 +192,8 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 	}
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -185,7 +202,7 @@ public class X_FTU_VehicleModel extends PO implements I_FTU_VehicleModel, I_Pers
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}

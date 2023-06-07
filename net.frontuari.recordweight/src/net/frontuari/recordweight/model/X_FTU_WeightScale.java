@@ -23,19 +23,34 @@ import org.compiere.model.*;
 
 /** Generated Model for FTU_WeightScale
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_WeightScale")
 public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_WeightScale (Properties ctx, int FTU_WeightScale_ID, String trxName)
     {
       super (ctx, FTU_WeightScale_ID, trxName);
+      /** if (FTU_WeightScale_ID == 0)
+        {
+			setC_UOM_ID (0);
+			setFTU_ScreenConfig_ID (0);
+			setFTU_SerialPortConfig_ID (0);
+			setFTU_WeightScale_ID (0);
+			setName (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_WeightScale (Properties ctx, int FTU_WeightScale_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_WeightScale_ID, trxName, virtualColumns);
       /** if (FTU_WeightScale_ID == 0)
         {
 			setC_UOM_ID (0);
@@ -69,32 +84,32 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_WeightScale[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_WeightScale[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException
-    {
-		return (org.compiere.model.I_C_UOM)MTable.get(getCtx(), org.compiere.model.I_C_UOM.Table_Name)
-			.getPO(getC_UOM_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_C_UOM)MTable.get(getCtx(), org.compiere.model.I_C_UOM.Table_ID)
+			.getPO(getC_UOM_ID(), get_TrxName());
+	}
 
 	/** Set UOM.
-		@param C_UOM_ID 
-		Unit of Measure
-	  */
+		@param C_UOM_ID Unit of Measure
+	*/
 	public void setC_UOM_ID (int C_UOM_ID)
 	{
-		if (C_UOM_ID < 1) 
+		if (C_UOM_ID < 1)
 			set_Value (COLUMNNAME_C_UOM_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_C_UOM_ID, Integer.valueOf(C_UOM_ID));
 	}
 
 	/** Get UOM.
 		@return Unit of Measure
 	  */
-	public int getC_UOM_ID () 
+	public int getC_UOM_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_UOM_ID);
 		if (ii == null)
@@ -103,9 +118,8 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	}
 
 	/** Set Description.
-		@param Description 
-		Optional short description of the record
-	  */
+		@param Description Optional short description of the record
+	*/
 	public void setDescription (String Description)
 	{
 		set_Value (COLUMNNAME_Description, Description);
@@ -114,29 +128,31 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	/** Get Description.
 		@return Optional short description of the record
 	  */
-	public String getDescription () 
+	public String getDescription()
 	{
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
 	public net.frontuari.recordweight.model.I_FTU_ScreenConfig getFTU_ScreenConfig() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_ScreenConfig)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_ScreenConfig.Table_Name)
-			.getPO(getFTU_ScreenConfig_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_ScreenConfig)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_ScreenConfig.Table_ID)
+			.getPO(getFTU_ScreenConfig_ID(), get_TrxName());
+	}
 
 	/** Set Screen Configuration.
-		@param FTU_ScreenConfig_ID Screen Configuration	  */
+		@param FTU_ScreenConfig_ID Screen Configuration
+	*/
 	public void setFTU_ScreenConfig_ID (int FTU_ScreenConfig_ID)
 	{
-		if (FTU_ScreenConfig_ID < 1) 
+		if (FTU_ScreenConfig_ID < 1)
 			set_Value (COLUMNNAME_FTU_ScreenConfig_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_FTU_ScreenConfig_ID, Integer.valueOf(FTU_ScreenConfig_ID));
 	}
 
 	/** Get Screen Configuration.
 		@return Screen Configuration	  */
-	public int getFTU_ScreenConfig_ID () 
+	public int getFTU_ScreenConfig_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_ScreenConfig_ID);
 		if (ii == null)
@@ -145,26 +161,26 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	}
 
 	public net.frontuari.recordweight.model.I_FTU_SerialPortConfig getFTU_SerialPortConfig() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_SerialPortConfig)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_SerialPortConfig.Table_Name)
-			.getPO(getFTU_SerialPortConfig_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_SerialPortConfig)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_SerialPortConfig.Table_ID)
+			.getPO(getFTU_SerialPortConfig_ID(), get_TrxName());
+	}
 
 	/** Set Serial Port Configuration.
-		@param FTU_SerialPortConfig_ID 
-		Serial Port Configuration example: COM1 or tty01, 9600...
-	  */
+		@param FTU_SerialPortConfig_ID Serial Port Configuration example: COM1 or tty01, 9600...
+	*/
 	public void setFTU_SerialPortConfig_ID (int FTU_SerialPortConfig_ID)
 	{
-		if (FTU_SerialPortConfig_ID < 1) 
+		if (FTU_SerialPortConfig_ID < 1)
 			set_Value (COLUMNNAME_FTU_SerialPortConfig_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_FTU_SerialPortConfig_ID, Integer.valueOf(FTU_SerialPortConfig_ID));
 	}
 
 	/** Get Serial Port Configuration.
 		@return Serial Port Configuration example: COM1 or tty01, 9600...
 	  */
-	public int getFTU_SerialPortConfig_ID () 
+	public int getFTU_SerialPortConfig_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_SerialPortConfig_ID);
 		if (ii == null)
@@ -173,18 +189,19 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	}
 
 	/** Set Weight Scale.
-		@param FTU_WeightScale_ID Weight Scale	  */
+		@param FTU_WeightScale_ID Weight Scale
+	*/
 	public void setFTU_WeightScale_ID (int FTU_WeightScale_ID)
 	{
-		if (FTU_WeightScale_ID < 1) 
+		if (FTU_WeightScale_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, Integer.valueOf(FTU_WeightScale_ID));
 	}
 
 	/** Get Weight Scale.
 		@return Weight Scale	  */
-	public int getFTU_WeightScale_ID () 
+	public int getFTU_WeightScale_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_WeightScale_ID);
 		if (ii == null)
@@ -193,7 +210,8 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	}
 
 	/** Set FTU_WeightScale_UU.
-		@param FTU_WeightScale_UU FTU_WeightScale_UU	  */
+		@param FTU_WeightScale_UU FTU_WeightScale_UU
+	*/
 	public void setFTU_WeightScale_UU (String FTU_WeightScale_UU)
 	{
 		set_Value (COLUMNNAME_FTU_WeightScale_UU, FTU_WeightScale_UU);
@@ -201,15 +219,14 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 
 	/** Get FTU_WeightScale_UU.
 		@return FTU_WeightScale_UU	  */
-	public String getFTU_WeightScale_UU () 
+	public String getFTU_WeightScale_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WeightScale_UU);
 	}
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -218,7 +235,7 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}

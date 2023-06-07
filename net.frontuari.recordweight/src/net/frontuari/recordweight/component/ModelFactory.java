@@ -13,117 +13,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2023 Frontuari, C.A. <https://frontuari.net> and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUModelFactory;
-import net.frontuari.recordweight.model.I_FTU_Analysis_Type;
-import net.frontuari.recordweight.model.I_FTU_BillOfLading;
-import net.frontuari.recordweight.model.I_FTU_Chute;
-import net.frontuari.recordweight.model.I_FTU_Driver;
-import net.frontuari.recordweight.model.I_FTU_EntryTicket;
-import net.frontuari.recordweight.model.I_FTU_Functions_Formule;
-import net.frontuari.recordweight.model.I_FTU_LoadOrder;
-import net.frontuari.recordweight.model.I_FTU_LoadOrderLine;
-import net.frontuari.recordweight.model.I_FTU_MobilizationGuide;
-import net.frontuari.recordweight.model.I_FTU_Quality_Param;
-import net.frontuari.recordweight.model.I_FTU_RW_ApprovalMotive;
-import net.frontuari.recordweight.model.I_FTU_RecordWeight;
-import net.frontuari.recordweight.model.I_FTU_ScreenConfig;
-import net.frontuari.recordweight.model.I_FTU_SerialPortConfig;
-import net.frontuari.recordweight.model.I_FTU_Vehicle;
-import net.frontuari.recordweight.model.I_FTU_VehicleBrand;
-import net.frontuari.recordweight.model.I_FTU_VehicleModel;
-import net.frontuari.recordweight.model.I_FTU_VehicleType;
-import net.frontuari.recordweight.model.I_FTU_WS_Warehouse;
-import net.frontuari.recordweight.model.I_FTU_WeightScale;
-import net.frontuari.recordweight.model.I_FTU_WeightScale_Role;
-import net.frontuari.recordweight.model.I_HRS_Analysis;
-import net.frontuari.recordweight.model.I_HRS_AnalysisLine;
-import net.frontuari.recordweight.model.I_HRS_AnalysisValuation;
-import net.frontuari.recordweight.model.I_HRS_QualityParameter;
-import net.frontuari.recordweight.model.MFTUAnalysisType;
-import net.frontuari.recordweight.model.MFTUBillOfLading;
-import net.frontuari.recordweight.model.MFTUChute;
-import net.frontuari.recordweight.model.MFTUDriver;
-import net.frontuari.recordweight.model.MFTUEntryTicket;
-import net.frontuari.recordweight.model.MFTUInOut;
-import net.frontuari.recordweight.model.MFTULoadOrder;
-import net.frontuari.recordweight.model.MFTULoadOrderLine;
-import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
-import net.frontuari.recordweight.model.MFTUMobilizationGuide;
-import net.frontuari.recordweight.model.MFTUMovement;
-import net.frontuari.recordweight.model.MFTUQualityParam;
-import net.frontuari.recordweight.model.MFTURecordWeight;
-import net.frontuari.recordweight.model.MFTUScreenConfig;
-import net.frontuari.recordweight.model.MFTUSerialPortConfig;
-import net.frontuari.recordweight.model.MFTUVehicle;
-import net.frontuari.recordweight.model.MFTUVehicleBrand;
-import net.frontuari.recordweight.model.MFTUVehicleModel;
-import net.frontuari.recordweight.model.MFTUVehicleType;
-import net.frontuari.recordweight.model.MFTUWeightScale;
-import net.frontuari.recordweight.model.MHRSAnalysis;
-import net.frontuari.recordweight.model.MHRSAnalysisLine;
-import net.frontuari.recordweight.model.MHRSAnalysisValuation;
-import net.frontuari.recordweight.model.MHRSQualityParameter;
-import net.frontuari.recordweight.model.X_FTU_Functions_Formule;
-import net.frontuari.recordweight.model.X_FTU_RW_ApprovalMotive;
-import net.frontuari.recordweight.model.X_FTU_WS_Warehouse;
-import net.frontuari.recordweight.model.X_FTU_WeightScale_Role;
-import net.frontuari.recordweight.model.X_I_EntryTicket;
+import org.adempiere.base.AnnotationBasedModelFactory;
 
 /**
  * Model Factory
  */
-public class ModelFactory extends FTUModelFactory {
+public class ModelFactory extends AnnotationBasedModelFactory {
 
-	/**
-	 * For initialize class. Register the models to build
-	 * 
-	 * <pre>
-	 * protected void initialize() {
-	 * 	registerModel(MTableExample.Table_Name, MTableExample.class);
-	 * }
-	 * </pre>
-	 */
 	@Override
-	protected void initialize() {
-		registerModel(I_FTU_Driver.Table_Name, MFTUDriver.class);
-		registerModel(I_FTU_EntryTicket.Table_Name, MFTUEntryTicket.class);
-		registerModel(I_FTU_LoadOrder.Table_Name, MFTULoadOrder.class);
-		registerModel(I_FTU_LoadOrderLine.Table_Name, MFTULoadOrderLine.class);
-		registerModel(I_FTU_MobilizationGuide.Table_Name, MFTUMobilizationGuide.class);
-		registerModel(I_FTU_RecordWeight.Table_Name, MFTURecordWeight.class);
-		registerModel(I_FTU_RW_ApprovalMotive.Table_Name, X_FTU_RW_ApprovalMotive.class);
-		registerModel(I_FTU_ScreenConfig.Table_Name, MFTUScreenConfig.class);
-		registerModel(I_FTU_SerialPortConfig.Table_Name, MFTUSerialPortConfig.class);
-		registerModel(I_FTU_Vehicle.Table_Name, MFTUVehicle.class);
-		registerModel(I_FTU_VehicleBrand.Table_Name, MFTUVehicleBrand.class);
-		registerModel(I_FTU_VehicleType.Table_Name, MFTUVehicleType.class);
-		registerModel(I_FTU_VehicleModel.Table_Name, MFTUVehicleModel.class);
-		registerModel(I_FTU_WeightScale.Table_Name, MFTUWeightScale.class);
-		registerModel(I_FTU_WeightScale_Role.Table_Name, X_FTU_WeightScale_Role.class);
-		registerModel(I_FTU_WS_Warehouse.Table_Name, X_FTU_WS_Warehouse.class);
-		registerModel(I_FTU_Chute.Table_Name, MFTUChute.class);
-		
-		registerModel(I_HRS_Analysis.Table_Name, MHRSAnalysis.class);
-		registerModel(I_HRS_QualityParameter.Table_Name, MHRSQualityParameter.class);
-		registerModel(I_FTU_BillOfLading.Table_Name, MFTUBillOfLading.class);
-		registerModel(X_I_EntryTicket.Table_Name, X_I_EntryTicket.class);
-		registerModel(MFTUMovement.Table_Name, MFTUMovement.class);
-		registerModel(MFTUInOut.Table_Name, MFTUInOut.class);
-		registerModel(MFTULoadOrderLineMA.Table_Name, MFTULoadOrderLineMA.class);
-		//	Added by Jorge Colmenarez, 2022-11-08 09:15
-		//	Module Lab Analysis
-		registerModel(I_FTU_Analysis_Type.Table_Name, MFTUAnalysisType.class);
-		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
-		registerModel(I_FTU_Functions_Formule.Table_Name, X_FTU_Functions_Formule.class);
-		registerModel(I_FTU_Quality_Param.Table_Name, MFTUQualityParam.class);
-		registerModel(I_HRS_AnalysisLine.Table_Name, MHRSAnalysisLine.class);
-		registerModel(I_HRS_AnalysisValuation.Table_Name, MHRSAnalysisValuation.class);
-		//	End Jorge Colmenarez
+	protected String[] getPackages() {
+		return new String[] { "net.frontuari.recordweight.model" };
 	}
 
 }
+

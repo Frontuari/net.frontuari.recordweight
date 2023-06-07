@@ -351,7 +351,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         while (regexMatcher.find()) {
         	int ffID=Integer.parseInt(getIdFunction(regexMatcher.group()));
         	
-        	X_FTU_Functions_Formule ff = new X_FTU_Functions_Formule(getCtx(), ffID, get_TrxName());
+        	X_FTU_FormuleFunction ff = new X_FTU_FormuleFunction(getCtx(), ffID, get_TrxName());
         	
         	if(ff.get_ID()>0)
         	{
@@ -372,7 +372,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		//	Get Lines to Lab Analysis
 		for(MHRSAnalysisLine line : getLines(true, ""))
 		{
-			String value = line.getFTU_Analysis_Type().getValue();
+			String value = line.getFTU_AnalysisType().getValue();
 			String result = line.getResult().toString();
 			code=code.replaceAll("#("+value+")", result);
 		}
@@ -391,7 +391,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         String contenidoFormula;
         while (regexMatcher.find()) {
         	int idCampo=Integer.parseInt(getIdFormula(regexMatcher.group()));
-        	X_FTU_Quality_Param qp = new X_FTU_Quality_Param(getCtx(), idCampo, get_TrxName());
+        	X_FTU_QualityParam qp = new X_FTU_QualityParam(getCtx(), idCampo, get_TrxName());
         	if(qp.get_ID()>0) {
         		contenidoFormula = qp.getCode().toLowerCase();
             	code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
@@ -410,8 +410,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		String dSql = "DELETE FROM HRS_AnalysisValuation WHERE HRS_Analysis_ID=?";
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
-		String sql="SELECT qp.ftu_quality_param_id,name,code "
-				+ "FROM FTU_Quality_Param qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
+		String sql="SELECT qp.FTU_QualityParam_id,name,code "
+				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
@@ -421,8 +421,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			while(rs.next())
 			{
 				String code=rs.getString("code");
-				int ftu_quality_param_id=rs.getInt("ftu_quality_param_id");
-				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), ftu_quality_param_id, get_TrxName());
+				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_id");
+				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
 				//	Replace Code
 				code = getFormulas(code);
 				code = replaceBasicCode(code);
@@ -436,7 +436,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
-					lcr.setFTU_Quality_Param_ID(ftu_quality_param_id);
+					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
 					lcr.setResult_Human(result.toUpperCase());
 					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
 					lcr.setResult_System(SysResult);
@@ -480,7 +480,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		clasification();
 		setDescription(null);
 		String valid = validateAnalysis();
-		String status = X_HRS_Analysis.STATUS_Completed;
 		if (valid != null) {
 			if(getDescription() != null 
 					&& getDescription().length() > 0) {
@@ -488,11 +487,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			} else {
 				setDescription(valid);
 			}
-			//	ER [ 8 ]
-			status = X_HRS_Analysis.STATUS_Error;
 		}
-		//	ER [ 8 ]
-		setStatus(status);
 		setIsValidAnalysis(valid == null);
 		
 		saveEx();
@@ -550,8 +545,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	private String validateAnalysis() {
 		StringBuilder msg = new StringBuilder();
 		
-		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(Result_System) = 'rechazar'")) {
-			msg.append( valuation.getFTU_Quality_Param().getName() )
+		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(Result_System) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
+			msg.append( valuation.getFTU_QualityParam().getName() )
 				.append(" = " )
 				.append(valuation.getResult_Human())
 				.append(Env.NL); 
@@ -665,8 +660,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_REACTIVATE);
 		if (m_processMsg != null)
 			return false;
-		//	ER [ 8 ]
-		setStatus(X_HRS_Analysis.STATUS_InProgress);
 		setIsValidAnalysis(false);
 		saveEx();
 		

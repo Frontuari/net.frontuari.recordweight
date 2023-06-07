@@ -23,19 +23,32 @@ import org.compiere.model.*;
 
 /** Generated Model for FTU_WS_Warehouse
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_WS_Warehouse")
 public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_WS_Warehouse (Properties ctx, int FTU_WS_Warehouse_ID, String trxName)
     {
       super (ctx, FTU_WS_Warehouse_ID, trxName);
+      /** if (FTU_WS_Warehouse_ID == 0)
+        {
+			setFTU_WeightScale_ID (0);
+			setFTU_WS_Warehouse_ID (0);
+			setM_Warehouse_ID (0);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_WS_Warehouse (Properties ctx, int FTU_WS_Warehouse_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_WS_Warehouse_ID, trxName, virtualColumns);
       /** if (FTU_WS_Warehouse_ID == 0)
         {
 			setFTU_WeightScale_ID (0);
@@ -67,29 +80,31 @@ public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Pers
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_WS_Warehouse[")
+      StringBuilder sb = new StringBuilder ("X_FTU_WS_Warehouse[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
 
 	public net.frontuari.recordweight.model.I_FTU_WeightScale getFTU_WeightScale() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_WeightScale)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_WeightScale.Table_Name)
-			.getPO(getFTU_WeightScale_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_WeightScale)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_WeightScale.Table_ID)
+			.getPO(getFTU_WeightScale_ID(), get_TrxName());
+	}
 
 	/** Set Weight Scale.
-		@param FTU_WeightScale_ID Weight Scale	  */
+		@param FTU_WeightScale_ID Weight Scale
+	*/
 	public void setFTU_WeightScale_ID (int FTU_WeightScale_ID)
 	{
-		if (FTU_WeightScale_ID < 1) 
+		if (FTU_WeightScale_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, Integer.valueOf(FTU_WeightScale_ID));
 	}
 
 	/** Get Weight Scale.
 		@return Weight Scale	  */
-	public int getFTU_WeightScale_ID () 
+	public int getFTU_WeightScale_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_WeightScale_ID);
 		if (ii == null)
@@ -98,18 +113,19 @@ public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Pers
 	}
 
 	/** Set FTU_WS_Warehouse.
-		@param FTU_WS_Warehouse_ID FTU_WS_Warehouse	  */
+		@param FTU_WS_Warehouse_ID FTU_WS_Warehouse
+	*/
 	public void setFTU_WS_Warehouse_ID (int FTU_WS_Warehouse_ID)
 	{
-		if (FTU_WS_Warehouse_ID < 1) 
+		if (FTU_WS_Warehouse_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_WS_Warehouse_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_WS_Warehouse_ID, Integer.valueOf(FTU_WS_Warehouse_ID));
 	}
 
 	/** Get FTU_WS_Warehouse.
 		@return FTU_WS_Warehouse	  */
-	public int getFTU_WS_Warehouse_ID () 
+	public int getFTU_WS_Warehouse_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_WS_Warehouse_ID);
 		if (ii == null)
@@ -118,7 +134,8 @@ public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Pers
 	}
 
 	/** Set FTU_WS_Warehouse_UU.
-		@param FTU_WS_Warehouse_UU FTU_WS_Warehouse_UU	  */
+		@param FTU_WS_Warehouse_UU FTU_WS_Warehouse_UU
+	*/
 	public void setFTU_WS_Warehouse_UU (String FTU_WS_Warehouse_UU)
 	{
 		set_Value (COLUMNNAME_FTU_WS_Warehouse_UU, FTU_WS_Warehouse_UU);
@@ -126,32 +143,32 @@ public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Pers
 
 	/** Get FTU_WS_Warehouse_UU.
 		@return FTU_WS_Warehouse_UU	  */
-	public String getFTU_WS_Warehouse_UU () 
+	public String getFTU_WS_Warehouse_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WS_Warehouse_UU);
 	}
 
 	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_Name)
-			.getPO(getM_Warehouse_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_ID)
+			.getPO(getM_Warehouse_ID(), get_TrxName());
+	}
 
 	/** Set Warehouse.
-		@param M_Warehouse_ID 
-		Storage Warehouse and Service Point
-	  */
+		@param M_Warehouse_ID Storage Warehouse and Service Point
+	*/
 	public void setM_Warehouse_ID (int M_Warehouse_ID)
 	{
-		if (M_Warehouse_ID < 1) 
+		if (M_Warehouse_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_M_Warehouse_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
 	}
 
 	/** Get Warehouse.
 		@return Storage Warehouse and Service Point
 	  */
-	public int getM_Warehouse_ID () 
+	public int getM_Warehouse_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
 		if (ii == null)

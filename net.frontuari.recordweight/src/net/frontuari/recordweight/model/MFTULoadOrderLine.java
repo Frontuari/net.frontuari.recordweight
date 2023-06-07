@@ -3,7 +3,6 @@
  */
 package net.frontuari.recordweight.model;
 
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,10 +16,6 @@ import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
-
-/**
- *
- **/
 
 public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 

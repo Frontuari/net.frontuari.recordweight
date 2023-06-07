@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_MobilizationGuide
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_MobilizationGuide 
@@ -32,7 +32,7 @@ public interface I_FTU_MobilizationGuide
     /** TableName=FTU_MobilizationGuide */
     public static final String Table_Name = "FTU_MobilizationGuide";
 
-    /** AD_Table_ID=1000041 */
+    /** AD_Table_ID=1000083 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -188,15 +188,6 @@ public interface I_FTU_MobilizationGuide
 	  */
 	public String getDocumentNo();
 
-    /** Column name Ext_Guide */
-    public static final String COLUMNNAME_Ext_Guide = "Ext_Guide";
-
-	/** Set Ext_Guide	  */
-	public void setExt_Guide (String Ext_Guide);
-
-	/** Get Ext_Guide	  */
-	public String getExt_Guide();
-
     /** Column name FTU_LoadOrder_ID */
     public static final String COLUMNNAME_FTU_LoadOrder_ID = "FTU_LoadOrder_ID";
 
@@ -247,6 +238,15 @@ public interface I_FTU_MobilizationGuide
 	public int getFTU_VehicleType_ID();
 
 	public net.frontuari.recordweight.model.I_FTU_VehicleType getFTU_VehicleType() throws RuntimeException;
+
+    /** Column name Guide */
+    public static final String COLUMNNAME_Guide = "Guide";
+
+	/** Set Guide	  */
+	public void setGuide (String Guide);
+
+	/** Get Guide	  */
+	public String getGuide();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";

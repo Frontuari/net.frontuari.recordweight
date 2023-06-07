@@ -20,6 +20,7 @@ import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, DocOptions {
@@ -175,10 +176,7 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 			addDescription(Msg.getMsg(getCtx(), "Voided"));
 
-			m_processMsg = validQAReference();
-			if (m_processMsg != null) {
-				return false;
-			}
+			
 			m_processMsg = validRWReference();
 			if (m_processMsg != null) {
 				return false;
@@ -253,23 +251,6 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		}
 	}
 
-	private String validQAReference() {
-//		{
-//			String m_ReferenceNo = DB.getSQLValueString(get_TrxName(),
-//					"SELECT MAX(qa.DocumentNo) FROM FTU_QualityAnalysis qa WHERE qa.DocStatus IN('CO'"
-//							+ ", 'CL') AND qa.FTU_EntryTicket_ID = ?",
-//					getFTU_EntryTicket_ID());
-//			if (m_ReferenceNo != null) {
-//				return (new StringBuilder("@SQLErrorReferenced@ @FTU_QualityAnalysis_ID@: ")).append(m_ReferenceNo)
-//						.toString();
-//			} else {
-		return null;
-//			}  
-//		}
-
-//		ESPERANDO A MODELAR LA CLASE DE HRS_qUALITYaNALISIS
-	}
-
 	@Override
 	public boolean closeIt() {
 		if (log.isLoggable(Level.INFO))
@@ -341,10 +322,6 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 
-		m_processMsg = validQAReference();
-		if (m_processMsg != null) {
-			return false;
-		}
 		m_processMsg = validRWReference();
 		if (m_processMsg != null) {
 			return false;
@@ -387,7 +364,6 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 	@Override
 	public File createPDF() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -398,19 +374,16 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 	@Override
 	public int getDoc_User_ID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getCreatedBy();
 	}
 
 	@Override
 	public int getC_Currency_ID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 	}
 
 	@Override
 	public BigDecimal getApprovalAmt() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -446,14 +419,7 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 		if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)) {
 
-			/*
-			 * if(getFTU_MobilizationGuide_ID() == 0) msg=
-			 * "@FTU_MobilizationGuide_ID@ @NotFound@";
-			 * 
-			 * else if(getExt_Guide().equals(Env.ZERO)) msg = "@Ext_Guide@ @NotFound@";
-			 * 
-			 * else
-			 */ if (getC_BPartner_ID() == 0)
+			if (getC_BPartner_ID() == 0)
 				msg = "@C_BPartner_ID@ @NotFound@";
 
 		} else if (getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement)) {
@@ -497,19 +463,19 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 	 * Get Bill of Lading from Entry Ticket
 	 * @author Jorge Colmenarez, 2021-08-31 16:02
 	 * @param whereClause
-	 * @return MFTUBillOfLading[]
+	 * @return MFTUFreightCost[]
 	 */
-	public MFTUBillOfLading[] getBillOfLading(String whereClause) {
-		List<MFTUBillOfLading> list = new Query(getCtx(), 
-				I_FTU_BillOfLading.Table_Name, "FTU_EntryTicket_ID=?"
+	public MFTUFreightCost[] getFreightCost(String whereClause) {
+		List<MFTUFreightCost> list = new Query(getCtx(), 
+				I_FTU_FreightCost.Table_Name, "FTU_EntryTicket_ID=?"
 						+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
 		.setParameters(getFTU_EntryTicket_ID())
 		.list();
 
-		MFTUBillOfLading[] m_bol = new MFTUBillOfLading[list.size ()];
+		MFTUFreightCost[] m_bol = new MFTUFreightCost[list.size ()];
 		list.toArray (m_bol);
 		return m_bol;
-	}	//	getBillOfLading
+	}	//	getFreightCost
 	
 	/**
 	 * Get Record Weight from Entry Ticket

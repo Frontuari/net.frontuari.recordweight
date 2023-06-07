@@ -17,6 +17,7 @@ import net.frontuari.recordweight.model.X_I_EntryTicket;
  * @author Argenis Rodríguez arodriguez@frontuari.net
  *
  */
+@org.adempiere.base.annotation.Process
 public class ImportEntryTicket extends FTUProcess {
 	
 	private int p_AD_Client_ID = 0;

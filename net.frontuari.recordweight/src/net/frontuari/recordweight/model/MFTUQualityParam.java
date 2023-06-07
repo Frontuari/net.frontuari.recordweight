@@ -8,7 +8,7 @@ import org.compiere.model.Query;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
 
-public class MFTUQualityParam extends X_FTU_Quality_Param {
+public class MFTUQualityParam extends X_FTU_QualityParam {
 	
 	/**
 	 * 
@@ -35,7 +35,7 @@ public class MFTUQualityParam extends X_FTU_Quality_Param {
 		if (!Util.isEmpty(whereClause, true))
 			whereClauseFinal.append(whereClause);
 		
-		List<MFTUQualityParam> list = new Query(Env.getCtx(), I_FTU_Quality_Param.Table_Name, whereClauseFinal.toString(), null)
+		List<MFTUQualityParam> list = new Query(Env.getCtx(), I_FTU_QualityParam.Table_Name, whereClauseFinal.toString(), null)
 				.setParameters(Product_ID)
 				.list();
 		lines = list.toArray(new MFTUQualityParam[list.size()]);

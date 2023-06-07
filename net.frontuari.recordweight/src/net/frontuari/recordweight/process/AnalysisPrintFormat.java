@@ -14,6 +14,7 @@ import org.adempiere.webui.window.SimplePDFViewer;
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 
+@org.adempiere.base.annotation.Process
 public class AnalysisPrintFormat extends FTUProcess {
 
 	private List<File> pdfList = new ArrayList<File>();

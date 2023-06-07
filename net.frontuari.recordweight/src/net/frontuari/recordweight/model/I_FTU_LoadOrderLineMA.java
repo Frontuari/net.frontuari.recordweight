@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_LoadOrderLineMA
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_LoadOrderLineMA 
@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrderLineMA
     /** TableName=FTU_LoadOrderLineMA */
     public static final String Table_Name = "FTU_LoadOrderLineMA";
 
-    /** AD_Table_ID=1000372 */
+    /** AD_Table_ID=1000093 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -148,7 +148,7 @@ public interface I_FTU_LoadOrderLineMA
 	  */
 	public int getM_AttributeSetInstance_ID();
 
-	public I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
+	public org.compiere.model.I_M_AttributeSetInstance getM_AttributeSetInstance() throws RuntimeException;
 
     /** Column name Qty */
     public static final String COLUMNNAME_Qty = "Qty";

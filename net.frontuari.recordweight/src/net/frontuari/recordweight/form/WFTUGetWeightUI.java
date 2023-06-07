@@ -30,7 +30,7 @@ import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
 import org.adempiere.webui.component.Window;
-import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.Dialog;
 import org.compiere.model.GridTab;
 import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
@@ -38,6 +38,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
+import org.idempiere.ui.zk.annotation.Form;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -52,8 +53,11 @@ import net.frontuari.recordweight.model.X_FTU_RecordWeight;
  * @author Yamel Senih
  *
  */
-public class WFTUGetWeightUI extends WFTUGetWeight implements EventListener {
+@Form(name = "net.frontuari.recordweight.form.WFTUGetWeightUI")
+public class WFTUGetWeightUI extends WFTUGetWeight implements java.util.EventListener {
 	
+	private static final long serialVersionUID = -204755295857442510L;
+
 	/**
 	 * *** Constructor de la Clase ***
 	 * 
@@ -80,7 +84,7 @@ public class WFTUGetWeightUI extends WFTUGetWeight implements EventListener {
 					Env.getAD_Client_ID(Env.getCtx()));
 			if (sys) {
 				if (!startService()) {
-					FDialog.error(p_WindowNo, window, "Error", getMessage());
+					Dialog.error(p_WindowNo, "Error", getMessage());
 					return;
 				}
 //				setInitOK(true);
@@ -329,11 +333,11 @@ public class WFTUGetWeightUI extends WFTUGetWeight implements EventListener {
 							processValue(trxName);
 							window.dispose();
 						} else
-							FDialog.error(p_WindowNo, window, "Error", getMessage());
+							Dialog.error(p_WindowNo, "Error", getMessage());
 					}
 				});
 			} catch (Exception ex) {
-				FDialog.error(p_WindowNo, window, "Error", ex.getLocalizedMessage());
+				Dialog.error(p_WindowNo, "Error", ex.getLocalizedMessage());
 			}
 		}
 		// Cancel
@@ -350,7 +354,7 @@ public class WFTUGetWeightUI extends WFTUGetWeight implements EventListener {
 			boolean ok = startService();
 //			Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 			if (!ok)
-				FDialog.error(p_WindowNo, window, "Error", getMessage());
+				Dialog.error(p_WindowNo, "Error", getMessage());
 		}
 		getGridTab().dataRefresh();
 	}

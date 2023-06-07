@@ -6,6 +6,7 @@ package net.frontuari.recordweight.callouts;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+import org.adempiere.base.annotation.Callout;
 import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
 import org.compiere.util.DB;
@@ -23,14 +24,11 @@ import net.frontuari.recordweight.model.MHRSAnalysis;
 import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 import net.frontuari.recordweight.model.X_FTU_RecordWeight;
 
-/**
- *	@author <a href="mailto:dixonalvarezm@gmail.com">Dixon Martinez</a></a>
- * 
- *		@see
- *			<li><a href="https://bitbucket.org/djmartinez/record-weight/issues/6/seleccionar-unidad-de-medida-configurada"> BR [ 6 ] Seleccionar Unidad de medida configurada en la bascula</a></li>
- *			<li><a href="https://bitbucket.org/djmartinez/record-weight/issues/7/null-pointer-callaout-registro-de-peso"> BR [ 7 ] NULL Pointer Callaout Registro de peso</a></li
-*/
-
+@Callout(tableName = I_FTU_RecordWeight.Table_Name, columnName = {I_FTU_RecordWeight.COLUMNNAME_C_DocType_ID,
+		I_FTU_RecordWeight.COLUMNNAME_FTU_WeightScale_ID,I_FTU_RecordWeight.COLUMNNAME_FTU_EntryTicket_ID,
+		I_FTU_RecordWeight.COLUMNNAME_GrossWeight,I_FTU_RecordWeight.COLUMNNAME_TareWeight,
+		I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID,I_FTU_RecordWeight.COLUMNNAME_FTU_Chute_ID,
+		I_FTU_RecordWeight.COLUMNNAME_FTU_RecordWeightSource_ID})
 public class CalloutRecordWeight extends FTUCallout {
 
 	@Override
@@ -197,7 +195,7 @@ public class CalloutRecordWeight extends FTUCallout {
 		}
 		//	Added by Jorge Colmenarez 2021-06-07 15:15
 		//	Set values from RW Selected
-		if(getColumnName().equals("FTU_RecordWeightSource_ID"))
+		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_FTU_RecordWeightSource_ID))
 		{
 			if(getValue() == null)
 				return "";

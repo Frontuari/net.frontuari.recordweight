@@ -16,6 +16,7 @@ import net.frontuari.recordweight.model.MHRSAnalysis;
  * @author Argenis Rodríguez
  *
  */
+@org.adempiere.base.annotation.Process
 public class FTUApproveQualityAnalysis extends FTUProcess {
 
 	private String p_Help = "";

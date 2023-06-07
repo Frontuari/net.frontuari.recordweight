@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_VehicleModel
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_VehicleModel 
@@ -32,7 +32,7 @@ public interface I_FTU_VehicleModel
     /** TableName=FTU_VehicleModel */
     public static final String Table_Name = "FTU_VehicleModel";
 
-    /** AD_Table_ID=1000034 */
+    /** AD_Table_ID=1000071 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

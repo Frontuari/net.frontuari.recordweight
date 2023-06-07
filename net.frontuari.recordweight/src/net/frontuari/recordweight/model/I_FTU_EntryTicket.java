@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_EntryTicket
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_EntryTicket 
@@ -32,7 +32,7 @@ public interface I_FTU_EntryTicket
     /** TableName=FTU_EntryTicket */
     public static final String Table_Name = "FTU_EntryTicket";
 
-    /** AD_Table_ID=1000036 */
+    /** AD_Table_ID=1000063 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -163,6 +163,41 @@ public interface I_FTU_EntryTicket
 	  * Date of the Document
 	  */
 	public Timestamp getDateDoc();
+
+    /** Column name DatePrinted */
+    public static final String COLUMNNAME_DatePrinted = "DatePrinted";
+
+	/** Set Date Printed.
+	  * Date the document was printed.
+	  */
+	public void setDatePrinted (Timestamp DatePrinted);
+
+	/** Get Date Printed.
+	  * Date the document was printed.
+	  */
+	public Timestamp getDatePrinted();
+
+    /** Column name DD_Order_ID */
+    public static final String COLUMNNAME_DD_Order_ID = "DD_Order_ID";
+
+	/** Set Distribution Order	  */
+	public void setDD_Order_ID (int DD_Order_ID);
+
+	/** Get Distribution Order	  */
+	public int getDD_Order_ID();
+
+	public org.eevolution.model.I_DD_Order getDD_Order() throws RuntimeException;
+
+    /** Column name DD_OrderLine_ID */
+    public static final String COLUMNNAME_DD_OrderLine_ID = "DD_OrderLine_ID";
+
+	/** Set Distribution Order Line	  */
+	public void setDD_OrderLine_ID (int DD_OrderLine_ID);
+
+	/** Get Distribution Order Line	  */
+	public int getDD_OrderLine_ID();
+
+	public org.eevolution.model.I_DD_OrderLine getDD_OrderLine() throws RuntimeException;
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -348,6 +383,19 @@ public interface I_FTU_EntryTicket
 	/** Get Printed Sample	  */
 	public boolean isPrintedSample();
 
+    /** Column name IsSOTrx */
+    public static final String COLUMNNAME_IsSOTrx = "IsSOTrx";
+
+	/** Set Sales Transaction.
+	  * This is a Sales Transaction
+	  */
+	public void setIsSOTrx (boolean IsSOTrx);
+
+	/** Get Sales Transaction.
+	  * This is a Sales Transaction
+	  */
+	public boolean isSOTrx();
+
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
 
@@ -404,12 +452,14 @@ public interface I_FTU_EntryTicket
     public static final String COLUMNNAME_ReferenceNo = "ReferenceNo";
 
 	/** Set Reference No.
-	  * Your customer or vendor number at the Business Partner's site
+	  * Your customer or vendor number at the Business Partner&#039;
+s site
 	  */
 	public void setReferenceNo (String ReferenceNo);
 
 	/** Get Reference No.
-	  * Your customer or vendor number at the Business Partner's site
+	  * Your customer or vendor number at the Business Partner&#039;
+s site
 	  */
 	public String getReferenceNo();
 

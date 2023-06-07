@@ -3,7 +3,7 @@ package net.frontuari.recordweight.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-public class MFTUAnalysisType extends X_FTU_Analysis_Type {
+public class MFTUAnalysisType extends X_FTU_AnalysisType {
 
 	/**
 	 * 

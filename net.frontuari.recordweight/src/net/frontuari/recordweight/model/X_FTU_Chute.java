@@ -26,19 +26,32 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for FTU_Chute
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_Chute")
 public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_Chute (Properties ctx, int FTU_Chute_ID, String trxName)
     {
       super (ctx, FTU_Chute_ID, trxName);
+      /** if (FTU_Chute_ID == 0)
+        {
+			setFTU_Chute_ID (0);
+			setM_Warehouse_ID (0);
+			setName (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_Chute (Properties ctx, int FTU_Chute_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_Chute_ID, trxName, virtualColumns);
       /** if (FTU_Chute_ID == 0)
         {
 			setFTU_Chute_ID (0);
@@ -70,24 +83,25 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_Chute[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_Chute[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	/** Set Chute.
-		@param FTU_Chute_ID Chute	  */
+		@param FTU_Chute_ID Chute
+	*/
 	public void setFTU_Chute_ID (int FTU_Chute_ID)
 	{
-		if (FTU_Chute_ID < 1) 
+		if (FTU_Chute_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_Chute_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_Chute_ID, Integer.valueOf(FTU_Chute_ID));
 	}
 
 	/** Get Chute.
 		@return Chute	  */
-	public int getFTU_Chute_ID () 
+	public int getFTU_Chute_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Chute_ID);
 		if (ii == null)
@@ -96,7 +110,8 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	}
 
 	/** Set FTU_Chute_UU.
-		@param FTU_Chute_UU FTU_Chute_UU	  */
+		@param FTU_Chute_UU FTU_Chute_UU
+	*/
 	public void setFTU_Chute_UU (String FTU_Chute_UU)
 	{
 		set_Value (COLUMNNAME_FTU_Chute_UU, FTU_Chute_UU);
@@ -104,15 +119,14 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 
 	/** Get FTU_Chute_UU.
 		@return FTU_Chute_UU	  */
-	public String getFTU_Chute_UU () 
+	public String getFTU_Chute_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_Chute_UU);
 	}
 
 	/** Set Default.
-		@param IsDefault 
-		Default value
-	  */
+		@param IsDefault Default value
+	*/
 	public void setIsDefault (boolean IsDefault)
 	{
 		set_Value (COLUMNNAME_IsDefault, Boolean.valueOf(IsDefault));
@@ -121,7 +135,7 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	/** Get Default.
 		@return Default value
 	  */
-	public boolean isDefault () 
+	public boolean isDefault()
 	{
 		Object oo = get_Value(COLUMNNAME_IsDefault);
 		if (oo != null) 
@@ -134,26 +148,26 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	}
 
 	public I_M_Locator getM_Locator() throws RuntimeException
-    {
-		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_Name)
-			.getPO(getM_Locator_ID(), get_TrxName());	}
+	{
+		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_ID)
+			.getPO(getM_Locator_ID(), get_TrxName());
+	}
 
 	/** Set Locator.
-		@param M_Locator_ID 
-		Warehouse Locator
-	  */
+		@param M_Locator_ID Warehouse Locator
+	*/
 	public void setM_Locator_ID (int M_Locator_ID)
 	{
-		if (M_Locator_ID < 1) 
+		if (M_Locator_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, Integer.valueOf(M_Locator_ID));
 	}
 
 	/** Get Locator.
 		@return Warehouse Locator
 	  */
-	public int getM_Locator_ID () 
+	public int getM_Locator_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
 		if (ii == null)
@@ -162,26 +176,26 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	}
 
 	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
-    {
-		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_Name)
-			.getPO(getM_Warehouse_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_ID)
+			.getPO(getM_Warehouse_ID(), get_TrxName());
+	}
 
 	/** Set Warehouse.
-		@param M_Warehouse_ID 
-		Storage Warehouse and Service Point
-	  */
+		@param M_Warehouse_ID Storage Warehouse and Service Point
+	*/
 	public void setM_Warehouse_ID (int M_Warehouse_ID)
 	{
-		if (M_Warehouse_ID < 1) 
+		if (M_Warehouse_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_M_Warehouse_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
 	}
 
 	/** Get Warehouse.
 		@return Storage Warehouse and Service Point
 	  */
-	public int getM_Warehouse_ID () 
+	public int getM_Warehouse_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
 		if (ii == null)
@@ -198,9 +212,8 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
     }
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -209,15 +222,14 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
 	/** Set Quantity.
-		@param Qty 
-		Quantity
-	  */
+		@param Qty Quantity
+	*/
 	public void setQty (BigDecimal Qty)
 	{
 		set_Value (COLUMNNAME_Qty, Qty);
@@ -226,7 +238,7 @@ public class X_FTU_Chute extends PO implements I_FTU_Chute, I_Persistent
 	/** Get Quantity.
 		@return Quantity
 	  */
-	public BigDecimal getQty () 
+	public BigDecimal getQty()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Qty);
 		if (bd == null)

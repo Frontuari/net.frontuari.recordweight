@@ -3,6 +3,7 @@
  */
 package net.frontuari.recordweight.callouts;
 
+import org.adempiere.base.annotation.Callout;
 import org.compiere.util.DB;
 import org.eevolution.model.X_PP_Order;
 
@@ -12,9 +13,10 @@ import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.X_HRS_Analysis;
 
 /**
- * @author jruiz
- *
+ * @author Jorge Colmenarez, 2023-06-07 15:13
  */
+@Callout(tableName = I_HRS_Analysis.Table_Name, columnName = {I_HRS_Analysis.COLUMNNAME_PP_Order_ID,
+		I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID})
 public class CalloutAnalysis extends FTUCallout {
 
 	@Override
@@ -41,10 +43,10 @@ public class CalloutAnalysis extends FTUCallout {
 			MFTUEntryTicket mEntryTicket = new MFTUEntryTicket(getCtx(), m_FTU_EntryTicket_ID, null);
 			int m_Product_ID = -1;
 			if(mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_DeliveryBulkMaterial)) {
-				String sql = "SELECT FTU_LoadOrder.M_Product_ID "
+				String sql = "SELECT lo.M_Product_ID "
 						+ "FROM FTU_LoadOrder "
-						+ "INNER JOIN FTU_LoadOrderLine ON (FTU_LoadOrder.FTU_LoadOrder_ID = FTU_LoadOrderLine.FTU_LoadOrder_ID) "
-						+ "WHERE FTU_LoadOrder.FTU_EntryTicket_ID = ?"
+						+ "INNER JOIN FTU_LoadOrderLine lol ON (lo.FTU_LoadOrder_ID = lol.FTU_LoadOrder_ID) "
+						+ "WHERE lo.FTU_EntryTicket_ID = ?"
 						;
 				m_Product_ID = DB.getSQLValue(mEntryTicket.get_TrxName(), sql, mEntryTicket.getFTU_EntryTicket_ID());
 			} else if(mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_RawMaterialReceipt)
@@ -64,21 +66,7 @@ public class CalloutAnalysis extends FTUCallout {
 				setValue("Qty", mEntryTicket.getC_OrderLine().getQtyOrdered());
 			//	End Jorge Colmenarez
 		}
-		/***
-		 * Comment by Jorge Colmenarez, 2022-12-03 09:01 
-		 * Depreciated, drop column of table.
-		if(getColumnName().equals("M_InOutLine_ID"))
-		{
-			Integer m_InOutLine_ID = (Integer) getValue();
-			if(m_InOutLine_ID == null || m_InOutLine_ID.intValue() == 0)
-				return "";
-			
-			MInOutLine iol = new MInOutLine(getCtx(), m_InOutLine_ID.intValue(), null);
-			setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, iol.getM_Product_ID());
-			setValue("M_Warehouse_ID", iol.getM_Locator().getM_Warehouse_ID());
-			setValue("M_Locator_ID", iol.getM_Locator_ID());
-			
-		}*/
+		
 		return "";
 	}
 

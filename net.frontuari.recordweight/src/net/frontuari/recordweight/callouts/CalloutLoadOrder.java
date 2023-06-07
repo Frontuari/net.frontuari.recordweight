@@ -1,10 +1,12 @@
 package net.frontuari.recordweight.callouts;
 
+import org.adempiere.base.annotation.Callout;
 import org.compiere.model.MOrderLine;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.X_FTU_LoadOrderLine;
 
+@Callout(tableName = X_FTU_LoadOrderLine.Table_Name, columnName = X_FTU_LoadOrderLine.COLUMNNAME_C_OrderLine_ID)
 public class CalloutLoadOrder extends FTUCallout {
 
 	@Override

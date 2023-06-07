@@ -24,7 +24,7 @@ public class FTUCreateFromFactory implements ICreateFromFactory {
 	public ICreateFrom create(GridTab mTab) {
 		String tableName = mTab.getTableName();
 		MWindow window = MWindow.get(Env.getCtx(), mTab.getGridWindow().getAD_Window_ID());
-		if (window.getEntityType().equals("FTU01")) {
+		if (window.getEntityType().equals("FTURW")) {
 			if(tableName.equals(I_FTU_RecordWeight.Table_Name))
 				return new WFTUGetWeightUI(mTab);
 			if(tableName.equals(I_FTU_LoadOrder.Table_Name))

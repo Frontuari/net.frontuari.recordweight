@@ -9,6 +9,7 @@ import net.frontuari.recordweight.model.MFTUDriver;
 
 import net.frontuari.recordweight.base.FTUProcess;
 
+@org.adempiere.base.annotation.Process
 public class ValidateDriver extends FTUProcess{
 	
 	String Cedula;

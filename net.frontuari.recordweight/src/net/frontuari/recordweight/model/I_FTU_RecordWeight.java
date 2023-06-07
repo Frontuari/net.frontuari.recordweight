@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_RecordWeight
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_RecordWeight 
@@ -32,7 +32,7 @@ public interface I_FTU_RecordWeight
     /** TableName=FTU_RecordWeight */
     public static final String Table_Name = "FTU_RecordWeight";
 
-    /** AD_Table_ID=1000039 */
+    /** AD_Table_ID=1000064 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -149,6 +149,19 @@ public interface I_FTU_RecordWeight
 	  */
 	public String getDescription();
 
+    /** Column name DifferenceQty */
+    public static final String COLUMNNAME_DifferenceQty = "DifferenceQty";
+
+	/** Set Difference.
+	  * Difference Quantity
+	  */
+	public void setDifferenceQty (BigDecimal DifferenceQty);
+
+	/** Get Difference.
+	  * Difference Quantity
+	  */
+	public BigDecimal getDifferenceQty();
+
     /** Column name DocAction */
     public static final String COLUMNNAME_DocAction = "DocAction";
 
@@ -174,6 +187,15 @@ public interface I_FTU_RecordWeight
 	  * The current status of the document
 	  */
 	public String getDocStatus();
+
+    /** Column name DocumentClaimPrint */
+    public static final String COLUMNNAME_DocumentClaimPrint = "DocumentClaimPrint";
+
+	/** Set DocumentClaimPrint	  */
+	public void setDocumentClaimPrint (String DocumentClaimPrint);
+
+	/** Get DocumentClaimPrint	  */
+	public String getDocumentClaimPrint();
 
     /** Column name DocumentNo */
     public static final String COLUMNNAME_DocumentNo = "DocumentNo";
@@ -250,6 +272,17 @@ public interface I_FTU_RecordWeight
 	/** Get Record Weight	  */
 	public int getFTU_RecordWeight_ID();
 
+    /** Column name FTU_RecordWeightSource_ID */
+    public static final String COLUMNNAME_FTU_RecordWeightSource_ID = "FTU_RecordWeightSource_ID";
+
+	/** Set Record Weight Source	  */
+	public void setFTU_RecordWeightSource_ID (int FTU_RecordWeightSource_ID);
+
+	/** Get Record Weight Source	  */
+	public int getFTU_RecordWeightSource_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeightSource() throws RuntimeException;
+
     /** Column name FTU_RecordWeight_UU */
     public static final String COLUMNNAME_FTU_RecordWeight_UU = "FTU_RecordWeight_UU";
 
@@ -258,17 +291,6 @@ public interface I_FTU_RecordWeight
 
 	/** Get FTU_RecordWeight_UU	  */
 	public String getFTU_RecordWeight_UU();
-
-    /** Column name FTU_RW_ApprovalMotive_ID */
-    public static final String COLUMNNAME_FTU_RW_ApprovalMotive_ID = "FTU_RW_ApprovalMotive_ID";
-
-	/** Set Approval Motive (Weight)	  */
-	public void setFTU_RW_ApprovalMotive_ID (int FTU_RW_ApprovalMotive_ID);
-
-	/** Get Approval Motive (Weight)	  */
-	public int getFTU_RW_ApprovalMotive_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_RW_ApprovalMotive getFTU_RW_ApprovalMotive() throws RuntimeException;
 
     /** Column name FTU_Vehicle_ID */
     public static final String COLUMNNAME_FTU_Vehicle_ID = "FTU_Vehicle_ID";
@@ -280,6 +302,17 @@ public interface I_FTU_RecordWeight
 	public int getFTU_Vehicle_ID();
 
 	public net.frontuari.recordweight.model.I_FTU_Vehicle getFTU_Vehicle() throws RuntimeException;
+
+    /** Column name FTU_WeightApprovalMotive_ID */
+    public static final String COLUMNNAME_FTU_WeightApprovalMotive_ID = "FTU_WeightApprovalMotive_ID";
+
+	/** Set Approval Motive (Weight)	  */
+	public void setFTU_WeightApprovalMotive_ID (int FTU_WeightApprovalMotive_ID);
+
+	/** Get Approval Motive (Weight)	  */
+	public int getFTU_WeightApprovalMotive_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_WeightApprovalMotive getFTU_WeightApprovalMotive() throws RuntimeException;
 
     /** Column name FTU_WeightScale_ID */
     public static final String COLUMNNAME_FTU_WeightScale_ID = "FTU_WeightScale_ID";
@@ -301,6 +334,33 @@ public interface I_FTU_RecordWeight
 	/** Get GrossWeight	  */
 	public BigDecimal getGrossWeight();
 
+    /** Column name GuideOrigen */
+    public static final String COLUMNNAME_GuideOrigen = "GuideOrigen";
+
+	/** Set GuideOrigen	  */
+	public void setGuideOrigen (String GuideOrigen);
+
+	/** Get GuideOrigen	  */
+	public String getGuideOrigen();
+
+    /** Column name GuideSada */
+    public static final String COLUMNNAME_GuideSada = "GuideSada";
+
+	/** Set GuideSada	  */
+	public void setGuideSada (String GuideSada);
+
+	/** Get GuideSada	  */
+	public String getGuideSada();
+
+    /** Column name GuideSurvey */
+    public static final String COLUMNNAME_GuideSurvey = "GuideSurvey";
+
+	/** Set GuideSurvey	  */
+	public void setGuideSurvey (String GuideSurvey);
+
+	/** Get GuideSurvey	  */
+	public String getGuideSurvey();
+
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
 
@@ -309,21 +369,6 @@ public interface I_FTU_RecordWeight
 
 	/** Get Analysis	  */
 	public int getHRS_Analysis_ID();
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
-
-    /** Column name I_IsImported */
-    public static final String COLUMNNAME_I_IsImported = "I_IsImported";
-
-	/** Set Imported.
-	  * Has this import been processed
-	  */
-	public void setI_IsImported (boolean I_IsImported);
-
-	/** Get Imported.
-	  * Has this import been processed
-	  */
-	public boolean isI_IsImported();
 
     /** Column name ImportWeight */
     public static final String COLUMNNAME_ImportWeight = "ImportWeight";
@@ -404,6 +449,19 @@ public interface I_FTU_RecordWeight
 	/** Get IsValidAnalysis	  */
 	public boolean isValidAnalysis();
 
+    /** Column name LineDescription */
+    public static final String COLUMNNAME_LineDescription = "LineDescription";
+
+	/** Set Line Description.
+	  * Description of the Line
+	  */
+	public void setLineDescription (String LineDescription);
+
+	/** Get Line Description.
+	  * Description of the Line
+	  */
+	public String getLineDescription();
+
     /** Column name MaxWeight */
     public static final String COLUMNNAME_MaxWeight = "MaxWeight";
 
@@ -437,35 +495,18 @@ public interface I_FTU_RecordWeight
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
 
-    /** Column name M_ProductionLine_ID */
-    public static final String COLUMNNAME_M_ProductionLine_ID = "M_ProductionLine_ID";
-
-	/** Set Production Line.
-	  * Document Line representing a production
-	  */
-	public void setM_ProductionLine_ID (int M_ProductionLine_ID);
-
-	/** Get Production Line.
-	  * Document Line representing a production
-	  */
-	public int getM_ProductionLine_ID();
-
-	public org.compiere.model.I_M_ProductionLine getM_ProductionLine() throws RuntimeException;
-
     /** Column name M_Shipper_ID */
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
 
 	/** Set Shipper.
 	  * Method or manner of product delivery
 	  */
-	public void setM_Shipper_ID (int M_Shipper_ID);
+	public void setM_Shipper_ID (String M_Shipper_ID);
 
 	/** Get Shipper.
 	  * Method or manner of product delivery
 	  */
-	public int getM_Shipper_ID();
-
-	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException;
+	public String getM_Shipper_ID();
 
     /** Column name M_Warehouse_ID */
     public static final String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
@@ -499,6 +540,33 @@ public interface I_FTU_RecordWeight
 
 	/** Get OperationType	  */
 	public String getOperationType();
+
+    /** Column name OriginGrossWeight */
+    public static final String COLUMNNAME_OriginGrossWeight = "OriginGrossWeight";
+
+	/** Set OriginGrossWeight	  */
+	public void setOriginGrossWeight (BigDecimal OriginGrossWeight);
+
+	/** Get OriginGrossWeight	  */
+	public BigDecimal getOriginGrossWeight();
+
+    /** Column name OriginNetWeight */
+    public static final String COLUMNNAME_OriginNetWeight = "OriginNetWeight";
+
+	/** Set OriginNetWeight	  */
+	public void setOriginNetWeight (BigDecimal OriginNetWeight);
+
+	/** Get OriginNetWeight	  */
+	public BigDecimal getOriginNetWeight();
+
+    /** Column name OriginTareWeight */
+    public static final String COLUMNNAME_OriginTareWeight = "OriginTareWeight";
+
+	/** Set OriginTareWeight	  */
+	public void setOriginTareWeight (BigDecimal OriginTareWeight);
+
+	/** Get OriginTareWeight	  */
+	public BigDecimal getOriginTareWeight();
 
     /** Column name OutDate */
     public static final String COLUMNNAME_OutDate = "OutDate";
@@ -553,6 +621,24 @@ public interface I_FTU_RecordWeight
 	  */
 	public boolean isProductAttribute();
 
+    /** Column name RemittanceNumber */
+    public static final String COLUMNNAME_RemittanceNumber = "RemittanceNumber";
+
+	/** Set RemittanceNumber	  */
+	public void setRemittanceNumber (String RemittanceNumber);
+
+	/** Get RemittanceNumber	  */
+	public String getRemittanceNumber();
+
+    /** Column name SealNo */
+    public static final String COLUMNNAME_SealNo = "SealNo";
+
+	/** Set SealNo	  */
+	public void setSealNo (String SealNo);
+
+	/** Get SealNo	  */
+	public String getSealNo();
+
     /** Column name SelectionWeight */
     public static final String COLUMNNAME_SelectionWeight = "SelectionWeight";
 
@@ -561,6 +647,15 @@ public interface I_FTU_RecordWeight
 
 	/** Get SelectionWeight	  */
 	public String getSelectionWeight();
+
+    /** Column name TankNumber */
+    public static final String COLUMNNAME_TankNumber = "TankNumber";
+
+	/** Set TankNumber	  */
+	public void setTankNumber (String TankNumber);
+
+	/** Get TankNumber	  */
+	public String getTankNumber();
 
     /** Column name TareWeight */
     public static final String COLUMNNAME_TareWeight = "TareWeight";
@@ -579,6 +674,15 @@ public interface I_FTU_RecordWeight
 
 	/** Get TrailerPlate	  */
 	public String getTrailerPlate();
+
+    /** Column name TripNumber */
+    public static final String COLUMNNAME_TripNumber = "TripNumber";
+
+	/** Set TripNumber	  */
+	public void setTripNumber (String TripNumber);
+
+	/** Get TripNumber	  */
+	public String getTripNumber();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

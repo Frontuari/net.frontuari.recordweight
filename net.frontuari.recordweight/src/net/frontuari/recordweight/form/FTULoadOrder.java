@@ -28,6 +28,7 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Util;
 
+import net.frontuari.recordweight.base.FTUForm;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
@@ -38,8 +39,9 @@ import net.frontuari.recordweight.model.X_FTU_LoadOrder;
 import net.frontuari.recordweight.util.BufferTableSelect;
 import net.frontuari.recordweight.util.StringNamePair;
 
-public class FTULoadOrder {
+public class FTULoadOrder extends FTUForm {
 
+	private static final long serialVersionUID = -8087643271912217534L;
 	/**	Logger									*/
 	public static CLogger log = CLogger.getCLogger(FTULoadOrder.class);
 	/** Error Log			*/
@@ -1365,5 +1367,11 @@ public class FTULoadOrder {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	protected void initForm() {
+		// TODO Auto-generated method stub
+		
 	}
 }

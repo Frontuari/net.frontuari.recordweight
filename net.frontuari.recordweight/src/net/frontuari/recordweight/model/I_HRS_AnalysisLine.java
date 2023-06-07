@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for HRS_AnalysisLine
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_HRS_AnalysisLine 
@@ -32,7 +32,7 @@ public interface I_HRS_AnalysisLine
     /** TableName=HRS_AnalysisLine */
     public static final String Table_Name = "HRS_AnalysisLine";
 
-    /** AD_Table_ID=1000410 */
+    /** AD_Table_ID=1000113 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -80,16 +80,16 @@ public interface I_HRS_AnalysisLine
 	  */
 	public int getCreatedBy();
 
-    /** Column name FTU_Analysis_Type_ID */
-    public static final String COLUMNNAME_FTU_Analysis_Type_ID = "FTU_Analysis_Type_ID";
+    /** Column name FTU_AnalysisType_ID */
+    public static final String COLUMNNAME_FTU_AnalysisType_ID = "FTU_AnalysisType_ID";
 
 	/** Set Analysis_Type_ID	  */
-	public void setFTU_Analysis_Type_ID (int FTU_Analysis_Type_ID);
+	public void setFTU_AnalysisType_ID (int FTU_AnalysisType_ID);
 
 	/** Get Analysis_Type_ID	  */
-	public int getFTU_Analysis_Type_ID();
+	public int getFTU_AnalysisType_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_Analysis_Type getFTU_Analysis_Type() throws RuntimeException;
+	public net.frontuari.recordweight.model.I_FTU_AnalysisType getFTU_AnalysisType() throws RuntimeException;
 
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";

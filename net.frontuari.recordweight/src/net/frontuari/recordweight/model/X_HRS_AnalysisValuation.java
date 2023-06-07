@@ -23,19 +23,31 @@ import org.compiere.model.*;
 
 /** Generated Model for HRS_AnalysisValuation
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="HRS_AnalysisValuation")
 public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuation, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20221202L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisValuation (Properties ctx, int HRS_AnalysisValuation_ID, String trxName)
     {
       super (ctx, HRS_AnalysisValuation_ID, trxName);
+      /** if (HRS_AnalysisValuation_ID == 0)
+        {
+			setHRS_AnalysisValuation_ID (0);
+			setHRS_AnalysisValuation_UU (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_HRS_AnalysisValuation (Properties ctx, int HRS_AnalysisValuation_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, HRS_AnalysisValuation_ID, trxName, virtualColumns);
       /** if (HRS_AnalysisValuation_ID == 0)
         {
 			setHRS_AnalysisValuation_ID (0);
@@ -66,54 +78,58 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_HRS_AnalysisValuation[")
+      StringBuilder sb = new StringBuilder ("X_HRS_AnalysisValuation[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
 
-	public net.frontuari.recordweight.model.I_FTU_Quality_Param getFTU_Quality_Param() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_Quality_Param)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_Quality_Param.Table_Name)
-			.getPO(getFTU_Quality_Param_ID(), get_TrxName());	}
+	public net.frontuari.recordweight.model.I_FTU_QualityParam getFTU_QualityParam() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_QualityParam)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_QualityParam.Table_ID)
+			.getPO(getFTU_QualityParam_ID(), get_TrxName());
+	}
 
 	/** Set Quality Param.
-		@param FTU_Quality_Param_ID Quality Param	  */
-	public void setFTU_Quality_Param_ID (int FTU_Quality_Param_ID)
+		@param FTU_QualityParam_ID Quality Param
+	*/
+	public void setFTU_QualityParam_ID (int FTU_QualityParam_ID)
 	{
-		if (FTU_Quality_Param_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_FTU_Quality_Param_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_FTU_Quality_Param_ID, Integer.valueOf(FTU_Quality_Param_ID));
+		if (FTU_QualityParam_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_FTU_QualityParam_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_FTU_QualityParam_ID, Integer.valueOf(FTU_QualityParam_ID));
 	}
 
 	/** Get Quality Param.
 		@return Quality Param	  */
-	public int getFTU_Quality_Param_ID () 
+	public int getFTU_QualityParam_ID()
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Quality_Param_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_QualityParam_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
 	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_Name)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
+			.getPO(getHRS_Analysis_ID(), get_TrxName());
+	}
 
 	/** Set Analysis.
-		@param HRS_Analysis_ID Analysis	  */
+		@param HRS_Analysis_ID Analysis
+	*/
 	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
 	{
-		if (HRS_Analysis_ID < 1) 
+		if (HRS_Analysis_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, Integer.valueOf(HRS_Analysis_ID));
 	}
 
 	/** Get Analysis.
 		@return Analysis	  */
-	public int getHRS_Analysis_ID () 
+	public int getHRS_Analysis_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_Analysis_ID);
 		if (ii == null)
@@ -122,18 +138,19 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	}
 
 	/** Set Analysis Valuation.
-		@param HRS_AnalysisValuation_ID Analysis Valuation	  */
+		@param HRS_AnalysisValuation_ID Analysis Valuation
+	*/
 	public void setHRS_AnalysisValuation_ID (int HRS_AnalysisValuation_ID)
 	{
-		if (HRS_AnalysisValuation_ID < 1) 
+		if (HRS_AnalysisValuation_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_HRS_AnalysisValuation_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_HRS_AnalysisValuation_ID, Integer.valueOf(HRS_AnalysisValuation_ID));
 	}
 
 	/** Get Analysis Valuation.
 		@return Analysis Valuation	  */
-	public int getHRS_AnalysisValuation_ID () 
+	public int getHRS_AnalysisValuation_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_AnalysisValuation_ID);
 		if (ii == null)
@@ -142,7 +159,8 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	}
 
 	/** Set HRS_AnalysisValuation_UU.
-		@param HRS_AnalysisValuation_UU HRS_AnalysisValuation_UU	  */
+		@param HRS_AnalysisValuation_UU HRS_AnalysisValuation_UU
+	*/
 	public void setHRS_AnalysisValuation_UU (String HRS_AnalysisValuation_UU)
 	{
 		set_ValueNoCheck (COLUMNNAME_HRS_AnalysisValuation_UU, HRS_AnalysisValuation_UU);
@@ -150,13 +168,14 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 
 	/** Get HRS_AnalysisValuation_UU.
 		@return HRS_AnalysisValuation_UU	  */
-	public String getHRS_AnalysisValuation_UU () 
+	public String getHRS_AnalysisValuation_UU()
 	{
 		return (String)get_Value(COLUMNNAME_HRS_AnalysisValuation_UU);
 	}
 
 	/** Set Result Human.
-		@param Result_Human Result Human	  */
+		@param Result_Human Result Human
+	*/
 	public void setResult_Human (String Result_Human)
 	{
 		set_Value (COLUMNNAME_Result_Human, Result_Human);
@@ -164,13 +183,14 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 
 	/** Get Result Human.
 		@return Result Human	  */
-	public String getResult_Human () 
+	public String getResult_Human()
 	{
 		return (String)get_Value(COLUMNNAME_Result_Human);
 	}
 
 	/** Set Result System.
-		@param Result_System Result System	  */
+		@param Result_System Result System
+	*/
 	public void setResult_System (String Result_System)
 	{
 		set_Value (COLUMNNAME_Result_System, Result_System);
@@ -178,7 +198,7 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 
 	/** Get Result System.
 		@return Result System	  */
-	public String getResult_System () 
+	public String getResult_System()
 	{
 		return (String)get_Value(COLUMNNAME_Result_System);
 	}

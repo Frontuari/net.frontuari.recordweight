@@ -232,30 +232,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						}					
 					}
 				}
-				//
-				/*if (line.getM_AttributeSetInstance_ID() == 0)
-				{
-					MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-						line.getFTU_LoadOrderLine_ID(), get_TrxName());
-					for (int j = 0; j < mas.length; j++)
-					{
-						MFTULoadOrderLineMA ma = mas[j];
-						BigDecimal QtyMA = ma.getQty().negate();
-
-						//	Update Storage - see also VMatch.createMatchRecord
-						if (!MStorageOnHand.add(getCtx(), getM_Warehouse_ID(),
-							line.getM_Locator_ID(),
-							line.getM_Product_ID(),
-							ma.getM_AttributeSetInstance_ID(),
-							QtyMA,ma.getDateMaterialPolicy(),
-							get_TrxName()))
-						{
-							String lastError = CLogger.retrieveErrorString("");
-							m_processMsg = "Cannot correct Inventory OnHand (MA) [" + product.getValue() + "] - " + lastError;
-							return DocAction.STATUS_Invalid;
-						}
-					}
-				}*/
 			}
 		//	Add up Amounts
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
@@ -841,8 +817,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public int getDoc_User_ID()
 	{
-	//	return getSalesRep_ID();
-		return 0;
+		return getCreatedBy();
 	}	//	getDoc_User_ID
 
 	/**
@@ -851,7 +826,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public BigDecimal getApprovalAmt()
 	{
-		return null;	//getTotalLines();
+		return null;
 	}	//	getApprovalAmt
 	
 	/**
@@ -860,9 +835,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public int getC_Currency_ID()
 	{
-	//	MPriceList pl = MPriceList.get(getCtx(), getM_PriceList_ID());
-	//	return pl.getC_Currency_ID();
-		return 0;
+		return Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 	}	//	getC_Currency_ID
 	
 	/**
@@ -960,12 +933,6 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	 */
 	public MInOut[] getInOutFromLoadOrder(int p_FTU_LoadOrder_ID ) {
 		//	SQL
-		/*String sql = new String("SELECT io.* "
-				+ " FROM FTU_LoadOrderLine lol "
-				+ " INNER JOIN M_InOutLine iol ON (lol.M_InOutLine_ID = iol.M_InOutLine_ID)"
-				+ " INNER JOIN M_InOut io ON (io.M_InOut_ID = iol.M_InOut_ID )"
-				+ " WHERE lol.FTU_LoadOrder_ID = ?");*/
-		
 		String sql = "SELECT io.*"
 				+ " FROM M_Inout io"
 				+ " WHERE EXISTS("
@@ -1146,7 +1113,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 	private static CLogger log = CLogger.getCLogger(MFTULoadOrder.class);
 	
 	/**************************************************************************
-	 * 	Get Document Print Engine for Withholding Document Type.
+	 * 	Get Document Print Engine for LoadOrder Document Type.
 	 *  @author Jorge Colmenarez, 2021-07-13 13:25, jcolmenarez@frontuari.net
 	 * 	@param ctx context
 	 * 	@param Record_ID id

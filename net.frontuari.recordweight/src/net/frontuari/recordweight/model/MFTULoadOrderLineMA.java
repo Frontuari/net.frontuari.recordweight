@@ -19,12 +19,10 @@ public class MFTULoadOrderLineMA extends X_FTU_LoadOrderLineMA {
 
 	public MFTULoadOrderLineMA(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
-		// TODO Auto-generated constructor stub
 	}
 
 	public MFTULoadOrderLineMA(Properties ctx, int FTU_LoadOrderLineMA_ID, String trxName) {
 		super(ctx, FTU_LoadOrderLineMA_ID, trxName);
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * 	Get Material Allocations for Line

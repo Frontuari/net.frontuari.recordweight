@@ -3,16 +3,16 @@
  */
 package net.frontuari.recordweight.callouts;
 
+import org.adempiere.base.annotation.Callout;
+
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_Vehicle;
 import net.frontuari.recordweight.model.I_FTU_VehicleType;
 import net.frontuari.recordweight.model.MFTUVehicleModel;
 import net.frontuari.recordweight.model.MFTUVehicleType;
 
-/**
- * @author dixon
- *
- */
+@Callout(tableName = I_FTU_Vehicle.Table_Name,columnName = {I_FTU_Vehicle.COLUMNNAME_FTU_VehicleModel_ID,
+		I_FTU_Vehicle.COLUMNNAME_FTU_VehicleType_ID})
 public class CalloutVehicle extends FTUCallout {
 
 	@Override
@@ -48,9 +48,6 @@ public class CalloutVehicle extends FTUCallout {
 			setValue(I_FTU_Vehicle.COLUMNNAME_VolumeCapacity, vt.getVolumeCapacity());
 			setValue(I_FTU_Vehicle.COLUMNNAME_MinLoadCapacity, vt.getMinLoadCapacity());
 			setValue(I_FTU_Vehicle.COLUMNNAME_MinVolumeCapacity, vt.getMinVolumeCapacity());
-			
-			
-			
 		}
 		return "";
 	}

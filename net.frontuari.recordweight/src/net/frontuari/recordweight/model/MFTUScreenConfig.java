@@ -6,10 +6,6 @@ package net.frontuari.recordweight.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-/**
- * @author dixon
- *
- */
 public class MFTUScreenConfig extends X_FTU_ScreenConfig {
 
 	/**
@@ -38,12 +34,6 @@ public class MFTUScreenConfig extends X_FTU_ScreenConfig {
 
 	@Override
 	public boolean beforeSave(boolean isNew){
-		/*if(getPosStartCut() > getPosEndCut())
-			throw new AdempiereException("@PosStartCutOverPosEndCut@");
-		if(getPosStart_SCut() > getPosEnd_SCut())
-			throw new AdempiereException("@PosStart_SCutOverPosEnd_SCut@");
-		if(getStrLength() <= 0)
-			throw new AdempiereException("@StrLengthUnderZero@");*/
 		return true;
 	}
 	
@@ -51,11 +41,7 @@ public class MFTUScreenConfig extends X_FTU_ScreenConfig {
 		return    "ID=" + get_ID()
 				+ "\nName=" + getName()
 				+ "\nStart Character=" + getStartCharacter()
-				+ "\nEnd Charater=" + getEndCharacter()/*
-				+ "\nPosition Start Cut=" + getPosStartCut()
-				+ "\nPosition End Cut=" + getPosEndCut()
-				+ "\nPosition Start Cut Screen=" + getPosEnd_SCut()
-				+ "\nPosition End Cut=" + getPosEnd_SCut()*/;
+				+ "\nEnd Charater=" + getEndCharacter();
 	}
 
 }

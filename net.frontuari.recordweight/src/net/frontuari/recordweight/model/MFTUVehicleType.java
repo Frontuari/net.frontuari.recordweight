@@ -48,7 +48,6 @@ public class MFTUVehicleType extends X_FTU_VehicleType {
     		throw new AdempiereException("@MinLoadCapacity@ > @LoadCapacity@"  );
     	else if(getMinVolumeCapacity().compareTo(getVolumeCapacity()) > 0 )
     		throw new AdempiereException("@MinVolumeCapacity@ > @VolumeCapacity@"  );
-    	
 		
 		return true;
 	}

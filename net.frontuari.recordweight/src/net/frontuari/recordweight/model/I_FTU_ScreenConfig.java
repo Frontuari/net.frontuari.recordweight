@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_ScreenConfig
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_ScreenConfig 
@@ -32,7 +32,7 @@ public interface I_FTU_ScreenConfig
     /** TableName=FTU_ScreenConfig */
     public static final String Table_Name = "FTU_ScreenConfig";
 
-    /** AD_Table_ID=1000025 */
+    /** AD_Table_ID=1000078 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -80,6 +80,32 @@ public interface I_FTU_ScreenConfig
 	  */
 	public int getCreatedBy();
 
+    /** Column name CutEnd */
+    public static final String COLUMNNAME_CutEnd = "CutEnd";
+
+	/** Set CutEnd.
+	  * CutEnd
+	  */
+	public void setCutEnd (int CutEnd);
+
+	/** Get CutEnd.
+	  * CutEnd
+	  */
+	public int getCutEnd();
+
+    /** Column name CutStart */
+    public static final String COLUMNNAME_CutStart = "CutStart";
+
+	/** Set CutStart.
+	  * CutStart
+	  */
+	public void setCutStart (int CutStart);
+
+	/** Get CutStart.
+	  * CutStart
+	  */
+	public int getCutStart();
+
     /** Column name EndCharacter */
     public static final String COLUMNNAME_EndCharacter = "EndCharacter";
 
@@ -120,6 +146,19 @@ public interface I_FTU_ScreenConfig
 	  */
 	public boolean isActive();
 
+    /** Column name IsTest */
+    public static final String COLUMNNAME_IsTest = "IsTest";
+
+	/** Set Test.
+	  * Execute in Test Mode
+	  */
+	public void setIsTest (boolean IsTest);
+
+	/** Get Test.
+	  * Execute in Test Mode
+	  */
+	public boolean isTest();
+
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 
@@ -132,6 +171,15 @@ public interface I_FTU_ScreenConfig
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
+
+    /** Column name QtyDecimal */
+    public static final String COLUMNNAME_QtyDecimal = "QtyDecimal";
+
+	/** Set Qty Decimal	  */
+	public void setQtyDecimal (BigDecimal QtyDecimal);
+
+	/** Get Qty Decimal	  */
+	public BigDecimal getQtyDecimal();
 
     /** Column name StartCharacter */
     public static final String COLUMNNAME_StartCharacter = "StartCharacter";

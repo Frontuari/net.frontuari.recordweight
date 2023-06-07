@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for HRS_AnalysisValuation
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_HRS_AnalysisValuation 
@@ -32,7 +32,7 @@ public interface I_HRS_AnalysisValuation
     /** TableName=HRS_AnalysisValuation */
     public static final String Table_Name = "HRS_AnalysisValuation";
 
-    /** AD_Table_ID=1000411 */
+    /** AD_Table_ID=1000114 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -80,16 +80,16 @@ public interface I_HRS_AnalysisValuation
 	  */
 	public int getCreatedBy();
 
-    /** Column name FTU_Quality_Param_ID */
-    public static final String COLUMNNAME_FTU_Quality_Param_ID = "FTU_Quality_Param_ID";
+    /** Column name FTU_QualityParam_ID */
+    public static final String COLUMNNAME_FTU_QualityParam_ID = "FTU_QualityParam_ID";
 
 	/** Set Quality Param	  */
-	public void setFTU_Quality_Param_ID (int FTU_Quality_Param_ID);
+	public void setFTU_QualityParam_ID (int FTU_QualityParam_ID);
 
 	/** Get Quality Param	  */
-	public int getFTU_Quality_Param_ID();
+	public int getFTU_QualityParam_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_Quality_Param getFTU_Quality_Param() throws RuntimeException;
+	public net.frontuari.recordweight.model.I_FTU_QualityParam getFTU_QualityParam() throws RuntimeException;
 
     /** Column name HRS_Analysis_ID */
     public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";

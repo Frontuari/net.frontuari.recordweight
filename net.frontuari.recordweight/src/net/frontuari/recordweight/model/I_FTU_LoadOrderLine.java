@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_LoadOrderLine
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_LoadOrderLine 
@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrderLine
     /** TableName=FTU_LoadOrderLine */
     public static final String Table_Name = "FTU_LoadOrderLine";
 
-    /** AD_Table_ID=1000029 */
+    /** AD_Table_ID=1000066 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -203,6 +203,8 @@ public interface I_FTU_LoadOrderLine
 
 	/** Get Delivery Rute	  */
 	public int getFTU_DeliveryRute_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException;
 
     /** Column name FTU_LoadOrder_ID */
     public static final String COLUMNNAME_FTU_LoadOrder_ID = "FTU_LoadOrder_ID";

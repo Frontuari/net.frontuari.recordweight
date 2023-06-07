@@ -4,28 +4,28 @@
 
 - New callout
     * Name: CName
-    * Package: net.fromtuari.recordweight.callout
-    * Example: net.fromtuari.recordweight.callout.CStringFormat
+    * Package: net.frontuari.recordweight.callout
+    * Example: net.frontuari.recordweight.callout.CStringFormat
 
 - New process
     * Name: PName
-    * Package: net.fromtuari.recordweight.process
-    * Example: net.fromtuari.recordweight.process.PGenerateWithholding
+    * Package: net.frontuari.recordweight.process
+    * Example: net.frontuari.recordweight.process.PGenerateWithholding
 
 - New form
     * Name: FName
-    * Package: net.fromtuari.recordweight.form
-    * Example: net.fromtuari.recordweight.form.FMultiPayment
+    * Package: net.frontuari.recordweight.form
+    * Example: net.frontuari.recordweight.form.FMultiPayment
 
 - New event
     * Name: EName
-    * Package: net.fromtuari.recordweight.event
-    * Example: net.fromtuari.recordweight.event.EAfterCompleteInvoice
+    * Package: net.frontuari.recordweight.event
+    * Example: net.frontuari.recordweight.event.EAfterCompleteInvoice
 
 - New model (extends class X)
     * Name: MName
-    * Package: net.fromtuari.recordweight.model
-    * Example: net.fromtuari.recordweight.model.MTableExample
+    * Package: net.frontuari.recordweight.model
+    * Example: net.frontuari.recordweight.model.MTableExample
 
 ## Folder estructure
 
@@ -53,24 +53,20 @@
         |   |_ModelFactory.xml
         |   |_ProcessFactory.xml
         |_src
-            |_net.fromtuari.recordweight
+            |_net.frontuari.recordweight
                 |_base (plugin core)
                 |   |_BundleInfo.java (gets plugin information dynamically)
                 |   |_CustomCallout.java (IColumnCallout implementation)
-                |   |_CustomCalloutFactory.java (IColumnCalloutFactory implementation)
                 |   |_CustomEventFactory.java (AbstractEventHandler implementation)
                 |   |_CustomEvent.java (for event implementation)
-                |   |_CustomFormFactory.java (IFormFactory implementation)
                 |   |_CustomForm.java (IFormController implementation)
-                |   |_CustomModelFactory.java (IModelFactory implementation)
-                |   |_CustomProcessFactory.java (IProcessFactory implementation)
                 |   |_CustomProcess.java (SvrProcess implementation)
                 |_component (plugin's components)
-                |   |_CalloutFactory.java (register class callout)
-                |   |_EventFactory.java (register class event handler)
-                |   |_FormFactory.java (register class form)
-                |   |_ProcessFactory.java (register class process)
-                |   |_ModelFactory.java (register class model)
+                |   |_CalloutFactory.java (registers callout classes automatically )
+                |   |_EventFactory.java (registers event handler classes automatically)
+                |   |_FormFactory.java (registers form classes automatically)
+                |   |_ProcessFactory.java (registers process classes automatically)
+                |   |_ModelFactory.java (registers model classes automatically)
                 |_util
                 |   |_TimestampUtil.java
                 |   |_SqlBuilder.java
@@ -88,62 +84,36 @@
 ### Components
 
 - New callout
-    * Create callout in package `net.fromtuari.recordweight.callout`, extends from `CustomCallout`
-    * Register callout in `net.fromtuari.recordweight.component.CalloutFactory`. Example:
-
-```java
-    protected void initialize() {
-        registerCallout(MTableExample.Table_Name, MTableExample.COLUMNNAME_Text, CPrintPluginInfo.class);
-    }
-```
+    * Create callout in package `net.frontuari.recordweight.callout`, extends from `CustomCallout`
+    * Annotate it with the `@Callout` annotation at class level
 
 - New process
-    * Create process in package `net.fromtuari.recordweight.process`, extends from `CustomProcess`
-    * Register process in `net.fromtuari.recordweight.component.ProcessFactory`. Example:
-
-```java
-    protected void initialize() {
-        registerProcess(PPrintPluginInfo.class);
-    }
-```
+    * Create process in package `net.frontuari.recordweight.process`, extends from `CustomProcess`
+    * Annotate it with the `@Process` annotation at class level
 
 - New form
-    * Create form in package `net.fromtuari.recordweight.form`, extends from `CustomForm`
-    * Register form in `net.fromtuari.recordweight.component.FormFactory`. Example:
-
-```java
-    protected void initialize() {
-        registerForm(FPrintPluginInfo.class);
-    }
-```
+    * Create form in package `net.frontuari.recordweight.form`, extends from `CustomForm`
+    * Annotate it with the `@Form` annotation at class level
 
 - New event
-    * Create event in package `net.fromtuari.recordweight.event`, extends from `CustomEvent`
-    * Register event in `net.fromtuari.recordweight.component.EventFactory`. Example:
-
-```java
-    protected void initialize() {
-        registerEvent(IEventTopics.DOC_BEFORE_COMPLETE, MTableExample.Table_Name, EPrintPluginInfo.class);
-    }
-```
+    * Create event in package `net.frontuari.recordweight.event`, extends from `CustomEvent`
+    * Annotate it with the `@EventTopicDelegate` annotation at class level
 
 - New model (extends form class X)
-    * Create model in package `net.fromtuari.recordweight.model`, extends class `X`. Example: `X_TL_TableExample -> MTableExample`
-    * Register model in `net.fromtuari.recordweight.component.ModelFactory`. Example:
+    * Create model in package `net.frontuari.recordweight.model`, extends class `X`. Example: `X_TL_TableExample -> MTableExample`
+    * Annotate it with the `@Model` annotation at class level
+    * More information
+        * https://wiki.idempiere.org/en/Developing_Plug-Ins_-_IModelFactory
+        * https://wiki.idempiere.org/en/Developing_iDempiere_4:_Create_a_new_class_model_with_window_and_tabs#Model_generator
 
-```java
-    protected void initialize() {
-        registerModel(MTableExample.Table_Name, MTableExample.class);
-    }
-```
 
 ### Utils
 
-- `FileTemplateBuilder`: Creates complex text file using [velocity](https://velocity.apache.org/), example:
+- `FileTemplateBuilder`: Creates complex text file using [freemarker](https://freemarker.apache.org/), example:
 
 ```java
 FileTemplateBuilder.builder()
-    .template("invoice-template.xml")
+    .file("invoice-template.xml")
     .inject("invoice", new Invoice())
     .export("invoice.xml")
 ```
@@ -152,14 +122,14 @@ The `invoice-template.xml` file:
 
 ```xml
 <invoice>
-    <ruc>$invoice.name</ruc>
-    <name>$invoice.ruc</name>
+    <name>${invoice.name}</name>
+    <id>${invoice.id}</id>
     <lines>
-        #foreach($line in $invoice.invoiceLines)
+        <#list invoice.invoiceLines as line>
         <line>
-            <product name="$line.product" price="$line.price"/>
+            <product name="${line.product}" price="${line.price}"/>
         </line>
-        #end
+        </#list>
     </lines>
 </invoice>
 ```
@@ -174,7 +144,14 @@ keyValueLogger.message("Hello World!!").info();
 The output:
 
 ```bash
-20:34:24.270===========> ELogLoginInfo.error: message="Hello World!!"
+20:34:24.270 ELogLoginInfo.log: message="Hello World!!"
+```
+
+Othes output examples:
+
+```css
+19:50:16.044 OpenTransactionInterceptor.log: dateTime="2020-02-12 19:50:16.039 -0500" httpMethod="POST" client="11" language="es_CO" endpoint="/api/auth/login" transaction="Trx_e1dcd314-a508-44c1-9a0c-d34d4caacb2b" [33]
+19:50:16.157 CloseTransactionInterceptor.log: dateTime="2020-02-12 19:50:16.156 -0500" httpStatus="200" endpoint="/api/auth/login" transaction="Trx_e1dcd314-a508-44c1-9a0c-d34d4caacb2b" [33]
 ```
 
 - `SqlBuilder`: It is a wrapper for StringBuilder, allows you to create sql from files, example:

@@ -4,9 +4,12 @@
     <parent>
         <groupId>org.idempiere</groupId>
         <artifactId>org.idempiere.parent</artifactId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>${TPidempiereParent}</relativePath>
     </parent>
+    <properties>
+        <revision>10.0.0-SNAPSHOT</revision>
+    </properties>
     <artifactId>net.frontuari.recordweight.p2.targetplatform</artifactId>
     <packaging>eclipse-target-definition</packaging>
 </project>

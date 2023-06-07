@@ -17,25 +17,42 @@
 /** Generated Model - DO NOT CHANGE */
 package net.frontuari.recordweight.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.Env;
 
 /** Generated Model for FTU_ScreenConfig
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_ScreenConfig")
 public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_ScreenConfig (Properties ctx, int FTU_ScreenConfig_ID, String trxName)
     {
       super (ctx, FTU_ScreenConfig_ID, trxName);
+      /** if (FTU_ScreenConfig_ID == 0)
+        {
+			setEndCharacter (null);
+			setFTU_ScreenConfig_ID (0);
+			setName (null);
+			setStartCharacter (null);
+			setStrLength (0);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_ScreenConfig (Properties ctx, int FTU_ScreenConfig_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_ScreenConfig_ID, trxName, virtualColumns);
       /** if (FTU_ScreenConfig_ID == 0)
         {
 			setEndCharacter (null);
@@ -69,13 +86,52 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_ScreenConfig[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_ScreenConfig[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
+	/** Set CutEnd.
+		@param CutEnd CutEnd
+	*/
+	public void setCutEnd (int CutEnd)
+	{
+		set_Value (COLUMNNAME_CutEnd, Integer.valueOf(CutEnd));
+	}
+
+	/** Get CutEnd.
+		@return CutEnd
+	  */
+	public int getCutEnd()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_CutEnd);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set CutStart.
+		@param CutStart CutStart
+	*/
+	public void setCutStart (int CutStart)
+	{
+		set_Value (COLUMNNAME_CutStart, Integer.valueOf(CutStart));
+	}
+
+	/** Get CutStart.
+		@return CutStart
+	  */
+	public int getCutStart()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_CutStart);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set EndCharacter.
-		@param EndCharacter EndCharacter	  */
+		@param EndCharacter EndCharacter
+	*/
 	public void setEndCharacter (String EndCharacter)
 	{
 		set_Value (COLUMNNAME_EndCharacter, EndCharacter);
@@ -83,24 +139,25 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 
 	/** Get EndCharacter.
 		@return EndCharacter	  */
-	public String getEndCharacter () 
+	public String getEndCharacter()
 	{
 		return (String)get_Value(COLUMNNAME_EndCharacter);
 	}
 
 	/** Set Screen Configuration.
-		@param FTU_ScreenConfig_ID Screen Configuration	  */
+		@param FTU_ScreenConfig_ID Screen Configuration
+	*/
 	public void setFTU_ScreenConfig_ID (int FTU_ScreenConfig_ID)
 	{
-		if (FTU_ScreenConfig_ID < 1) 
+		if (FTU_ScreenConfig_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_ScreenConfig_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_ScreenConfig_ID, Integer.valueOf(FTU_ScreenConfig_ID));
 	}
 
 	/** Get Screen Configuration.
 		@return Screen Configuration	  */
-	public int getFTU_ScreenConfig_ID () 
+	public int getFTU_ScreenConfig_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_ScreenConfig_ID);
 		if (ii == null)
@@ -109,7 +166,8 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 	}
 
 	/** Set FTU_ScreenConfig_UU.
-		@param FTU_ScreenConfig_UU FTU_ScreenConfig_UU	  */
+		@param FTU_ScreenConfig_UU FTU_ScreenConfig_UU
+	*/
 	public void setFTU_ScreenConfig_UU (String FTU_ScreenConfig_UU)
 	{
 		set_Value (COLUMNNAME_FTU_ScreenConfig_UU, FTU_ScreenConfig_UU);
@@ -117,15 +175,37 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 
 	/** Get FTU_ScreenConfig_UU.
 		@return FTU_ScreenConfig_UU	  */
-	public String getFTU_ScreenConfig_UU () 
+	public String getFTU_ScreenConfig_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_ScreenConfig_UU);
 	}
 
-	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
+	/** Set Test.
+		@param IsTest Execute in Test Mode
+	*/
+	public void setIsTest (boolean IsTest)
+	{
+		set_Value (COLUMNNAME_IsTest, Boolean.valueOf(IsTest));
+	}
+
+	/** Get Test.
+		@return Execute in Test Mode
 	  */
+	public boolean isTest()
+	{
+		Object oo = get_Value(COLUMNNAME_IsTest);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Name.
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -134,13 +214,32 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
+	/** Set Qty Decimal.
+		@param QtyDecimal Qty Decimal
+	*/
+	public void setQtyDecimal (BigDecimal QtyDecimal)
+	{
+		set_Value (COLUMNNAME_QtyDecimal, QtyDecimal);
+	}
+
+	/** Get Qty Decimal.
+		@return Qty Decimal	  */
+	public BigDecimal getQtyDecimal()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_QtyDecimal);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	/** Set StartCharacter.
-		@param StartCharacter StartCharacter	  */
+		@param StartCharacter StartCharacter
+	*/
 	public void setStartCharacter (String StartCharacter)
 	{
 		set_Value (COLUMNNAME_StartCharacter, StartCharacter);
@@ -148,13 +247,14 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 
 	/** Get StartCharacter.
 		@return StartCharacter	  */
-	public String getStartCharacter () 
+	public String getStartCharacter()
 	{
 		return (String)get_Value(COLUMNNAME_StartCharacter);
 	}
 
 	/** Set StrLength.
-		@param StrLength StrLength	  */
+		@param StrLength StrLength
+	*/
 	public void setStrLength (int StrLength)
 	{
 		set_Value (COLUMNNAME_StrLength, Integer.valueOf(StrLength));
@@ -162,7 +262,7 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 
 	/** Get StrLength.
 		@return StrLength	  */
-	public int getStrLength () 
+	public int getStrLength()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_StrLength);
 		if (ii == null)

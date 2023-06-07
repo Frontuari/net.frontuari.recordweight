@@ -16,12 +16,13 @@ import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
 import net.frontuari.recordweight.base.FTUProcess;
-import net.frontuari.recordweight.model.MFTUBillOfLading;
-import net.frontuari.recordweight.model.MFTUBillOfLadingLine;
+import net.frontuari.recordweight.model.MFTUFreightCost;
+import net.frontuari.recordweight.model.MFTUFreightCostLine;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
-import net.frontuari.recordweight.model.X_FTU_BillOfLading;
+import net.frontuari.recordweight.model.X_FTU_FreightCost;
 
+@org.adempiere.base.annotation.Process
 public class FTUGenerateFreightCost extends FTUProcess{
 	String p_FTU_ZeroCost;
 	String p_FTU_AdjustPrice;
@@ -58,16 +59,10 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		MFTULoadOrder lo = new MFTULoadOrder(getCtx(),getRecord_ID(), null);
 		int CurrencyID = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 		
-		/*if(!lo.get_ValueAsBoolean("IsDelivered"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsDelivered"));*/
-		
-		/*if(!lo.get_ValueAsBoolean("IsInvoiced"))
-			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgRequiredIsInvoiced"));*/
-		
 		if(getQtyFreightCostByLoadOrder(lo.get_ID()) > 0)
 			throw new IllegalArgumentException(Msg.getMsg(getCtx(), "FTU_MsgExistsFreightCostCompleted"));
 		
-		MFTUBillOfLading bol = new MFTUBillOfLading(getCtx(), 0, null);
+		MFTUFreightCost bol = new MFTUFreightCost(getCtx(), 0, null);
 		MDocType dt = new MDocType(getCtx(),lo.getC_DocType_ID() , get_TrxName());
 		
 		bol.setAD_Org_ID(lo.getAD_Org_ID());
@@ -108,9 +103,9 @@ public class FTUGenerateFreightCost extends FTUProcess{
 			rs = ps.executeQuery();
 			//	
 			while(rs.next()){
-				MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
+				MFTUFreightCostLine boll = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
 				boll.setAD_Org_ID(bol.getAD_Org_ID());
-				boll.setFTU_BillOfLading_ID(bol.get_ID());
+				boll.setFTU_FreightCost_ID(bol.get_ID());
 				//	Search Sales Region
 				int SalesRegionID = DB.getSQLValue(get_TrxName(), "SELECT C_SalesRegion_ID FROM C_BPartner_Location bpl JOIN M_InOut io ON bpl.C_BPartner_Location_ID = io.C_BPartner_Location_ID WHERE io.M_InOut_ID = ?", rs.getInt("M_InOut_ID"));
 				boll.setC_SalesRegion_ID(SalesRegionID);
@@ -159,9 +154,9 @@ public class FTUGenerateFreightCost extends FTUProcess{
 			FTU_Capacity = getVehicleLoadCapacity(lo.getFTU_EntryTicket_ID());
 			FTU_Diference = FTU_Capacity.subtract(totalW);
 			
-			MFTUBillOfLadingLine boll = new MFTUBillOfLadingLine(getCtx(), 0, get_TrxName());
+			MFTUFreightCostLine boll = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
 			boll.setAD_Org_ID(bol.getAD_Org_ID());
-			boll.setFTU_BillOfLading_ID(bol.get_ID());
+			boll.setFTU_FreightCost_ID(bol.get_ID());
 			boll.set_ValueOfColumn("C_Charge_ID", mci.getC_ChargeFreight_ID());
 			boll.setWeight(FTU_Diference);
 			boll.setCosts(maxPrice.multiply(FTU_Diference));
@@ -174,7 +169,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 		// Update Totals
 		bol.setWeight(totalW);
 		bol.setGrandTotal(grandTotal);
-		bol.setDocStatus(X_FTU_BillOfLading.DOCSTATUS_Completed);
+		bol.setDocStatus(X_FTU_FreightCost.DOCSTATUS_Completed);
 		bol.saveEx(get_TrxName());
 		
 		addBufferLog(bol.get_ID(), new Timestamp(System.currentTimeMillis()), null, Msg.parseTranslation(getCtx(), "@FTU_BillOfLading_ID@")+": "+bol.getDocumentNo(), bol.get_Table_ID(), bol.get_ID());
@@ -208,7 +203,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 	}
 	
 	private int getQtyFreightCostByLoadOrder(int FTU_Load_Order_ID) {
-		return DB.getSQLValue(get_TrxName(), "SELECT count(*) FROM FTU_BillOfLading WHERE FTU_LoadOrder_ID = ? and DocStatus = 'CO'", FTU_Load_Order_ID);
+		return DB.getSQLValue(get_TrxName(), "SELECT count(*) FROM FTU_FreightCost WHERE FTU_LoadOrder_ID = ? and DocStatus = 'CO'", FTU_Load_Order_ID);
 	}
 
 }

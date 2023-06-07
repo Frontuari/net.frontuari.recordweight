@@ -16,6 +16,7 @@ import org.compiere.model.MClientInfo;
 import org.compiere.model.MColumn;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
+import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
@@ -41,7 +42,6 @@ import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.util.ProcessBuilder;
 import net.frontuari.recordweight.base.FTUProcess;
-import net.frontuari.recordweight.model.MFTUInOut;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 import net.frontuari.recordweight.model.MFTULoadOrderLineMA;
@@ -52,11 +52,12 @@ import net.frontuari.recordweight.model.X_FTU_LoadOrder;
  * @author dixon
  *
  */
+@org.adempiere.base.annotation.Process
 public class GenerateFromLoadOrder extends FTUProcess {
 
 	private int p_FTU_LoadOrder_ID = -1;
 	/** Current Shipment */
-	private MFTUInOut m_Current_Shipment = null;
+	private MInOut m_Current_Shipment = null;
 	/** Current Warehouse */
 	private int m_Current_Warehouse_ID = 0;
 	/** Current Business Partner */
@@ -314,7 +315,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				if (m_Current_BPartner_ID == 0)
 					throw new AdempiereException("@C_BPartner_ID@ @NotFound@");
 				// Create Shipment From Order
-				m_Current_Shipment = new MFTUInOut(order, p_C_DocType_ID, p_MovementDate);
+				m_Current_Shipment = new MInOut(order, p_C_DocType_ID, p_MovementDate);
 				m_Current_Shipment.setDateAcct(p_MovementDate);
 				//m_Current_Shipment.setAD_Org_ID(warehouse.getAD_Org_ID());
 				m_Current_Shipment.setAD_OrgTrx_ID(warehouse.getAD_Org_ID());
@@ -412,7 +413,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						//	Modified by Jorge Colmenarez, 2021-07-01 18:04
 						//	Separate events DMP from DFP
 						else if (!product.get_ValueAsBoolean("isBulk") 
-								&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts.equals(m_FTU_LoadOrder.getOperationType())) {
+								&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts.equals(m_FTU_LoadOrder.getOperationType())) {
 							shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
 							shipmentLine.setQty(oLine.getQtyEntered());
 							shipmentLine.setQtyEntered(oLine.getQtyEntered());
@@ -535,7 +536,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				//	Modified by Jorge Colmenarez, 2021-07-01 18:04
 				//	Separate events DMP from DFP
 				else if (!product.get_ValueAsBoolean("isBulk") 
-						&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts.equals(m_FTU_LoadOrder.getOperationType())) {
+						&& X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts.equals(m_FTU_LoadOrder.getOperationType())) {
 					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
 					shipmentLine.setQty(oLine.getQtyEntered());
 					shipmentLine.setQtyEntered(oLine.getQtyEntered());
@@ -784,7 +785,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						invoiceLine.setQtyEntered(m_Qty.multiply(rate));
 						invoiceLine.setQtyInvoiced(m_Qty);
 					} else if(m_FTU_LoadOrder.getOperationType()
-							.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultiplesProducts))
+							.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts))
 					{
 						BigDecimal rateWeight = MUOMConversion.getProductRateFrom(Env.getCtx(),
 								product.getM_Product_ID(), m_FTU_LoadOrder.getC_UOM_Weight_ID());

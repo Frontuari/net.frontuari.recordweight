@@ -34,6 +34,7 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
+import net.frontuari.recordweight.base.FTUForm;
 import net.frontuari.recordweight.model.MFTUScreenConfig;
 import net.frontuari.recordweight.model.MFTUSerialPortConfig;
 import net.frontuari.recordweight.model.MFTUWeightScale;
@@ -43,8 +44,10 @@ import net.frontuari.recordweight.model.MFTUWeightScaleRole;
  * @author Yamel Senih
  *
  */
-public class WFTUGetWeight implements ICreateFrom {
+public class WFTUGetWeight extends FTUForm implements ICreateFrom {
 	
+	private static final long serialVersionUID = 134689785932099729L;
+
 	/**
 	 * *** Constructor de la Clase ***
 	 * @author Yamel Senih 25/03/2013, 19:01:45
@@ -274,6 +277,13 @@ public class WFTUGetWeight implements ICreateFrom {
 
 	@Override
 	public void closeWindow() {
+		
+	}
+
+
+	@Override
+	protected void initForm() {
+		// TODO Auto-generated method stub
 		
 	}
 }

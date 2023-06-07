@@ -23,19 +23,37 @@ import org.compiere.model.*;
 
 /** Generated Model for FTU_SerialPortConfig
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_SerialPortConfig")
 public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_SerialPortConfig (Properties ctx, int FTU_SerialPortConfig_ID, String trxName)
     {
       super (ctx, FTU_SerialPortConfig_ID, trxName);
+      /** if (FTU_SerialPortConfig_ID == 0)
+        {
+			setBauds (null);
+			setDataBits (null);
+			setFlowControl (null);
+			setFTU_SerialPortConfig_ID (0);
+			setName (null);
+			setParity (null);
+			setSerialPort (null);
+			setStopBits (null);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_SerialPortConfig (Properties ctx, int FTU_SerialPortConfig_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_SerialPortConfig_ID, trxName, virtualColumns);
       /** if (FTU_SerialPortConfig_ID == 0)
         {
 			setBauds (null);
@@ -72,13 +90,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_SerialPortConfig[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_SerialPortConfig[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	/** Set Bauds.
-		@param Bauds Bauds	  */
+		@param Bauds Bauds
+	*/
 	public void setBauds (String Bauds)
 	{
 		set_Value (COLUMNNAME_Bauds, Bauds);
@@ -86,13 +105,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get Bauds.
 		@return Bauds	  */
-	public String getBauds () 
+	public String getBauds()
 	{
 		return (String)get_Value(COLUMNNAME_Bauds);
 	}
 
 	/** Set DataBits.
-		@param DataBits DataBits	  */
+		@param DataBits DataBits
+	*/
 	public void setDataBits (String DataBits)
 	{
 		set_Value (COLUMNNAME_DataBits, DataBits);
@@ -100,13 +120,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get DataBits.
 		@return DataBits	  */
-	public String getDataBits () 
+	public String getDataBits()
 	{
 		return (String)get_Value(COLUMNNAME_DataBits);
 	}
 
 	/** Set FlowControl.
-		@param FlowControl FlowControl	  */
+		@param FlowControl FlowControl
+	*/
 	public void setFlowControl (String FlowControl)
 	{
 		set_Value (COLUMNNAME_FlowControl, FlowControl);
@@ -114,27 +135,26 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get FlowControl.
 		@return FlowControl	  */
-	public String getFlowControl () 
+	public String getFlowControl()
 	{
 		return (String)get_Value(COLUMNNAME_FlowControl);
 	}
 
 	/** Set Serial Port Configuration.
-		@param FTU_SerialPortConfig_ID 
-		Serial Port Configuration example: COM1 or tty01, 9600...
-	  */
+		@param FTU_SerialPortConfig_ID Serial Port Configuration example: COM1 or tty01, 9600...
+	*/
 	public void setFTU_SerialPortConfig_ID (int FTU_SerialPortConfig_ID)
 	{
-		if (FTU_SerialPortConfig_ID < 1) 
+		if (FTU_SerialPortConfig_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_SerialPortConfig_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_SerialPortConfig_ID, Integer.valueOf(FTU_SerialPortConfig_ID));
 	}
 
 	/** Get Serial Port Configuration.
 		@return Serial Port Configuration example: COM1 or tty01, 9600...
 	  */
-	public int getFTU_SerialPortConfig_ID () 
+	public int getFTU_SerialPortConfig_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_SerialPortConfig_ID);
 		if (ii == null)
@@ -143,7 +163,8 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 	}
 
 	/** Set FTU_SerialPortConfig_UU.
-		@param FTU_SerialPortConfig_UU FTU_SerialPortConfig_UU	  */
+		@param FTU_SerialPortConfig_UU FTU_SerialPortConfig_UU
+	*/
 	public void setFTU_SerialPortConfig_UU (String FTU_SerialPortConfig_UU)
 	{
 		set_Value (COLUMNNAME_FTU_SerialPortConfig_UU, FTU_SerialPortConfig_UU);
@@ -151,15 +172,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get FTU_SerialPortConfig_UU.
 		@return FTU_SerialPortConfig_UU	  */
-	public String getFTU_SerialPortConfig_UU () 
+	public String getFTU_SerialPortConfig_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_SerialPortConfig_UU);
 	}
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -168,13 +188,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
 	/** Set Parity.
-		@param Parity Parity	  */
+		@param Parity Parity
+	*/
 	public void setParity (String Parity)
 	{
 		set_Value (COLUMNNAME_Parity, Parity);
@@ -182,13 +203,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get Parity.
 		@return Parity	  */
-	public String getParity () 
+	public String getParity()
 	{
 		return (String)get_Value(COLUMNNAME_Parity);
 	}
 
 	/** Set SerialPort.
-		@param SerialPort SerialPort	  */
+		@param SerialPort SerialPort
+	*/
 	public void setSerialPort (String SerialPort)
 	{
 		set_Value (COLUMNNAME_SerialPort, SerialPort);
@@ -196,13 +218,14 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get SerialPort.
 		@return SerialPort	  */
-	public String getSerialPort () 
+	public String getSerialPort()
 	{
 		return (String)get_Value(COLUMNNAME_SerialPort);
 	}
 
 	/** Set StopBits.
-		@param StopBits StopBits	  */
+		@param StopBits StopBits
+	*/
 	public void setStopBits (String StopBits)
 	{
 		set_Value (COLUMNNAME_StopBits, StopBits);
@@ -210,7 +233,7 @@ public class X_FTU_SerialPortConfig extends PO implements I_FTU_SerialPortConfig
 
 	/** Get StopBits.
 		@return StopBits	  */
-	public String getStopBits () 
+	public String getStopBits()
 	{
 		return (String)get_Value(COLUMNNAME_StopBits);
 	}

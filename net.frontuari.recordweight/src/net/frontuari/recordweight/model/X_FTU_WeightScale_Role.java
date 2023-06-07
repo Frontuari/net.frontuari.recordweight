@@ -23,19 +23,32 @@ import org.compiere.model.*;
 
 /** Generated Model for FTU_WeightScale_Role
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_WeightScale_Role")
 public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_WeightScale_Role (Properties ctx, int FTU_WeightScale_Role_ID, String trxName)
     {
       super (ctx, FTU_WeightScale_Role_ID, trxName);
+      /** if (FTU_WeightScale_Role_ID == 0)
+        {
+			setAD_Role_ID (0);
+			setFTU_WeightScale_ID (0);
+			setFTU_WeightScale_Role_ID (0);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_WeightScale_Role (Properties ctx, int FTU_WeightScale_Role_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_WeightScale_Role_ID, trxName, virtualColumns);
       /** if (FTU_WeightScale_Role_ID == 0)
         {
 			setAD_Role_ID (0);
@@ -67,32 +80,32 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_WeightScale_Role[")
+      StringBuilder sb = new StringBuilder ("X_FTU_WeightScale_Role[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
 
 	public org.compiere.model.I_AD_Role getAD_Role() throws RuntimeException
-    {
-		return (org.compiere.model.I_AD_Role)MTable.get(getCtx(), org.compiere.model.I_AD_Role.Table_Name)
-			.getPO(getAD_Role_ID(), get_TrxName());	}
+	{
+		return (org.compiere.model.I_AD_Role)MTable.get(getCtx(), org.compiere.model.I_AD_Role.Table_ID)
+			.getPO(getAD_Role_ID(), get_TrxName());
+	}
 
 	/** Set Role.
-		@param AD_Role_ID 
-		Responsibility Role
-	  */
+		@param AD_Role_ID Responsibility Role
+	*/
 	public void setAD_Role_ID (int AD_Role_ID)
 	{
-		if (AD_Role_ID < 0) 
+		if (AD_Role_ID < 0)
 			set_ValueNoCheck (COLUMNNAME_AD_Role_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_AD_Role_ID, Integer.valueOf(AD_Role_ID));
 	}
 
 	/** Get Role.
 		@return Responsibility Role
 	  */
-	public int getAD_Role_ID () 
+	public int getAD_Role_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Role_ID);
 		if (ii == null)
@@ -101,23 +114,25 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 	}
 
 	public net.frontuari.recordweight.model.I_FTU_WeightScale getFTU_WeightScale() throws RuntimeException
-    {
-		return (net.frontuari.recordweight.model.I_FTU_WeightScale)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_WeightScale.Table_Name)
-			.getPO(getFTU_WeightScale_ID(), get_TrxName());	}
+	{
+		return (net.frontuari.recordweight.model.I_FTU_WeightScale)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_WeightScale.Table_ID)
+			.getPO(getFTU_WeightScale_ID(), get_TrxName());
+	}
 
 	/** Set Weight Scale.
-		@param FTU_WeightScale_ID Weight Scale	  */
+		@param FTU_WeightScale_ID Weight Scale
+	*/
 	public void setFTU_WeightScale_ID (int FTU_WeightScale_ID)
 	{
-		if (FTU_WeightScale_ID < 1) 
+		if (FTU_WeightScale_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_ID, Integer.valueOf(FTU_WeightScale_ID));
 	}
 
 	/** Get Weight Scale.
 		@return Weight Scale	  */
-	public int getFTU_WeightScale_ID () 
+	public int getFTU_WeightScale_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_WeightScale_ID);
 		if (ii == null)
@@ -126,18 +141,19 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 	}
 
 	/** Set FTU_WeightScale_Role.
-		@param FTU_WeightScale_Role_ID FTU_WeightScale_Role	  */
+		@param FTU_WeightScale_Role_ID FTU_WeightScale_Role
+	*/
 	public void setFTU_WeightScale_Role_ID (int FTU_WeightScale_Role_ID)
 	{
-		if (FTU_WeightScale_Role_ID < 1) 
+		if (FTU_WeightScale_Role_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_Role_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_WeightScale_Role_ID, Integer.valueOf(FTU_WeightScale_Role_ID));
 	}
 
 	/** Get FTU_WeightScale_Role.
 		@return FTU_WeightScale_Role	  */
-	public int getFTU_WeightScale_Role_ID () 
+	public int getFTU_WeightScale_Role_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_WeightScale_Role_ID);
 		if (ii == null)
@@ -146,7 +162,8 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 	}
 
 	/** Set FTU_WeightScale_Role_UU.
-		@param FTU_WeightScale_Role_UU FTU_WeightScale_Role_UU	  */
+		@param FTU_WeightScale_Role_UU FTU_WeightScale_Role_UU
+	*/
 	public void setFTU_WeightScale_Role_UU (String FTU_WeightScale_Role_UU)
 	{
 		set_Value (COLUMNNAME_FTU_WeightScale_Role_UU, FTU_WeightScale_Role_UU);
@@ -154,7 +171,7 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 
 	/** Get FTU_WeightScale_Role_UU.
 		@return FTU_WeightScale_Role_UU	  */
-	public String getFTU_WeightScale_Role_UU () 
+	public String getFTU_WeightScale_Role_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WeightScale_Role_UU);
 	}

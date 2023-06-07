@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for I_EntryTicket
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_I_EntryTicket 
@@ -32,7 +32,7 @@ public interface I_I_EntryTicket
     /** TableName=I_EntryTicket */
     public static final String Table_Name = "I_EntryTicket";
 
-    /** AD_Table_ID=1000135 */
+    /** AD_Table_ID=1000088 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -258,6 +258,8 @@ public interface I_I_EntryTicket
 	/** Get Driver	  */
 	public int getFTU_Driver_ID();
 
+	public net.frontuari.recordweight.model.I_FTU_Driver getFTU_Driver() throws RuntimeException;
+
     /** Column name FTU_EntryTicket_ID */
     public static final String COLUMNNAME_FTU_EntryTicket_ID = "FTU_EntryTicket_ID";
 
@@ -267,6 +269,8 @@ public interface I_I_EntryTicket
 	/** Get Entry Ticket	  */
 	public int getFTU_EntryTicket_ID();
 
+	public net.frontuari.recordweight.model.I_FTU_EntryTicket getFTU_EntryTicket() throws RuntimeException;
+
     /** Column name FTU_Vehicle_ID */
     public static final String COLUMNNAME_FTU_Vehicle_ID = "FTU_Vehicle_ID";
 
@@ -275,6 +279,8 @@ public interface I_I_EntryTicket
 
 	/** Get Vehicle	  */
 	public int getFTU_Vehicle_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_Vehicle getFTU_Vehicle() throws RuntimeException;
 
     /** Column name I_EntryTicket_ID */
     public static final String COLUMNNAME_I_EntryTicket_ID = "I_EntryTicket_ID";
@@ -432,10 +438,10 @@ public interface I_I_EntryTicket
     /** Column name ShipperName */
     public static final String COLUMNNAME_ShipperName = "ShipperName";
 
-	/** Set ShipperName	  */
+	/** Set Shipper Name	  */
 	public void setShipperName (String ShipperName);
 
-	/** Get ShipperName	  */
+	/** Get Shipper Name	  */
 	public String getShipperName();
 
     /** Column name TrailerPlate */

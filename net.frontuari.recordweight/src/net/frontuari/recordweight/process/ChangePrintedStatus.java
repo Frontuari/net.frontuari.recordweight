@@ -1,9 +1,6 @@
 package net.frontuari.recordweight.process;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Timestamp;
-
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MProcess;
 import org.compiere.model.MQuery;
@@ -13,7 +10,6 @@ import org.compiere.model.PrintInfo;
 import org.compiere.model.X_AD_ReportView;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportEngine;
-import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
 
@@ -23,6 +19,7 @@ import net.frontuari.recordweight.model.MFTUEntryTicket;
 /**
  *
  */
+@org.adempiere.base.annotation.Process
 public class ChangePrintedStatus extends FTUProcess {
 
 	/**	Record Identifier	*/

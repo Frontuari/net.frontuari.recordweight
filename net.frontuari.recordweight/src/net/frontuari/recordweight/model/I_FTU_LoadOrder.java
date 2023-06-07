@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_LoadOrder
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_LoadOrder 
@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrder
     /** TableName=FTU_LoadOrder */
     public static final String Table_Name = "FTU_LoadOrder";
 
-    /** AD_Table_ID=1000022 */
+    /** AD_Table_ID=1000067 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -103,6 +103,19 @@ public interface I_FTU_LoadOrder
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name CreateFrom */
+    public static final String COLUMNNAME_CreateFrom = "CreateFrom";
+
+	/** Set Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public void setCreateFrom (String CreateFrom);
+
+	/** Get Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateFrom();
 
     /** Column name C_UOM_Volume_ID */
     public static final String COLUMNNAME_C_UOM_Volume_ID = "C_UOM_Volume_ID";
@@ -383,6 +396,15 @@ public interface I_FTU_LoadOrder
 
 	/** Get IsMoved	  */
 	public boolean isMoved();
+
+    /** Column name IsProcessing */
+    public static final String COLUMNNAME_IsProcessing = "IsProcessing";
+
+	/** Set Processing	  */
+	public void setIsProcessing (String IsProcessing);
+
+	/** Get Processing	  */
+	public String getIsProcessing();
 
     /** Column name IsWeightRegister */
     public static final String COLUMNNAME_IsWeightRegister = "IsWeightRegister";

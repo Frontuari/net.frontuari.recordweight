@@ -13,53 +13,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2023 Frontuari, C.A. <https://frontuari.net> and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import net.frontuari.recordweight.base.FTUProcessFactory;
-import net.frontuari.recordweight.process.AnalysisPrintFormat;
-import net.frontuari.recordweight.process.ChangePrintedStatus;
-import net.frontuari.recordweight.process.ChangePrintedStatusRecordWeight;
-import net.frontuari.recordweight.process.EntryTicketChange;
-import net.frontuari.recordweight.process.FTUApproveQualityAnalysis;
-import net.frontuari.recordweight.process.FTUGenerateFreightCost;
-import net.frontuari.recordweight.process.GenerateFromLoadOrder;
-import net.frontuari.recordweight.process.GenerateMovementFromAnalysis;
-import net.frontuari.recordweight.process.ImportEntryTicket;
-import net.frontuari.recordweight.process.LoadOrderGuideGenerate;
-import net.frontuari.recordweight.process.LoadOrderPrintFormat;
-import net.frontuari.recordweight.process.ValidateDriver;
+import org.adempiere.base.AnnotationBasedProcessFactory;
 
 /**
  * Process Factory
  */
-public class ProcessFactory extends FTUProcessFactory {
+public class ProcessFactory extends AnnotationBasedProcessFactory {
 
-	/**
-	 * For initialize class. Register the process to build
-	 * 
-	 * <pre>
-	 * protected void initialize() {
-	 * 	registerProcess(PPrintPluginInfo.class);
-	 * }
-	 * </pre>
-	 */
 	@Override
-	protected void initialize() {
-		registerProcess(LoadOrderGuideGenerate.class);
-		registerProcess(GenerateFromLoadOrder.class);
-		registerProcess(EntryTicketChange.class);
-		registerProcess(ChangePrintedStatus.class);
-		registerProcess(ChangePrintedStatusRecordWeight.class);
-		registerProcess(FTUGenerateFreightCost.class);
-		registerProcess(GenerateMovementFromAnalysis.class);
-		registerProcess(ImportEntryTicket.class);
-		registerProcess(ValidateDriver.class);
-		registerProcess(FTUApproveQualityAnalysis.class);
-		registerProcess(LoadOrderPrintFormat.class);
-		registerProcess(AnalysisPrintFormat.class);
+	protected String[] getPackages() {
+		return new String[] { "net.frontuari.recordweight.process" };
 	}
 
 }
+

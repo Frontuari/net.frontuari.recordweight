@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_WeightScale_Role
  *  @author iDempiere (generated) 
- *  @version Release 7.1
+ *  @version Release 10
  */
 @SuppressWarnings("all")
 public interface I_FTU_WeightScale_Role 
@@ -32,7 +32,7 @@ public interface I_FTU_WeightScale_Role
     /** TableName=FTU_WeightScale_Role */
     public static final String Table_Name = "FTU_WeightScale_Role";
 
-    /** AD_Table_ID=1000028 */
+    /** AD_Table_ID=1000076 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

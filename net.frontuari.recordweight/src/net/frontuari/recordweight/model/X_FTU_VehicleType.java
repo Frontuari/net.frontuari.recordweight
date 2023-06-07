@@ -25,19 +25,34 @@ import org.compiere.util.Env;
 
 /** Generated Model for FTU_VehicleType
  *  @author iDempiere (generated) 
- *  @version Release 7.1 - $Id$ */
+ *  @version Release 10 - $Id$ */
+@org.adempiere.base.Model(table="FTU_VehicleType")
 public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20200504L;
+	private static final long serialVersionUID = 20230602L;
 
     /** Standard Constructor */
     public X_FTU_VehicleType (Properties ctx, int FTU_VehicleType_ID, String trxName)
     {
       super (ctx, FTU_VehicleType_ID, trxName);
+      /** if (FTU_VehicleType_ID == 0)
+        {
+			setFTU_VehicleType_ID (0);
+			setLoadCapacity (Env.ZERO);
+			setName (null);
+			setValue (null);
+			setVolumeCapacity (Env.ZERO);
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_VehicleType (Properties ctx, int FTU_VehicleType_ID, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_VehicleType_ID, trxName, virtualColumns);
       /** if (FTU_VehicleType_ID == 0)
         {
 			setFTU_VehicleType_ID (0);
@@ -71,15 +86,14 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_FTU_VehicleType[")
-        .append(get_ID()).append("]");
+      StringBuilder sb = new StringBuilder ("X_FTU_VehicleType[")
+        .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
 
 	/** Set Description.
-		@param Description 
-		Optional short description of the record
-	  */
+		@param Description Optional short description of the record
+	*/
 	public void setDescription (String Description)
 	{
 		set_Value (COLUMNNAME_Description, Description);
@@ -88,24 +102,25 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	/** Get Description.
 		@return Optional short description of the record
 	  */
-	public String getDescription () 
+	public String getDescription()
 	{
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
 	/** Set Vehicle Type.
-		@param FTU_VehicleType_ID Vehicle Type	  */
+		@param FTU_VehicleType_ID Vehicle Type
+	*/
 	public void setFTU_VehicleType_ID (int FTU_VehicleType_ID)
 	{
-		if (FTU_VehicleType_ID < 1) 
+		if (FTU_VehicleType_ID < 1)
 			set_ValueNoCheck (COLUMNNAME_FTU_VehicleType_ID, null);
-		else 
+		else
 			set_ValueNoCheck (COLUMNNAME_FTU_VehicleType_ID, Integer.valueOf(FTU_VehicleType_ID));
 	}
 
 	/** Get Vehicle Type.
 		@return Vehicle Type	  */
-	public int getFTU_VehicleType_ID () 
+	public int getFTU_VehicleType_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_VehicleType_ID);
 		if (ii == null)
@@ -114,7 +129,8 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	}
 
 	/** Set FTU_VehicleType_UU.
-		@param FTU_VehicleType_UU FTU_VehicleType_UU	  */
+		@param FTU_VehicleType_UU FTU_VehicleType_UU
+	*/
 	public void setFTU_VehicleType_UU (String FTU_VehicleType_UU)
 	{
 		set_Value (COLUMNNAME_FTU_VehicleType_UU, FTU_VehicleType_UU);
@@ -122,13 +138,14 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
 	/** Get FTU_VehicleType_UU.
 		@return FTU_VehicleType_UU	  */
-	public String getFTU_VehicleType_UU () 
+	public String getFTU_VehicleType_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_VehicleType_UU);
 	}
 
 	/** Set LoadCapacity.
-		@param LoadCapacity LoadCapacity	  */
+		@param LoadCapacity LoadCapacity
+	*/
 	public void setLoadCapacity (BigDecimal LoadCapacity)
 	{
 		set_Value (COLUMNNAME_LoadCapacity, LoadCapacity);
@@ -136,7 +153,7 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
 	/** Get LoadCapacity.
 		@return LoadCapacity	  */
-	public BigDecimal getLoadCapacity () 
+	public BigDecimal getLoadCapacity()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_LoadCapacity);
 		if (bd == null)
@@ -145,7 +162,8 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	}
 
 	/** Set MinLoadCapacity.
-		@param MinLoadCapacity MinLoadCapacity	  */
+		@param MinLoadCapacity MinLoadCapacity
+	*/
 	public void setMinLoadCapacity (BigDecimal MinLoadCapacity)
 	{
 		set_Value (COLUMNNAME_MinLoadCapacity, MinLoadCapacity);
@@ -153,7 +171,7 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
 	/** Get MinLoadCapacity.
 		@return MinLoadCapacity	  */
-	public BigDecimal getMinLoadCapacity () 
+	public BigDecimal getMinLoadCapacity()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_MinLoadCapacity);
 		if (bd == null)
@@ -162,7 +180,8 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	}
 
 	/** Set MinVolumeCapacity.
-		@param MinVolumeCapacity MinVolumeCapacity	  */
+		@param MinVolumeCapacity MinVolumeCapacity
+	*/
 	public void setMinVolumeCapacity (BigDecimal MinVolumeCapacity)
 	{
 		set_Value (COLUMNNAME_MinVolumeCapacity, MinVolumeCapacity);
@@ -170,7 +189,7 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
 	/** Get MinVolumeCapacity.
 		@return MinVolumeCapacity	  */
-	public BigDecimal getMinVolumeCapacity () 
+	public BigDecimal getMinVolumeCapacity()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_MinVolumeCapacity);
 		if (bd == null)
@@ -179,9 +198,8 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	}
 
 	/** Set Name.
-		@param Name 
-		Alphanumeric identifier of the entity
-	  */
+		@param Name Alphanumeric identifier of the entity
+	*/
 	public void setName (String Name)
 	{
 		set_Value (COLUMNNAME_Name, Name);
@@ -190,15 +208,14 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	/** Get Name.
 		@return Alphanumeric identifier of the entity
 	  */
-	public String getName () 
+	public String getName()
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
 	/** Set Search Key.
-		@param Value 
-		Search key for the record in the format required - must be unique
-	  */
+		@param Value Search key for the record in the format required - must be unique
+	*/
 	public void setValue (String Value)
 	{
 		set_Value (COLUMNNAME_Value, Value);
@@ -207,13 +224,14 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 	/** Get Search Key.
 		@return Search key for the record in the format required - must be unique
 	  */
-	public String getValue () 
+	public String getValue()
 	{
 		return (String)get_Value(COLUMNNAME_Value);
 	}
 
 	/** Set VolumeCapacity.
-		@param VolumeCapacity VolumeCapacity	  */
+		@param VolumeCapacity VolumeCapacity
+	*/
 	public void setVolumeCapacity (BigDecimal VolumeCapacity)
 	{
 		set_Value (COLUMNNAME_VolumeCapacity, VolumeCapacity);
@@ -221,7 +239,7 @@ public class X_FTU_VehicleType extends PO implements I_FTU_VehicleType, I_Persis
 
 	/** Get VolumeCapacity.
 		@return VolumeCapacity	  */
-	public BigDecimal getVolumeCapacity () 
+	public BigDecimal getVolumeCapacity()
 	{
 		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_VolumeCapacity);
 		if (bd == null)

@@ -252,9 +252,9 @@ public class MFTUMobilizationGuide extends X_FTU_MobilizationGuide implements Do
 		
 		//	Add Support to complete exists guide outside
 		if(isSOTrx()
-				&& (getExt_Guide() == null
-						|| getExt_Guide().trim().length() == 0)){
-			m_processMsg = "@Ext_Guide@ @NotFound@";
+				&& (getGuide() == null
+						|| getGuide().trim().length() == 0)){
+			m_processMsg = "@Guide@ @NotFound@";
 			return DOCACTION_Invalidate;
 		}
 		
@@ -521,95 +521,6 @@ public class MFTUMobilizationGuide extends X_FTU_MobilizationGuide implements Do
 			|| DOCSTATUS_Reversed.equals(ds);
 	}	//	isComplete
 	
-	/**
-	 * Valid Quantity to Deliver
-	 * @return
-	 * @return String
-	 */
-	/*
-	private String validQtyToDeliver(){
-		if(getQtyToDeliver() == null
-				|| getQtyToDeliver().equals(Env.ZERO))
-			return "@QtyToDeliver@ = @0@";
-
-		MClientInfo m_ClientInfo = MClientInfo.get(getCtx());
-		if(m_ClientInfo.getC_UOM_Weight_ID() == 0)
-			return "@C_UOM_Weight_ID@ = @NotFound@";
-		
-		MFTUFarming m_Farming = new MFTUFarming(getCtx(), getFTU_Farming_ID(), get_TrxName());
-		//	Get Category
-		MProduct product = MProduct.get(getCtx(), m_Farming.getCategory_ID());
-		//	Rate Convert
-		BigDecimal rate = MUOMConversion.getProductRateFrom(Env.getCtx(), 
-				product.getM_Product_ID(), m_ClientInfo.getC_UOM_Weight_ID());
-		//	Valid Conversion
-		if(rate == null)
-			return "@NoUOMConversion@";
-		
-		if(getQtyToDeliver().multiply(rate)
-				.compareTo(getFTU_VehicleType().getLoadCapacity()) > 0) 
-			return "@QtyToDeliver@ > @LoadCapacity@ @of@ @FTU_VehicleType_ID@";
-		
-		//	Max Warehouse Receipt
-		BigDecimal m_MaxReceipt = DB.getSQLValueBD(get_TrxName(), "SELECT rc.Qty - SUM(COALESCE(mg.QtyToDeliver, 0)) " +
-				"FROM FTU_ReceptionCapacity rc " +
-				"LEFT JOIN FTU_MobilizationGuide mg ON(mg.M_Warehouse_ID = rc.M_Warehouse_ID) " +
-				"WHERE rc.AD_Org_ID = ? " +
-				"AND rc.M_Warehouse_ID = ? " +
-				"AND rc.ValidFrom <= ? " +
-				"AND rc.IsActive = 'Y' " +
-				"AND mg.DateDoc >= rc.ValidFrom " +
-				"AND mg.DateDoc<COALESCE((SELECT Min(rcs.ValidFrom) FROM FTU_ReceptionCapacity rcs WHERE rc.M_WareHouse_ID= rcs.M_WareHouse_ID AND rc.AD_Org_ID=rcs.AD_Org_ID AND rcs.ValidFrom > rc.ValidFrom),now()) " +
-				"AND (mg.DocStatus IN('CO', 'CL') OR mg.DocStatus IS NULL) " +
-				"GROUP BY rc.Qty, rc.ValidFrom " +
-				"ORDER BY rc.ValidFrom DESC", getAD_Org_ID(), getM_Warehouse_ID(), getDateDoc());
-		
-		log.fine("MaxReceipt=" + m_MaxReceipt);
-		//	Valid Max Receipt
-		if(m_MaxReceipt != null
-				&& m_MaxReceipt.compareTo(Env.ZERO) <= 0)
-			return "@FTU_ReceptionCapacity_ID@ <= @0@";
-		//	Valid Quantity To Deliver
-		BigDecimal m_Qty = m_Farming.getQty();
-		BigDecimal m_Re_EstimatedQty = m_Farming.getRe_EstimatedQty();
-		//	
-		if(m_Re_EstimatedQty == null)
-			m_Re_EstimatedQty = Env.ZERO;
-		if(m_Re_EstimatedQty.compareTo(m_Qty) >= 0)
-			m_Re_EstimatedQty = m_Re_EstimatedQty.subtract(m_Qty);
-		
-		//	Quantity Delivered
-		BigDecimal m_QtyDelivered = DB.getSQLValueBD(get_TrxName(), "SELECT SUM(mg.QtyToDeliver) " +
-				"FROM FTU_MobilizationGuide mg " +
-				"WHERE mg.FTU_Farming_ID = ?" +
-				"AND mg.DocStatus IN('CO', 'CL') ", 
-				getFTU_Farming_ID());
-		
-		log.fine("WeightDelivered=" + m_QtyDelivered);
-		
-		//	Valid Quantity Delivered
-		if(m_QtyDelivered == null)
-			m_QtyDelivered = Env.ZERO;
-		
-		//	Max Quantity to Generate
-		BigDecimal m_MaxQtyToDeliver = m_Qty.add(m_Re_EstimatedQty)
-									.subtract(m_QtyDelivered);
-		//	Valid To Deliver
-		if(m_MaxQtyToDeliver.compareTo(Env.ZERO) <= 0)
-			return "@Qty@ <= @QtyToDeliver@";
-		//	Valid the Minimum to Generate
-		if(m_MaxReceipt != null
-				&& m_MaxReceipt.compareTo(m_MaxQtyToDeliver) <= 0)
-			m_MaxQtyToDeliver = m_MaxReceipt;
-		//	Verify Quantity to Deliver with Max to Deliver
-		if(getQtyToDeliver().compareTo(m_MaxQtyToDeliver) > 0)
-			return "@QtyToDeliver@ > (@EstimatedQty@ - @QtyDelivered@):"
-					+ " \n@EstimatedQty@=" + m_Qty.doubleValue() 
-					+ " \n@QtyDelivered@=" + m_QtyDelivered.doubleValue() 
-					+ " \n@QtyToDeliver@=" + getQtyToDeliver().doubleValue();
-		return null;
-	}*/
-
 	@Override
 	public int customizeValidActions(String docStatus, Object processing,
 			String orderType, String isSOTrx, int AD_Table_ID,
@@ -662,27 +573,6 @@ public class MFTUMobilizationGuide extends X_FTU_MobilizationGuide implements Do
 				setC_BPartner_ID(p_C_BPartner_ID);
 			}
 		}
-		/*
-		if(newRecord
-				|| (is_ValueChanged(X_FTU_Farming.COLUMNNAME_FTU_Farming_ID))){
-			String sql ;
-			int p_C_BPartner_ID = 0;
-			
-			sql = "SELECT f.C_BPartner_ID"
-					+ " FROM FTU_Farm f"
-					+ " INNER JOIN FTU_FarmDivision fd ON (f.FTU_Farm_ID = fd.FTU_Farm_ID)"
-					+ " INNER JOIN FTU_Farming fa ON (fd.FTU_FarmDivision_ID = fa.FTU_FarmDivision_ID)"
-					+ " WHERE"
-					+ "		fa.FTU_Farming_ID = "
-					+ getFTU_Farming_ID(); 
-			
-			p_C_BPartner_ID = DB.getSQLValue(null, sql);
-			
-			if(p_C_BPartner_ID > 0){
-				setC_BPartner_ID(p_C_BPartner_ID);
-			}
-		}*/
-
 		return ok;
 	}//	End beforeSave
 	

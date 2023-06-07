@@ -13,6 +13,7 @@ import org.compiere.util.Msg;
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 
+@org.adempiere.base.annotation.Process
 public class GenerateMovementFromAnalysis extends FTUProcess {
 
 	/**	Parameters for generate Movement Document */

@@ -19,6 +19,7 @@ import net.frontuari.recordweight.base.FTUProcess;
 /**
  *
  */
+@org.adempiere.base.annotation.Process
 public class ChangePrintedStatusRecordWeight extends FTUProcess {
 
 	/**	Record Identifier	*/

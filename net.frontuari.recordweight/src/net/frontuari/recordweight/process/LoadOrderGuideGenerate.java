@@ -26,6 +26,7 @@ import net.frontuari.recordweight.model.X_FTU_RecordWeight;
 /** 
  *
  */
+@org.adempiere.base.annotation.Process
 public class LoadOrderGuideGenerate extends FTUProcess {
 
 	/**	Organization 				*/

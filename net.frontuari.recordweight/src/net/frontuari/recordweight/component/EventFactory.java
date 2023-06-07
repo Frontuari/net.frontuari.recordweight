@@ -13,58 +13,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Copyright (C) 2020 FRONTUARI <https://www.frontuari.net> and contributors (see README.md file).
+ * Copyright (C) 2023 Frontuari, C.A. <https://frontuari.net> and contributors (see README.md file).
  */
 
 package net.frontuari.recordweight.component;
 
-import org.adempiere.base.event.IEventTopics;
-import org.compiere.model.I_C_Invoice;
-import org.compiere.model.I_M_InOut;
-import org.compiere.model.I_M_Movement;
-import org.compiere.model.MMovement;
-
-import net.frontuari.recordweight.base.FTUEventFactory;
-import net.frontuari.recordweight.events.AnalysisEvent;
-import net.frontuari.recordweight.model.FTUEvents;
-import net.frontuari.recordweight.model.MFTULoadOrderLine;
-import net.frontuari.recordweight.model.MHRSAnalysis;
+import org.adempiere.base.AnnotationBasedEventManager;
 
 /**
  * Event Factory
  */
-public class EventFactory extends FTUEventFactory {
+public class EventFactory extends AnnotationBasedEventManager {
 
-	/**
-	 * For initialize class. Register the custom events to build
-	 * 
-	 * <pre>
-	 * protected void initialize() {
-	 * 	registerEvent(IEventTopics.DOC_BEFORE_COMPLETE, MTableExample.Table_Name, EPrintPluginInfo.class);
-	 * }
-	 * </pre>
-	 */
 	@Override
-	protected void initialize() {
-		registerEvent(IEventTopics.DOC_AFTER_VOID, I_M_InOut.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSECORRECT, I_M_InOut.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSEACCRUAL, I_M_InOut.Table_Name, FTUEvents.class);
-		
-		registerEvent(IEventTopics.DOC_AFTER_VOID, I_M_Movement.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSECORRECT, I_M_Movement.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSEACCRUAL, I_M_Movement.Table_Name, FTUEvents.class);
-		
-		registerEvent(IEventTopics.DOC_AFTER_VOID, I_C_Invoice.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSECORRECT, I_C_Invoice.Table_Name, FTUEvents.class);
-		registerEvent(IEventTopics.DOC_AFTER_REVERSEACCRUAL, I_C_Invoice.Table_Name, FTUEvents.class);
-		
-		//Add Event After Complete Movement for Update Qty Delivered in Distribution Order Line By Argenis Rodríguez
-		registerEvent(IEventTopics.DOC_AFTER_COMPLETE, MMovement.Table_Name, FTUEvents.class);
-		//End By Argenis Rodríguez
-		//	Added By Jorge Colmenarez, 2022-12-03 10:24
-		registerEvent(IEventTopics.PO_AFTER_NEW, MHRSAnalysis.Table_Name, AnalysisEvent.class);
-		registerEvent(IEventTopics.PO_AFTER_CHANGE, MHRSAnalysis.Table_Name, AnalysisEvent.class);
-		//	End Jorge Colmenarez
+	public String[] getPackages() {
+		return new String[] { "net.frontuari.recordweight.event" };
 	}
 
 }
+

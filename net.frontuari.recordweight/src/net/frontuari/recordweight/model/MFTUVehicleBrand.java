@@ -6,10 +6,6 @@ package net.frontuari.recordweight.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-/**
- * @author jruiz
- *
- */
 public class MFTUVehicleBrand extends X_FTU_VehicleBrand {
 
 	/**

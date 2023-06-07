@@ -34,6 +34,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.idempiere.ui.zk.annotation.Form;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -43,6 +44,7 @@ import org.zkoss.zul.Center;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
 
+@Form(name = "net.frontuari.recordweight.form.WApplyDeliveredRute")
 public class WApplyDeliveredRute extends CreateFrom implements EventListener<Event> {
 	
 	private WCreateFromWindow window;

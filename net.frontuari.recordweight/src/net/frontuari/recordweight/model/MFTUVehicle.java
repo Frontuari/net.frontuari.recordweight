@@ -10,10 +10,6 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
 
-/**
- * @author jruiz
- *
- */
 public class MFTUVehicle extends X_FTU_Vehicle {
 
 	/**

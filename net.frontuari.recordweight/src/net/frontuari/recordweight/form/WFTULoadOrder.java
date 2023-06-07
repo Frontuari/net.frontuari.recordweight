@@ -56,6 +56,7 @@ import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
+import org.idempiere.ui.zk.annotation.Form;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
@@ -68,10 +69,12 @@ import org.zkoss.zul.Space;
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.util.StringNamePair;
 
+@Form(name = "net.frontuari.recordweight.form.WFTULoadOrder")
 public class WFTULoadOrder extends FTULoadOrder
 	implements IFormController, EventListener<Event>, WTableModelListener, ValueChangeListener
 {
 	
+	private static final long serialVersionUID = 5961538334805894474L;
 	/**
 	 * 
 	 * *** Constructor ***

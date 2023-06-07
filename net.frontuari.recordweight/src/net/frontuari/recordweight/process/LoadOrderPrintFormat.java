@@ -14,6 +14,7 @@ import org.adempiere.webui.window.SimplePDFViewer;
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 
+@org.adempiere.base.annotation.Process
 public class LoadOrderPrintFormat extends FTUProcess {
 
 	private List<File> pdfList = new ArrayList<File>();

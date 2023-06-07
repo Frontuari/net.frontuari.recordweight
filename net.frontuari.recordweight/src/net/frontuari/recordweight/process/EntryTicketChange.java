@@ -4,7 +4,7 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 
 import net.frontuari.recordweight.base.FTUProcess;
-import net.frontuari.recordweight.model.MFTUBillOfLading;
+import net.frontuari.recordweight.model.MFTUFreightCost;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTURecordWeight;
@@ -14,6 +14,7 @@ import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 /**
  *
  */
+@org.adempiere.base.annotation.Process
 public class EntryTicketChange extends FTUProcess {
 
 	/**	Entry Ticket				*/
@@ -116,8 +117,8 @@ public class EntryTicketChange extends FTUProcess {
 		
 		//	Added by Jorge Colmenarez, 2021-08-31 16:02
 		//	Update Bill of Lading
-		MFTUBillOfLading[] bols = m_FTU_EntryTicket.getBillOfLading(null);
-		for(MFTUBillOfLading bol : bols)
+		MFTUFreightCost[] bols = m_FTU_EntryTicket.getFreightCost(null);
+		for(MFTUFreightCost bol : bols)
 		{
 			//	Change Shipper
 			if(p_M_Shipper_ID != 0) {

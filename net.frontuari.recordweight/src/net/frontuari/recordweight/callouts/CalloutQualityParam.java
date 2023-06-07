@@ -6,15 +6,19 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.adempiere.base.annotation.Callout;
 import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.MFTUAnalysisType;
-import net.frontuari.recordweight.model.X_FTU_Functions_Formule;
-import net.frontuari.recordweight.model.X_FTU_Quality_Param;
+import net.frontuari.recordweight.model.X_FTU_FormuleFunction;
+import net.frontuari.recordweight.model.X_FTU_QualityParam;
 
+@Callout(tableName = X_FTU_QualityParam.Table_Name, columnName = {X_FTU_QualityParam.COLUMNNAME_HumanCode,
+		X_FTU_QualityParam.COLUMNNAME_AD_Column_ID,X_FTU_QualityParam.COLUMNNAME_FTU_Parent_ID,
+		X_FTU_QualityParam.COLUMNNAME_FTU_FormuleFunction_ID,X_FTU_QualityParam.COLUMNNAME_FTU_AnalysisType_ID})
 public class CalloutQualityParam extends FTUCallout {
 	String campoCodigo;
 	@Override
@@ -23,13 +27,13 @@ public class CalloutQualityParam extends FTUCallout {
 		String codigo;
 		int id;
 		switch(colummName) {
-			case X_FTU_Quality_Param.COLUMNNAME_Update_Code_Human:
+			case X_FTU_QualityParam.COLUMNNAME_HumanCode:
 				if(getValue()==null) return null;
 				campoCodigo=(String) getTab().getValue("Code");
 				actualizarCodigoHumano();
 				actualizarCodigosCampos();
 			break;
-			case X_FTU_Quality_Param.COLUMNNAME_AD_Column_ID:
+			case X_FTU_QualityParam.COLUMNNAME_AD_Column_ID:
 				if(getValue()==null) return null;
 				int idColumn=(int) getValue();
 				codigo=(String) getTab().getValue("Code");
@@ -39,7 +43,7 @@ public class CalloutQualityParam extends FTUCallout {
 					setValue("Code", codigo+" AND (&"+idColumn+"<100%)");
 				}					
 			break;
-			case X_FTU_Quality_Param.COLUMNNAME_FTU_Parent_ID:
+			case X_FTU_QualityParam.COLUMNNAME_FTU_Parent_ID:
 				if(getValue()==null) return null;
 				int FTU_Parent_ID=(int) getValue();
 				codigo=(String) getTab().getValue("Code");
@@ -49,10 +53,10 @@ public class CalloutQualityParam extends FTUCallout {
 					setValue("Code", codigo+" AND (F"+FTU_Parent_ID+"<100%)");
 				}					
 			break;
-			case X_FTU_Quality_Param.COLUMNNAME_FTU_Functions_Formule_ID:
+			case X_FTU_QualityParam.COLUMNNAME_FTU_FormuleFunction_ID:
 				if(getValue()==null) return null;
 				id=(int) getValue();
-				X_FTU_Functions_Formule ff = new Query(getCtx(), X_FTU_Functions_Formule.Table_Name, "FTU_Functions_Formule_ID=?", null)
+				X_FTU_FormuleFunction ff = new Query(getCtx(), X_FTU_FormuleFunction.Table_Name, "FTU_Functions_Formule_ID=?", null)
 						.setParameters(id)
 						.setOnlyActiveRecords(true)
 						.first();
@@ -65,7 +69,7 @@ public class CalloutQualityParam extends FTUCallout {
 					setValue("Code", codigo+" AND (@"+value+"(VAR)<100%)");
 				}			
 				break;
-			case X_FTU_Quality_Param.COLUMNNAME_FTU_Analysis_Type_ID:
+			case X_FTU_QualityParam.COLUMNNAME_FTU_AnalysisType_ID:
 				if(getValue()==null) return null;
 				id=(int) getValue();
 				MFTUAnalysisType at = new Query(getCtx(), MFTUAnalysisType.Table_Name, "FTU_Analysis_Type_ID=?", null)
