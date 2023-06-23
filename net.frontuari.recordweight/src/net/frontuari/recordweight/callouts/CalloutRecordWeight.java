@@ -75,8 +75,10 @@ public class CalloutRecordWeight extends FTUCallout {
 			//Set Product From Entry Ticket
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), m_FTU_EntryTicket_ID, null);
 			//	Set Trailer Plate, Vehicle and driver of Entry Ticket
-			if (et.getM_Product_ID()!= 0 )
+			if (et.getM_Product_ID()!= 0 ) {
 				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Product_ID, et.getM_Product_ID());
+				setValue(I_FTU_RecordWeight.COLUMNNAME_C_UOM_ID, et.getM_Product().getC_UOM_ID());
+			}
 			if(et.getTrailerPlate() != null
 					&& et.getTrailerPlate().length() > 0)
 				setValue(I_FTU_RecordWeight.COLUMNNAME_TrailerPlate, et.getTrailerPlate());
@@ -88,6 +90,10 @@ public class CalloutRecordWeight extends FTUCallout {
 			//	Set Shipper from entry ticket
 			if(et.getM_Shipper_ID() > 0)
 				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Shipper_ID, et.getM_Shipper_ID());
+			
+			if (!(et.getOperationType()== null) || !(et.getOperationType().equalsIgnoreCase("")))
+				setValue(I_FTU_RecordWeight.COLUMNNAME_OperationType,et.getOperationType());
+			
 			
 			if(et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
