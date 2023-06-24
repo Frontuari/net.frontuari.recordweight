@@ -114,10 +114,10 @@ public interface I_FTU_AnalysisType
     /** Column name FTU_AnalysisType_UU */
     public static final String COLUMNNAME_FTU_AnalysisType_UU = "FTU_AnalysisType_UU";
 
-	/** Set FTU_Analysis_Type_UU	  */
+	/** Set FTU_AnalysisType_UU	  */
 	public void setFTU_AnalysisType_UU (String FTU_AnalysisType_UU);
 
-	/** Get FTU_Analysis_Type_UU	  */
+	/** Get FTU_AnalysisType_UU	  */
 	public String getFTU_AnalysisType_UU();
 
     /** Column name IsActive */

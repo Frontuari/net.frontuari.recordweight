@@ -34,7 +34,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230624L;
 
     /** Standard Constructor */
     public X_HRS_Analysis (Properties ctx, int HRS_Analysis_ID, String trxName)
@@ -376,22 +376,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return (String)get_Value(COLUMNNAME_GenerateDoc);
 	}
 
-	/** Set Comment/Help.
-		@param Help Comment or Hint
-	*/
-	public void setHelp (String Help)
-	{
-		set_Value (COLUMNNAME_Help, Help);
-	}
-
-	/** Get Comment/Help.
-		@return Comment or Hint
-	  */
-	public String getHelp()
-	{
-		return (String)get_Value(COLUMNNAME_Help);
-	}
-
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis
 	*/
@@ -426,6 +410,22 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public String getHRS_Analysis_UU()
 	{
 		return (String)get_Value(COLUMNNAME_HRS_Analysis_UU);
+	}
+
+	/** Set Comment/Help.
+		@param Help Comment or Hint
+	*/
+	public void setHelp (String Help)
+	{
+		set_Value (COLUMNNAME_Help, Help);
+	}
+
+	/** Get Comment/Help.
+		@return Comment or Hint
+	  */
+	public String getHelp()
+	{
+		return (String)get_Value(COLUMNNAME_Help);
 	}
 
 	/** Set Aproved Analysis.
@@ -495,34 +495,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return false;
 	}
 
-	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
-	{
-		return (org.compiere.model.I_M_InOut)MTable.get(getCtx(), org.compiere.model.I_M_InOut.Table_ID)
-			.getPO(getM_InOut_ID(), get_TrxName());
-	}
-
-	/** Set Shipment/Receipt.
-		@param M_InOut_ID Material Shipment Document
-	*/
-	public void setM_InOut_ID (int M_InOut_ID)
-	{
-		if (M_InOut_ID < 1)
-			set_Value (COLUMNNAME_M_InOut_ID, null);
-		else
-			set_Value (COLUMNNAME_M_InOut_ID, Integer.valueOf(M_InOut_ID));
-	}
-
-	/** Get Shipment/Receipt.
-		@return Material Shipment Document
-	  */
-	public int getM_InOut_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOut_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
 	{
 		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_ID)
@@ -546,6 +518,34 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public int getM_InOutLine_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOutLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_InOut)MTable.get(getCtx(), org.compiere.model.I_M_InOut.Table_ID)
+			.getPO(getM_InOut_ID(), get_TrxName());
+	}
+
+	/** Set Shipment/Receipt.
+		@param M_InOut_ID Material Shipment Document
+	*/
+	public void setM_InOut_ID (int M_InOut_ID)
+	{
+		if (M_InOut_ID < 1)
+			set_Value (COLUMNNAME_M_InOut_ID, null);
+		else
+			set_Value (COLUMNNAME_M_InOut_ID, Integer.valueOf(M_InOut_ID));
+	}
+
+	/** Get Shipment/Receipt.
+		@return Material Shipment Document
+	  */
+	public int getM_InOut_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOut_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

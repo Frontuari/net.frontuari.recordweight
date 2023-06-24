@@ -263,7 +263,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				//	Support for write QtyDifference
 				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
 				//	End Jorge Colmenarez
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la carga origen ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
 			}
 		}
@@ -323,7 +323,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return DocAction.STATUS_Invalid;
 			}
 		}else {
-		if (getNetWeight() == null 
+			if (getNetWeight() == null 
 				|| getNetWeight().doubleValue() == 0) {
 			isValidWeight = false;
 			m_processMsg = "@NetWeight@ <= 0";

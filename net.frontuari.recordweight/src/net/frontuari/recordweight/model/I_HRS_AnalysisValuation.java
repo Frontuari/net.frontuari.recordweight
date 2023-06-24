@@ -32,7 +32,7 @@ public interface I_HRS_AnalysisValuation
     /** TableName=HRS_AnalysisValuation */
     public static final String Table_Name = "HRS_AnalysisValuation";
 
-    /** AD_Table_ID=1000114 */
+    /** AD_Table_ID=1000506 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -91,17 +91,6 @@ public interface I_HRS_AnalysisValuation
 
 	public net.frontuari.recordweight.model.I_FTU_QualityParam getFTU_QualityParam() throws RuntimeException;
 
-    /** Column name HRS_Analysis_ID */
-    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
-
-	/** Set Analysis	  */
-	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
-
-	/** Get Analysis	  */
-	public int getHRS_Analysis_ID();
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
-
     /** Column name HRS_AnalysisValuation_ID */
     public static final String COLUMNNAME_HRS_AnalysisValuation_ID = "HRS_AnalysisValuation_ID";
 
@@ -120,6 +109,26 @@ public interface I_HRS_AnalysisValuation
 	/** Get HRS_AnalysisValuation_UU	  */
 	public String getHRS_AnalysisValuation_UU();
 
+    /** Column name HRS_Analysis_ID */
+    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
+
+	/** Set Analysis	  */
+	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
+
+	/** Get Analysis	  */
+	public int getHRS_Analysis_ID();
+
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
+
+    /** Column name HumanResult */
+    public static final String COLUMNNAME_HumanResult = "HumanResult";
+
+	/** Set Human Result	  */
+	public void setHumanResult (String HumanResult);
+
+	/** Get Human Result	  */
+	public String getHumanResult();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -133,23 +142,14 @@ public interface I_HRS_AnalysisValuation
 	  */
 	public boolean isActive();
 
-    /** Column name Result_Human */
-    public static final String COLUMNNAME_Result_Human = "Result_Human";
+    /** Column name SystemResult */
+    public static final String COLUMNNAME_SystemResult = "SystemResult";
 
-	/** Set Result Human	  */
-	public void setResult_Human (String Result_Human);
+	/** Set System Result	  */
+	public void setSystemResult (String SystemResult);
 
-	/** Get Result Human	  */
-	public String getResult_Human();
-
-    /** Column name Result_System */
-    public static final String COLUMNNAME_Result_System = "Result_System";
-
-	/** Set Result System	  */
-	public void setResult_System (String Result_System);
-
-	/** Get Result System	  */
-	public String getResult_System();
+	/** Get System Result	  */
+	public String getSystemResult();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

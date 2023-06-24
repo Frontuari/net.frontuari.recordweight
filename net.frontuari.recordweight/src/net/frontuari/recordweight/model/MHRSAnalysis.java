@@ -410,7 +410,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		String dSql = "DELETE FROM HRS_AnalysisValuation WHERE HRS_Analysis_ID=?";
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
-		String sql="SELECT qp.FTU_QualityParam_id,name,code "
+		String sql="SELECT qp.FTU_QualityParam_ID,Name,Code "
 				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -420,8 +420,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			rs = pst.executeQuery();
 			while(rs.next())
 			{
-				String code=rs.getString("code");
-				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_id");
+				String code=rs.getString("Code");
+				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_ID");
 				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
 				//	Replace Code
 				code = getFormulas(code);
@@ -437,9 +437,9 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
-					lcr.setResult_Human(result.toUpperCase());
+					lcr.setHumanResult(result.toUpperCase());
 					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
-					lcr.setResult_System(SysResult);
+					lcr.setSystemResult(SysResult);
 					lcr.saveEx();
 				}
 			}
@@ -545,10 +545,10 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	private String validateAnalysis() {
 		StringBuilder msg = new StringBuilder();
 		
-		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(Result_System) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
+		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(SystemResult) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
 			msg.append( valuation.getFTU_QualityParam().getName() )
 				.append(" = " )
-				.append(valuation.getResult_Human())
+				.append(valuation.getHumanResult())
 				.append(Env.NL); 
 		}
 		if(msg.length() > 0) 
