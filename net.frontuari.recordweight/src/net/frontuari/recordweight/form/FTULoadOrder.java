@@ -122,7 +122,7 @@ public class FTULoadOrder extends FTUForm {
 	/**	Weight Unit Measure	*/
 	protected int 				m_C_UOM_Weight_ID = 0;
 	/**	Volume Unit Measure	*/
-//	protected int 				m_C_UOM_Volume_ID = 0;
+	protected int 				m_C_UOM_Volume_ID = 0;
 	/**	Weight Precision	*/
 	protected int 				m_WeightPrecision = 0;
 	/**	Volume Precision	*/
@@ -970,15 +970,15 @@ public class FTULoadOrder extends FTUForm {
 	 */
 	protected void loadDefaultValues() {
 		m_C_UOM_Weight_ID = getC_UOM_Weight_ID();
-//		m_C_UOM_Volume_ID = getC_UOM_Volume_ID();
+		m_C_UOM_Volume_ID = getC_UOM_Volume_ID();
 		//	Get Weight Precision
 		if(m_C_UOM_Weight_ID > 0) {
 			m_WeightPrecision = MUOM.getPrecision(Env.getCtx(), m_C_UOM_Weight_ID);
 		}
 		//	Get Volume Precision
-//		if(m_C_UOM_Volume_ID > 0) {
-//			m_VolumePrecision = MUOM.getPrecision(Env.getCtx(), m_C_UOM_Volume_ID);
-//		}
+		if(m_C_UOM_Volume_ID > 0) {
+			m_VolumePrecision = MUOM.getPrecision(Env.getCtx(), m_C_UOM_Volume_ID);
+		}
 	}
 	
 	/**
@@ -1371,7 +1371,6 @@ public class FTULoadOrder extends FTUForm {
 
 	@Override
 	protected void initForm() {
-		// TODO Auto-generated method stub
 		
 	}
 }

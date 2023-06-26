@@ -18,16 +18,27 @@
 
 package net.frontuari.recordweight.component;
 
-import org.adempiere.webui.factory.AnnotationBasedFormFactory;
+import net.frontuari.recordweight.base.FTUFormFactory;
+import net.frontuari.recordweight.form.WFTULoadOrder;
 
 /**
  * Form Factory
  */
-public class FormFactory extends AnnotationBasedFormFactory {
+public class FormFactory extends FTUFormFactory {
 
+	/**
+	 * For initialize class. Register the custom forms to build. This method is
+	 * useful when is not using autoscan feature.
+	 * 
+	 * <pre>
+	 * protected void initialize() {
+	 * 	registerForm(FPrintPluginInfo.class);
+	 * }
+	 * </pre>
+	 */
 	@Override
-	protected String[] getPackages() {
-		return new String[] { "net.frontuari.recordweight.form" };
+	protected void initialize() {
+		registerForm(WFTULoadOrder.class);
 	}
 
 }
