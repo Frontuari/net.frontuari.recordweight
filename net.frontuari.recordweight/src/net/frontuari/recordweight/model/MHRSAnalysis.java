@@ -405,18 +405,21 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	 * Process Clasifications of Analysis
 	 * @author Jorge Colmenarez, 2022-08-04 17:42
 	 */
-	private void clasification() {
+	private void clasification(String type) {
 		//	Delete Cultive Result
 		String dSql = "DELETE FROM HRS_AnalysisValuation WHERE HRS_Analysis_ID=?";
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
 		String sql="SELECT qp.FTU_QualityParam_ID,Name,Code "
-				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
+				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y' "
+				+ "AND qp.IsUsedFor IN (?,?) ";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
 			pst = DB.prepareStatement(sql, get_TrxName());
 			pst.setInt(1, getM_Product_ID());
+			pst.setString(2, type);
+			pst.setString(3, X_FTU_QualityParam.ISUSEDFOR_Both);
 			rs = pst.executeQuery();
 			while(rs.next())
 			{
@@ -477,7 +480,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		//End By Argenis Rodríguez
 		
 		//	Clasificar
-		clasification();
+		String AnalysisType = (isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
+		clasification(AnalysisType);
 		setDescription(null);
 		String valid = validateAnalysis();
 		if (valid != null) {

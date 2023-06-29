@@ -6,7 +6,6 @@ package net.frontuari.recordweight.model;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
@@ -1483,19 +1482,20 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 				// Set Product
 				ioLine.setProduct(product);
-				
+				boolean useAttribute = false;
 				if (lol[i].getM_AttributeSetInstance_ID()>0) {
 					ioLine.setM_AttributeSetInstance_ID(lol[i].getM_AttributeSetInstance_ID());
 				}else {
 					MFTULoadOrderLineMA[] mas = MFTULoadOrderLineMA.get(getCtx(), lol[i].getFTU_LoadOrder_ID(), get_TrxName());
 					if (mas.length>0) {
+						useAttribute = true;
 						BigDecimal qtyToDeliver = m_MovementQty;
 						for (MFTULoadOrderLineMA ma : mas) { 
 							
 							if (ma.getQty().compareTo(qtyToDeliver) >=0) {
 
 								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
-								
+								ioLine2.setProduct(product);
 								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
 								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
 								// Set Quantity
@@ -1508,7 +1508,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 								qtyToDeliver = Env.ZERO;
 							}else {
 								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
-								
+								ioLine2.setProduct(product);
 								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
 								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
 								// Set Quantity
@@ -1527,16 +1527,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						}
 					}
 				}
+				
+				if(!useAttribute) {
+					ioLine.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
 
-				ioLine.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
-
-				// Set Quantity
-				ioLine.setC_UOM_ID(oLine.getC_UOM_ID());
-				ioLine.setQty(m_MovementQty);
-				ioLine.setQtyEntered(m_Qty);
-				ioLine.setM_Locator_ID(m_MovementQty);
-				//
-				ioLine.saveEx(get_TrxName());
+					// Set Quantity
+					ioLine.setC_UOM_ID(oLine.getC_UOM_ID());
+					ioLine.setQty(m_MovementQty);
+					ioLine.setQtyEntered(m_Qty);
+					ioLine.setM_Locator_ID(m_MovementQty);
+					//
+					ioLine.saveEx(get_TrxName());
+				}
 				// Manually Process Shipment
 				//	Added By Jorge Colmenarez, 2021-07-22 11:59
 				//	Support for get DocAction from SysConfig Variable

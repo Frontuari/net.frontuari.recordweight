@@ -284,8 +284,8 @@ public class FTULoadOrder extends FTUForm {
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
 			if (m_SalesRep_ID > 0 )
 				sql.append("AND ord.SalesRep_ID=? ");
-			if (m_C_DocType_ID > 0 )
-				sql.append("AND ord.C_DocType_ID=? ");
+			/*if (m_C_DocType_ID > 0 )
+				sql.append("AND ord.C_DocType_ID=? ");*/
 			if(m_IsBulk) {
 				sql.append("AND lord.M_Product_ID=? ");
 				sql.append("AND ord.C_BPartner_ID=? ");
@@ -328,8 +328,8 @@ public class FTULoadOrder extends FTUForm {
 				pstmt.setInt(param++, m_C_SalesRegion_ID);
 			if (m_SalesRep_ID > 0 )
 				pstmt.setInt(param++, m_SalesRep_ID);
-			if (m_C_DocType_ID > 0 )
-				pstmt.setInt(param++, m_C_DocType_ID);
+			/*if (m_C_DocType_ID > 0 )
+				pstmt.setInt(param++, m_C_DocType_ID);*/
 			if(m_IsBulk) {
 				pstmt.setInt(param++, m_M_Product_ID);
 				pstmt.setInt(param++, m_C_BPartner_ID);
@@ -856,7 +856,7 @@ public class FTULoadOrder extends FTUForm {
 		m_FTU_LoadOrder.setLoadCapacity(m_LoadCapacity);
 		m_FTU_LoadOrder.setVolumeCapacity(m_VolumeCapacity);
 		m_FTU_LoadOrder.setC_UOM_Weight_ID(m_C_UOM_Weight_ID);
-//		m_FTU_LoadOrder.setC_UOM_Volume_ID(m_C_UOM_Volume_ID);
+		m_FTU_LoadOrder.setC_UOM_Volume_ID(m_C_UOM_Volume_ID);
 		//	Set Is Handle Record Weight
 		m_FTU_LoadOrder.setIsHandleRecordWeight(MFTUWeightScale.isWeightScaleOrg(m_AD_Org_ID, trxName));
 		//	Set Warehouse
@@ -948,12 +948,19 @@ public class FTULoadOrder extends FTUForm {
 		//	Set Header Volume
 		m_FTU_LoadOrder.setVolume(totalVolume);
 		//	Save Header
-		m_FTU_LoadOrder.saveEx();
-		//	Complete Order - removed 03/10/2022
 		m_FTU_LoadOrder.setDocStatus(X_FTU_LoadOrder.DOCSTATUS_Drafted);
 		m_FTU_LoadOrder.setDocAction(X_FTU_LoadOrder.DOCACTION_Complete);
-		//m_FTU_LoadOrder.processIt(X_FTU_LoadOrder.DOCACTION_Prepare);
 		m_FTU_LoadOrder.saveEx();
+		//	DocAction
+		String loAction = MSysConfig.getValue("LOAD_ORDER_DOCACTION", "--", Env.getAD_Client_ID(Env.getCtx()), m_AD_Org_ID);
+		if(!loAction.equals("--")) {
+			if(!m_FTU_LoadOrder.processIt(loAction))
+				throw new AdempiereException(m_FTU_LoadOrder.getProcessMsg());
+			else
+				m_FTU_LoadOrder.saveEx();
+			
+		}
+		
 		//	Valid Error
 		String errorMsg = m_FTU_LoadOrder.getProcessMsg();
 		if(errorMsg != null

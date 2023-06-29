@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import org.adempiere.util.Callback;
 import org.adempiere.webui.ClientInfo;
 import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
 import org.adempiere.webui.component.Label;
@@ -38,6 +39,7 @@ import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.StatusBarPanel;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
+import org.adempiere.webui.window.Dialog;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.I_C_Order;
@@ -46,6 +48,7 @@ import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
+import org.compiere.model.MPaySelection;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MUOM;
@@ -79,6 +82,8 @@ import org.adempiere.webui.component.Columns;
 import org.adempiere.webui.component.Datebox;
 
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
+import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.util.StringNamePair;
 
 /***
@@ -116,6 +121,8 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 	private Panel 			allocationPanel = new Panel();
 	private Grid 			allocationLayout = GridFactory.newGridLayout();
 	private Borderlayout 	infoLayout = new Borderlayout();
+	private North 			north1 = new North();
+	
 	/** Weight Difference	*/
 	private Label 			weightDiffLabel = new Label();
 	private NumberBox 		weightDiffField = null;
@@ -264,9 +271,9 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		//	Warehouse
 		warehouseLabel.setText(Msg.translate(Env.getCtx(), "M_Warehouse_ID"));
 		//	Product
-		productSearch.getLabel().setText(Msg.translate(Env.getCtx(), "M_Product_ID"));
+		productLabel.setText(Msg.translate(Env.getCtx(), "M_Product_ID"));
 		//	Business Partner
-		bpartnerSearch.getLabel().setText(Msg.translate(Env.getCtx(), "C_BPartner_ID"));
+		bpartnerLabel.setText(Msg.translate(Env.getCtx(), "C_BPartner_ID"));
 		//	Add Layout to Panels
 		parameterPanel.appendChild(parameterLayout);
 		allocationPanel.appendChild(allocationLayout);
@@ -294,7 +301,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		
 		//	Drawing Panels
 		//	Draw Main Panel
-		North north1 = new North();
+		north1 = new North();
 		north1.setSplittable(true);
 		north1.setCollapsible(true);
 		north1.setTitle(Msg.translate(Env.getCtx(),"Parameter"));
@@ -871,9 +878,9 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			return;
 		}
 		//	Load Data
-		/*if(loadDataOrder()){
+		if(loadDataOrder()){
 			north1.setOpen(false);
-		}*/
+		}
 	}
 	
 	/**
@@ -1214,7 +1221,13 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			//	Set Capacity
 			m_M_Shipper_ID = getM_Shipper_ID(m_FTU_EntryTicket_ID);
 			shipperPick.setValue(m_M_Shipper_ID);
-						
+			//	Set Product and BPartner from EntryTicket
+			MFTUEntryTicket et = new MFTUEntryTicket(Env.getCtx(), m_FTU_EntryTicket_ID, null);
+			if(et.getM_Product_ID()>0)
+				productSearch.setValue(et.getM_Product_ID());
+			if(et.getC_BPartner_ID()>0)
+				bpartnerSearch.setValue(et.getC_BPartner_ID());
+
 			setFillCapacity();
 		}
 		calculate();
@@ -1603,7 +1616,6 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			public void run(String trxName) {
 				success[0] = generateLoadOrder(trxName, w_orderLineTable);
 				statusBar.setStatusLine(success[0]);
-				
 			}
 		};
 		try
@@ -1628,7 +1640,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				{	//	Print?
 					printDocument();
 				}
-				
+				AEnv.zoom(MFTULoadOrder.Table_ID, m_FTU_LoadOrder.get_ID());
 			}
 		});	
 		
@@ -1636,7 +1648,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		shipperPick.setValue(null);
 		driverSearch.removeAllItems();
 		vehicleSearch.removeAllItems();
-		//north1.setOpen(true);
+		north1.setOpen(true);
 		//	Clear Data
 		clearData();
 		calculate();

@@ -32,7 +32,7 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230629L;
 
     /** Standard Constructor */
     public X_FTU_QualityParam (Properties ctx, int FTU_QualityParam_ID, String trxName)
@@ -41,7 +41,11 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
       /** if (FTU_QualityParam_ID == 0)
         {
 			setCode (null);
+			setDateDoc (new Timestamp( System.currentTimeMillis() ));
+// @#Date@
 			setFTU_QualityParam_ID (0);
+			setIsUsedFor (null);
+// BO
 			setName (null);
         } */
     }
@@ -53,7 +57,11 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
       /** if (FTU_QualityParam_ID == 0)
         {
 			setCode (null);
+			setDateDoc (new Timestamp( System.currentTimeMillis() ));
+// @#Date@
 			setFTU_QualityParam_ID (0);
+			setIsUsedFor (null);
+// BO
 			setName (null);
         } */
     }
@@ -304,6 +312,28 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public String getHumanCode()
 	{
 		return (String)get_Value(COLUMNNAME_HumanCode);
+	}
+
+	/** Both = BO */
+	public static final String ISUSEDFOR_Both = "BO";
+	/** Laboratory Analysis = LA */
+	public static final String ISUSEDFOR_LaboratoryAnalysis = "LA";
+	/** Quality Analysis = QA */
+	public static final String ISUSEDFOR_QualityAnalysis = "QA";
+	/** Set Used for.
+		@param IsUsedFor Used for
+	*/
+	public void setIsUsedFor (String IsUsedFor)
+	{
+
+		set_Value (COLUMNNAME_IsUsedFor, IsUsedFor);
+	}
+
+	/** Get Used for.
+		@return Used for	  */
+	public String getIsUsedFor()
+	{
+		return (String)get_Value(COLUMNNAME_IsUsedFor);
 	}
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException
