@@ -3,6 +3,7 @@
  */
 package net.frontuari.recordweight.process;
 
+import org.adempiere.base.annotation.Process;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_M_AttributeSetInstance;
 import org.compiere.model.I_M_InOutLine;
@@ -18,7 +19,7 @@ import net.frontuari.recordweight.base.FTUProcess;
  * @author dmartinez
  *
  */
-
+@Process
 public class SerializeProducts extends FTUProcess {
 
 	private int p_M_Product_ID = -1;
