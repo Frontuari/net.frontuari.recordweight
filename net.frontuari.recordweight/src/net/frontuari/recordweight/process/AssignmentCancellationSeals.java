@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.adempiere.base.annotation.Process;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MInventory;
 import org.compiere.model.MInventoryLine;
@@ -22,13 +23,14 @@ import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
 
-import net.frontuari.recordweight.base.CustomProcess;
+import net.frontuari.recordweight.base.FTUProcess;
 
 /**
  * @author dmartinez
  *
  */
-public class AssignmentCancellationSeals extends CustomProcess {
+@Process
+public class AssignmentCancellationSeals extends FTUProcess {
 
 	private int p_FTU_LoadOrder_ID = -1;
 	private int p_M_Product_ID = -1;

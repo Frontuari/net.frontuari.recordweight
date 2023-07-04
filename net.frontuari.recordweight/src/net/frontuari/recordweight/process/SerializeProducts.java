@@ -12,13 +12,14 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
-import net.frontuari.recordweight.base.CustomProcess;
+import net.frontuari.recordweight.base.FTUProcess;
 
 /**
  * @author dmartinez
  *
  */
-public class SerializeProducts extends CustomProcess {
+
+public class SerializeProducts extends FTUProcess {
 
 	private int p_M_Product_ID = -1;
 	private int p_M_AttributeSetInstance_ID = -1;
