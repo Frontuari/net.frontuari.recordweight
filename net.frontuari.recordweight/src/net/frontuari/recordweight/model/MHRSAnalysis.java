@@ -360,7 +360,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	}
         }
         
-	    return code;	
+	    return code;
 	}
 	
 	/***

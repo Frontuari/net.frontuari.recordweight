@@ -177,6 +177,8 @@ public class CalloutQualityParam extends FTUCallout {
 				value=rs.getString("value");
 				name=rs.getString("name");
 				code=code.replaceAll("#("+value+")", "("+name+")");
+				code=code.replaceAll("@("+value+")", "("+name+")");
+				code=code.replaceAll("F("+value+")", "("+name+")");
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();

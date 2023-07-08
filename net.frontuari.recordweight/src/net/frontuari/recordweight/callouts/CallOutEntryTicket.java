@@ -6,6 +6,7 @@ package net.frontuari.recordweight.callouts;
 import java.util.Optional;
 
 import org.adempiere.base.annotation.Callout;
+import org.compiere.model.GridField;
 import org.compiere.model.MOrder;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -66,10 +67,13 @@ public class CallOutEntryTicket extends FTUCallout {
 			if(p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 					|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_ProductBulkReceipt)
 						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_ReceiptMoreThanOneProduct)
-						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement))
+						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement)) {
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "N");
-			else
+				getTab().setValue("IsSOTrx", "N");
+			}else {
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "Y");
+				getTab().setValue("IsSOTrx", "Y");
+			}
 		} else if (I_FTU_EntryTicket.COLUMNNAME_DD_Order_ID.equals(getColumnName())) {
 			
 			int DD_Order_ID = Optional.ofNullable((Integer) getValue())
