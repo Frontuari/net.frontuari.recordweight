@@ -61,6 +61,8 @@ public class CalloutAnalysis extends FTUCallout {
 			if(mEntryTicket.getC_BPartner_ID()<=0) {
 				if(mEntryTicket.getC_Order_ID()>0)
 					setValue("C_BPartner_ID",mEntryTicket.getC_Order().getC_BPartner_ID());
+				if(mEntryTicket.getDD_Order_ID()>0)
+					setValue("C_BPartner_ID",mEntryTicket.getDD_Order().getC_BPartner_ID());
 			}
 			if(mEntryTicket.getC_OrderLine_ID()>0)
 				setValue("Qty", mEntryTicket.getC_OrderLine().getQtyOrdered());
