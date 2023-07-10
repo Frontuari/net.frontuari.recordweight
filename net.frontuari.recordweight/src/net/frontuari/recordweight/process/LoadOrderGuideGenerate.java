@@ -18,6 +18,7 @@ import org.compiere.util.Env;
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
 import net.frontuari.recordweight.model.I_FTU_RecordWeight;
+import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTUMobilizationGuide;
 import net.frontuari.recordweight.model.MFTURecordWeight;
@@ -61,6 +62,8 @@ public class LoadOrderGuideGenerate extends FTUProcess {
 	private String 				msg				= "";
 	
 	private int 				created 		= 0;
+	
+	private boolean isSOTrx = true;
 	
 	@Override
 	protected void prepare() {
@@ -122,6 +125,8 @@ public class LoadOrderGuideGenerate extends FTUProcess {
 		//	Valid just Check
 		if(!m_DocType.get_ValueAsBoolean("IsGenerateShipmentGuide"))
 			return "OK";
+		
+	
 		//	Valid if this yet generated
 		int mobilizationGuide_ID = DB.getSQLValue(get_TrxName(), "SELECT MAX(mg.FTU_MobilizationGuide_ID) " +
 				"FROM FTU_MobilizationGuide mg " +
@@ -217,13 +222,22 @@ public class LoadOrderGuideGenerate extends FTUProcess {
 
 	private String generateGuide(BigDecimal p_Qty) {
 		//	Create Guide
+		//instance load order to gather values
+		MFTULoadOrder order = new MFTULoadOrder(getCtx(), p_FTU_LoadOrder_ID, get_TrxName());
+		MFTUEntryTicket ticket = (MFTUEntryTicket) order.getFTU_EntryTicket();
+		MDocType dt = new MDocType(getCtx(), p_C_DocTypeTarget_ID, get_TrxName());
+		//check issotrx by docTypeBase 
+		
+		isSOTrx = dt.getDocBaseType().equalsIgnoreCase("DGD") ? true : false;
+		//
 		MFTUMobilizationGuide m_MobilizationGuide = new MFTUMobilizationGuide(getCtx(), 0, get_TrxName());
 		m_MobilizationGuide.setAD_Org_ID(p_AD_Org_ID);
 		m_MobilizationGuide.setAD_OrgTrx_ID(p_AD_OrgTrx_ID);
 		m_MobilizationGuide.setC_DocType_ID(p_C_DocTypeTarget_ID);
 		m_MobilizationGuide.setDateDoc(p_DateDoc);
 		m_MobilizationGuide.setFTU_VehicleType_ID(m_LoadOrder.getFTU_VehicleType_ID());
-		m_MobilizationGuide.setIsSOTrx(true);
+		m_MobilizationGuide.setIsSOTrx(isSOTrx);
+		m_MobilizationGuide.setC_BPartner_ID(ticket.getC_BPartner_ID());
 		//	Set References
 		m_MobilizationGuide.setFTU_LoadOrder_ID(p_FTU_LoadOrder_ID);
 		//	Get Record Weight
