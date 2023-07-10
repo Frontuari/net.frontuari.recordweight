@@ -209,6 +209,15 @@ public interface I_FTU_QualityParam
 	  */
 	public boolean isActive();
 
+    /** Column name IsQualityDiscount */
+    public static final String COLUMNNAME_IsQualityDiscount = "IsQualityDiscount";
+
+	/** Set Quality Discount	  */
+	public void setIsQualityDiscount (boolean IsQualityDiscount);
+
+	/** Get Quality Discount	  */
+	public boolean isQualityDiscount();
+
     /** Column name IsUsedFor */
     public static final String COLUMNNAME_IsUsedFor = "IsUsedFor";
 

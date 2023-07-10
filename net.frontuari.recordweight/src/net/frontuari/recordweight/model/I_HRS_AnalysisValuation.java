@@ -91,6 +91,17 @@ public interface I_HRS_AnalysisValuation
 
 	public net.frontuari.recordweight.model.I_FTU_QualityParam getFTU_QualityParam() throws RuntimeException;
 
+    /** Column name HRS_Analysis_ID */
+    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
+
+	/** Set Analysis	  */
+	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
+
+	/** Get Analysis	  */
+	public int getHRS_Analysis_ID();
+
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
+
     /** Column name HRS_AnalysisValuation_ID */
     public static final String COLUMNNAME_HRS_AnalysisValuation_ID = "HRS_AnalysisValuation_ID";
 
@@ -108,17 +119,6 @@ public interface I_HRS_AnalysisValuation
 
 	/** Get HRS_AnalysisValuation_UU	  */
 	public String getHRS_AnalysisValuation_UU();
-
-    /** Column name HRS_Analysis_ID */
-    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
-
-	/** Set Analysis	  */
-	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
-
-	/** Get Analysis	  */
-	public int getHRS_Analysis_ID();
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
 
     /** Column name HumanResult */
     public static final String COLUMNNAME_HumanResult = "HumanResult";

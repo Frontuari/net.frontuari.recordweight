@@ -465,7 +465,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 		//	ER [ 8 ]
-		//Add Validation by Argenis Rodríguez
 		//	Added by Jorge Colmenarez, 2022-12-03 12:03
 		//	Validate Ticket Duplicated only for Receipt
 		if(getOperationType() != null && (getOperationType().equalsIgnoreCase(OPERATIONTYPE_ImportRawMaterial)
@@ -477,7 +476,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				return STATUS_Invalid;
 		}
 		//	End Jorge Colmenarez
-		//End By Argenis Rodríguez
 		
 		//	Clasificar
 		String AnalysisType = (isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
@@ -544,10 +542,23 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	}
 
 	/**
+	 * Validate if requires 100% input analysis or if valuation it's successfull
 	 * @return
 	 */
 	private String validateAnalysis() {
 		StringBuilder msg = new StringBuilder();
+		
+		if(isCompletePercent()) {
+			BigDecimal percent = BigDecimal.ZERO;
+			for(MHRSAnalysisLine line : getLines(true, "")) {
+				percent = percent.add(line.getResult());
+			}
+			//	Valid to 100%
+			if(percent.compareTo(new BigDecimal(100))!=0){
+				msg.append("Se requiere ingresar el 100% valor ingresado en los analisis: "+percent+"%");
+				return msg.toString();
+			}
+		}
 		
 		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(SystemResult) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
 			msg.append( valuation.getFTU_QualityParam().getName() )

@@ -31,7 +31,7 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230624L;
+	private static final long serialVersionUID = 20230709L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisValuation (Properties ctx, int HRS_AnalysisValuation_ID, String trxName)
@@ -110,6 +110,33 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 		return ii.intValue();
 	}
 
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
+			.getPO(getHRS_Analysis_ID(), get_TrxName());
+	}
+
+	/** Set Analysis.
+		@param HRS_Analysis_ID Analysis
+	*/
+	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
+	{
+		if (HRS_Analysis_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, Integer.valueOf(HRS_Analysis_ID));
+	}
+
+	/** Get Analysis.
+		@return Analysis	  */
+	public int getHRS_Analysis_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_Analysis_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Analysis Valuation.
 		@param HRS_AnalysisValuation_ID Analysis Valuation
 	*/
@@ -144,33 +171,6 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	public String getHRS_AnalysisValuation_UU()
 	{
 		return (String)get_Value(COLUMNNAME_HRS_AnalysisValuation_UU);
-	}
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());
-	}
-
-	/** Set Analysis.
-		@param HRS_Analysis_ID Analysis
-	*/
-	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
-	{
-		if (HRS_Analysis_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, null);
-		else
-			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, Integer.valueOf(HRS_Analysis_ID));
-	}
-
-	/** Get Analysis.
-		@return Analysis	  */
-	public int getHRS_Analysis_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_Analysis_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	/** Set Human Result.

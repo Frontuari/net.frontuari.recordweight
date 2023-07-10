@@ -91,6 +91,17 @@ public interface I_HRS_AnalysisLine
 
 	public net.frontuari.recordweight.model.I_FTU_AnalysisType getFTU_AnalysisType() throws RuntimeException;
 
+    /** Column name HRS_Analysis_ID */
+    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
+
+	/** Set Analysis	  */
+	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
+
+	/** Get Analysis	  */
+	public int getHRS_Analysis_ID();
+
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
+
     /** Column name HRS_AnalysisLine_ID */
     public static final String COLUMNNAME_HRS_AnalysisLine_ID = "HRS_AnalysisLine_ID";
 
@@ -108,17 +119,6 @@ public interface I_HRS_AnalysisLine
 
 	/** Get HRS_AnalysisLine_UU	  */
 	public String getHRS_AnalysisLine_UU();
-
-    /** Column name HRS_Analysis_ID */
-    public static final String COLUMNNAME_HRS_Analysis_ID = "HRS_Analysis_ID";
-
-	/** Set Analysis	  */
-	public void setHRS_Analysis_ID (int HRS_Analysis_ID);
-
-	/** Get Analysis	  */
-	public int getHRS_Analysis_ID();
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";

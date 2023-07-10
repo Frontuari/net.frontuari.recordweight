@@ -32,7 +32,7 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230629L;
+	private static final long serialVersionUID = 20230709L;
 
     /** Standard Constructor */
     public X_FTU_QualityParam (Properties ctx, int FTU_QualityParam_ID, String trxName)
@@ -312,6 +312,28 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public String getHumanCode()
 	{
 		return (String)get_Value(COLUMNNAME_HumanCode);
+	}
+
+	/** Set Quality Discount.
+		@param IsQualityDiscount Quality Discount
+	*/
+	public void setIsQualityDiscount (boolean IsQualityDiscount)
+	{
+		set_Value (COLUMNNAME_IsQualityDiscount, Boolean.valueOf(IsQualityDiscount));
+	}
+
+	/** Get Quality Discount.
+		@return Quality Discount	  */
+	public boolean isQualityDiscount()
+	{
+		Object oo = get_Value(COLUMNNAME_IsQualityDiscount);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Both = BO */

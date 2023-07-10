@@ -150,11 +150,11 @@ public class CalloutQualityParam extends FTUCallout {
 		campoCodigo=campoCodigo.replaceAll(" end", " ");
 		campoCodigo=campoCodigo.replaceAll(" else ", " SiNo ");
 		//	Search in Analysis Type
-		campoCodigo = replaceCode(sql, campoCodigo);
+		campoCodigo = replaceCode(sql, campoCodigo, 1);
 		//	Search in Functions Formule
-		campoCodigo = replaceCode(sqlFunciones, campoCodigo);
+		campoCodigo = replaceCode(sqlFunciones, campoCodigo, 2);
 		//	Search in Quality Param
-		campoCodigo = replaceCode(sqlFormulas, campoCodigo);
+		campoCodigo = replaceCode(sqlFormulas, campoCodigo, 3);
 		
 		getTab().setValue("HumanCode", campoCodigo.toString());
 	}
@@ -165,7 +165,7 @@ public class CalloutQualityParam extends FTUCallout {
 	 * @param code
 	 * @return
 	 */
-	private String replaceCode(String sql, String code) {
+	private String replaceCode(String sql, String code, int type) {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		String value="";
@@ -176,9 +176,12 @@ public class CalloutQualityParam extends FTUCallout {
 			while(rs.next()) {
 				value=rs.getString("value");
 				name=rs.getString("name");
-				code=code.replaceAll("#("+value+")", "("+name+")");
-				code=code.replaceAll("@("+value+")", "("+name+")");
-				code=code.replaceAll("F("+value+")", "("+name+")");
+				if(type==1)
+					code=code.replaceAll("#("+value+")", "("+name+")");
+				else if(type==2)
+					code=code.replaceAll("@("+value+")", "("+name+")");
+				else if(type==3)
+					code=code.replaceAll("f("+value+")", "("+name+")");
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();

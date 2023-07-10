@@ -33,7 +33,7 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230624L;
+	private static final long serialVersionUID = 20230709L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisLine (Properties ctx, int HRS_AnalysisLine_ID, String trxName)
@@ -42,9 +42,9 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
       /** if (HRS_AnalysisLine_ID == 0)
         {
 			setFTU_AnalysisType_ID (0);
+			setHRS_Analysis_ID (0);
 			setHRS_AnalysisLine_ID (0);
 			setHRS_AnalysisLine_UU (null);
-			setHRS_Analysis_ID (0);
 			setResult (Env.ZERO);
         } */
     }
@@ -56,9 +56,9 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
       /** if (HRS_AnalysisLine_ID == 0)
         {
 			setFTU_AnalysisType_ID (0);
+			setHRS_Analysis_ID (0);
 			setHRS_AnalysisLine_ID (0);
 			setHRS_AnalysisLine_UU (null);
-			setHRS_Analysis_ID (0);
 			setResult (Env.ZERO);
         } */
     }
@@ -118,6 +118,33 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 		return ii.intValue();
 	}
 
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
+			.getPO(getHRS_Analysis_ID(), get_TrxName());
+	}
+
+	/** Set Analysis.
+		@param HRS_Analysis_ID Analysis
+	*/
+	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
+	{
+		if (HRS_Analysis_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, Integer.valueOf(HRS_Analysis_ID));
+	}
+
+	/** Get Analysis.
+		@return Analysis	  */
+	public int getHRS_Analysis_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_Analysis_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Analysis Line.
 		@param HRS_AnalysisLine_ID Analysis Line
 	*/
@@ -152,33 +179,6 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	public String getHRS_AnalysisLine_UU()
 	{
 		return (String)get_Value(COLUMNNAME_HRS_AnalysisLine_UU);
-	}
-
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());
-	}
-
-	/** Set Analysis.
-		@param HRS_Analysis_ID Analysis
-	*/
-	public void setHRS_Analysis_ID (int HRS_Analysis_ID)
-	{
-		if (HRS_Analysis_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, null);
-		else
-			set_ValueNoCheck (COLUMNNAME_HRS_Analysis_ID, Integer.valueOf(HRS_Analysis_ID));
-	}
-
-	/** Get Analysis.
-		@return Analysis	  */
-	public int getHRS_Analysis_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_HRS_Analysis_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	/** Set Result.
