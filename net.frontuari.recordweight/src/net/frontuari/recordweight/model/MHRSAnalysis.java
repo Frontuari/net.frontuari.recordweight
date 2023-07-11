@@ -529,7 +529,14 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 		
+		
+		if (!isValidAnalysis() && !isApprovedAnalysis()) {
+			m_processMsg = "no se puede completar análisis, necesita ser validado o aprobado";
+			return DocAction.STATUS_Invalid;
+		}
+			
 		setDefiniteDocumentNo();
+		
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (m_processMsg != null) {

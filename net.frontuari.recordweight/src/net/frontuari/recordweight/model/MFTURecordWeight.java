@@ -246,6 +246,15 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return status;
 		}
 		
+		MDocType doc = (MDocType) getC_DocType();
+		
+		if (doc.get_ValueAsBoolean("RequiresQualityAnalysis") && !isApproved()) {
+			if (getHRS_Analysis_ID()<0) {
+				m_processMsg = "Requiere un Análisis de Calidad válido o aprobación para poder completar el documento";
+				return DocAction.STATUS_WaitingConfirmation;
+			}
+		}
+		
 		//	Added by Jorge Colmenarez, 2021-06-30 10:36
 		//	Support for Validate NetWeigth Tolerance
 		//David castillo 2021-08-05 added percentage tolerance
