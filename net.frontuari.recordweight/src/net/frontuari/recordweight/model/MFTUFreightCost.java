@@ -17,8 +17,8 @@ public class MFTUFreightCost extends X_FTU_FreightCost implements DocAction, Doc
 		super(ctx, rs, trxName);
 	}
 	
-	public MFTUFreightCost(Properties ctx, int FTU_BillOfLading_ID, String trxName) {
-		super(ctx, FTU_BillOfLading_ID, trxName);
+	public MFTUFreightCost(Properties ctx, int FTU_FreightCost_ID, String trxName) {
+		super(ctx, FTU_FreightCost_ID, trxName);
 		
 	}
 
