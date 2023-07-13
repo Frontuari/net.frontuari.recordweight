@@ -32,7 +32,7 @@ public interface I_FTU_Driver
     /** TableName=FTU_Driver */
     public static final String Table_Name = "FTU_Driver";
 
-    /** AD_Table_ID=1000073 */
+    /** AD_Table_ID=1000491 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

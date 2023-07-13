@@ -32,7 +32,7 @@ public interface I_FTU_FreightCost
     /** TableName=FTU_FreightCost */
     public static final String Table_Name = "FTU_FreightCost";
 
-    /** AD_Table_ID=1000086 */
+    /** AD_Table_ID=1000493 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -79,6 +79,21 @@ public interface I_FTU_FreightCost
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
 
+    /** Column name C_SalesRegion_ID */
+    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
+
+	/** Set Sales Region.
+	  * Sales coverage region
+	  */
+	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
+
+	/** Get Sales Region.
+	  * Sales coverage region
+	  */
+	public int getC_SalesRegion_ID();
+
+	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -94,21 +109,6 @@ public interface I_FTU_FreightCost
 	  * User who created this records
 	  */
 	public int getCreatedBy();
-
-    /** Column name C_SalesRegion_ID */
-    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
-
-	/** Set Sales Region.
-	  * Sales coverage region
-	  */
-	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
-
-	/** Get Sales Region.
-	  * Sales coverage region
-	  */
-	public int getC_SalesRegion_ID();
-
-	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
 
     /** Column name DateDoc */
     public static final String COLUMNNAME_DateDoc = "DateDoc";
@@ -175,6 +175,15 @@ public interface I_FTU_FreightCost
 	  */
 	public String getDocumentNo();
 
+    /** Column name FTU_AdjustPrice */
+    public static final String COLUMNNAME_FTU_AdjustPrice = "FTU_AdjustPrice";
+
+	/** Set Adjust Price	  */
+	public void setFTU_AdjustPrice (boolean FTU_AdjustPrice);
+
+	/** Get Adjust Price	  */
+	public boolean isFTU_AdjustPrice();
+
     /** Column name FTU_Driver_ID */
     public static final String COLUMNNAME_FTU_Driver_ID = "FTU_Driver_ID";
 
@@ -224,7 +233,16 @@ public interface I_FTU_FreightCost
 	/** Get Load Order	  */
 	public int getFTU_LoadOrder_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
+    /** Column name FTU_PriceForTrip_ID */
+    public static final String COLUMNNAME_FTU_PriceForTrip_ID = "FTU_PriceForTrip_ID";
+
+	/** Set Price For Trip	  */
+	public void setFTU_PriceForTrip_ID (int FTU_PriceForTrip_ID);
+
+	/** Get Price For Trip	  */
+	public int getFTU_PriceForTrip_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_PriceForTrip getFTU_PriceForTrip() throws RuntimeException;
 
     /** Column name FTU_Vehicle_ID */
     public static final String COLUMNNAME_FTU_Vehicle_ID = "FTU_Vehicle_ID";
@@ -236,6 +254,15 @@ public interface I_FTU_FreightCost
 	public int getFTU_Vehicle_ID();
 
 	public net.frontuari.recordweight.model.I_FTU_Vehicle getFTU_Vehicle() throws RuntimeException;
+
+    /** Column name FTU_ZeroCost */
+    public static final String COLUMNNAME_FTU_ZeroCost = "FTU_ZeroCost";
+
+	/** Set Zero Cost	  */
+	public void setFTU_ZeroCost (boolean FTU_ZeroCost);
+
+	/** Get Zero Cost	  */
+	public boolean isFTU_ZeroCost();
 
     /** Column name GrandTotal */
     public static final String COLUMNNAME_GrandTotal = "GrandTotal";
@@ -263,24 +290,6 @@ public interface I_FTU_FreightCost
 	  */
 	public boolean isActive();
 
-    /** Column name IsAdjustWeight */
-    public static final String COLUMNNAME_IsAdjustWeight = "IsAdjustWeight";
-
-	/** Set Adjust Weight	  */
-	public void setIsAdjustWeight (boolean IsAdjustWeight);
-
-	/** Get Adjust Weight	  */
-	public boolean isAdjustWeight();
-
-    /** Column name IsZeroCost */
-    public static final String COLUMNNAME_IsZeroCost = "IsZeroCost";
-
-	/** Set Zero Cost	  */
-	public void setIsZeroCost (boolean IsZeroCost);
-
-	/** Get Zero Cost	  */
-	public boolean isZeroCost();
-
     /** Column name M_Shipper_ID */
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
 
@@ -295,6 +304,15 @@ public interface I_FTU_FreightCost
 	public int getM_Shipper_ID();
 
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException;
+
+    /** Column name ProcCreate */
+    public static final String COLUMNNAME_ProcCreate = "ProcCreate";
+
+	/** Set Create	  */
+	public void setProcCreate (String ProcCreate);
+
+	/** Get Create	  */
+	public String getProcCreate();
 
     /** Column name SealNo */
     public static final String COLUMNNAME_SealNo = "SealNo";

@@ -32,7 +32,7 @@ public interface I_FTU_DeliveryRute
     /** TableName=FTU_DeliveryRute */
     public static final String Table_Name = "FTU_DeliveryRute";
 
-    /** AD_Table_ID=1000131 */
+    /** AD_Table_ID=1000494 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -96,10 +96,10 @@ public interface I_FTU_DeliveryRute
     /** Column name FTU_DeliveryRute_ID */
     public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
 
-	/** Set Delivery Rute	  */
+	/** Set FTU_DeliveryRute_ID	  */
 	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
 
-	/** Get Delivery Rute	  */
+	/** Get FTU_DeliveryRute_ID	  */
 	public int getFTU_DeliveryRute_ID();
 
     /** Column name FTU_DeliveryRute_UU */

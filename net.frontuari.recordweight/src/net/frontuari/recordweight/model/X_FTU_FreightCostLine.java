@@ -33,7 +33,7 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230713L;
 
     /** Standard Constructor */
     public X_FTU_FreightCostLine (Properties ctx, int FTU_FreightCostLine_ID, String trxName)
@@ -41,6 +41,8 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
       super (ctx, FTU_FreightCostLine_ID, trxName);
       /** if (FTU_FreightCostLine_ID == 0)
         {
+			setDiscountWeight (Env.ZERO);
+// 0
         } */
     }
 
@@ -50,6 +52,8 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
       super (ctx, FTU_FreightCostLine_ID, trxName, virtualColumns);
       /** if (FTU_FreightCostLine_ID == 0)
         {
+			setDiscountWeight (Env.ZERO);
+// 0
         } */
     }
 
@@ -193,25 +197,6 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 		return ii.intValue();
 	}
 
-	/** Set Costs.
-		@param Costs Costs in accounting currency
-	*/
-	public void setCosts (BigDecimal Costs)
-	{
-		set_ValueNoCheck (COLUMNNAME_Costs, Costs);
-	}
-
-	/** Get Costs.
-		@return Costs in accounting currency
-	  */
-	public BigDecimal getCosts()
-	{
-		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Costs);
-		if (bd == null)
-			 return Env.ZERO;
-		return bd;
-	}
-
 	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException
 	{
 		return (org.compiere.model.I_C_SalesRegion)MTable.get(getCtx(), org.compiere.model.I_C_SalesRegion.Table_ID)
@@ -235,6 +220,145 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 	public int getC_SalesRegion_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_SalesRegion_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Costs.
+		@param Costs Costs in accounting currency
+	*/
+	public void setCosts (BigDecimal Costs)
+	{
+		set_ValueNoCheck (COLUMNNAME_Costs, Costs);
+	}
+
+	/** Get Costs.
+		@return Costs in accounting currency
+	  */
+	public BigDecimal getCosts()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Costs);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Discount Weight.
+		@param DiscountWeight Discount Weight
+	*/
+	public void setDiscountWeight (BigDecimal DiscountWeight)
+	{
+		set_Value (COLUMNNAME_DiscountWeight, DiscountWeight);
+	}
+
+	/** Get Discount Weight.
+		@return Discount Weight	  */
+	public BigDecimal getDiscountWeight()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_DiscountWeight);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_DeliveryRute)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_DeliveryRute.Table_ID)
+			.getPO(getFTU_DeliveryRute_ID(), get_TrxName());
+	}
+
+	/** Set FTU_DeliveryRute_ID.
+		@param FTU_DeliveryRute_ID FTU_DeliveryRute_ID
+	*/
+	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID)
+	{
+		if (FTU_DeliveryRute_ID < 1)
+			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
+	}
+
+	/** Get FTU_DeliveryRute_ID.
+		@return FTU_DeliveryRute_ID	  */
+	public int getFTU_DeliveryRute_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_DeliveryRute_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Bill of Lading Line.
+		@param FTU_FreightCostLine_ID Bill of Lading Line
+	*/
+	public void setFTU_FreightCostLine_ID (int FTU_FreightCostLine_ID)
+	{
+		if (FTU_FreightCostLine_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_FTU_FreightCostLine_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_FTU_FreightCostLine_ID, Integer.valueOf(FTU_FreightCostLine_ID));
+	}
+
+	/** Get Bill of Lading Line.
+		@return Bill of Lading Line	  */
+	public int getFTU_FreightCostLine_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_FreightCostLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public net.frontuari.recordweight.model.I_FTU_FreightCost getFTU_FreightCost() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_FreightCost)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_FreightCost.Table_ID)
+			.getPO(getFTU_FreightCost_ID(), get_TrxName());
+	}
+
+	/** Set Bill of Lading.
+		@param FTU_FreightCost_ID Bill of Lading
+	*/
+	public void setFTU_FreightCost_ID (int FTU_FreightCost_ID)
+	{
+		if (FTU_FreightCost_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_FTU_FreightCost_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_FTU_FreightCost_ID, Integer.valueOf(FTU_FreightCost_ID));
+	}
+
+	/** Get Bill of Lading.
+		@return Bill of Lading	  */
+	public int getFTU_FreightCost_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_FreightCost_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_RecordWeight)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_RecordWeight.Table_ID)
+			.getPO(getFTU_RecordWeight_ID(), get_TrxName());
+	}
+
+	/** Set Record Weight.
+		@param FTU_RecordWeight_ID Record Weight
+	*/
+	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID)
+	{
+		if (FTU_RecordWeight_ID < 1)
+			set_Value (COLUMNNAME_FTU_RecordWeight_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_RecordWeight_ID, Integer.valueOf(FTU_RecordWeight_ID));
+	}
+
+	/** Get Record Weight.
+		@return Record Weight	  */
+	public int getFTU_RecordWeight_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_RecordWeight_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -275,81 +399,6 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
-	}
-
-	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_DeliveryRute)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_DeliveryRute.Table_ID)
-			.getPO(getFTU_DeliveryRute_ID(), get_TrxName());
-	}
-
-	/** Set Delivery Rute.
-		@param FTU_DeliveryRute_ID Delivery Rute
-	*/
-	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID)
-	{
-		if (FTU_DeliveryRute_ID < 1)
-			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, null);
-		else
-			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
-	}
-
-	/** Get Delivery Rute.
-		@return Delivery Rute	  */
-	public int getFTU_DeliveryRute_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_DeliveryRute_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public net.frontuari.recordweight.model.I_FTU_FreightCost getFTU_FreightCost() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_FreightCost)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_FreightCost.Table_ID)
-			.getPO(getFTU_FreightCost_ID(), get_TrxName());
-	}
-
-	/** Set Bill of Lading.
-		@param FTU_FreightCost_ID Bill of Lading
-	*/
-	public void setFTU_FreightCost_ID (int FTU_FreightCost_ID)
-	{
-		if (FTU_FreightCost_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_FTU_FreightCost_ID, null);
-		else
-			set_ValueNoCheck (COLUMNNAME_FTU_FreightCost_ID, Integer.valueOf(FTU_FreightCost_ID));
-	}
-
-	/** Get Bill of Lading.
-		@return Bill of Lading	  */
-	public int getFTU_FreightCost_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_FreightCost_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Bill of Lading Line.
-		@param FTU_FreightCostLine_ID Bill of Lading Line
-	*/
-	public void setFTU_FreightCostLine_ID (int FTU_FreightCostLine_ID)
-	{
-		if (FTU_FreightCostLine_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_FTU_FreightCostLine_ID, null);
-		else
-			set_ValueNoCheck (COLUMNNAME_FTU_FreightCostLine_ID, Integer.valueOf(FTU_FreightCostLine_ID));
-	}
-
-	/** Get Bill of Lading Line.
-		@return Bill of Lading Line	  */
-	public int getFTU_FreightCostLine_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_FreightCostLine_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
@@ -440,7 +489,7 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 	/** Set Max. Value.
 		@param ValueMax Maximum Value for a field
 	*/
-	public void setValueMax (String ValueMax)
+	public void setValueMax (BigDecimal ValueMax)
 	{
 		set_Value (COLUMNNAME_ValueMax, ValueMax);
 	}
@@ -448,15 +497,18 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 	/** Get Max. Value.
 		@return Maximum Value for a field
 	  */
-	public String getValueMax()
+	public BigDecimal getValueMax()
 	{
-		return (String)get_Value(COLUMNNAME_ValueMax);
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ValueMax);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Min. Value.
 		@param ValueMin Minimum Value for a field
 	*/
-	public void setValueMin (String ValueMin)
+	public void setValueMin (BigDecimal ValueMin)
 	{
 		set_Value (COLUMNNAME_ValueMin, ValueMin);
 	}
@@ -464,9 +516,12 @@ public class X_FTU_FreightCostLine extends PO implements I_FTU_FreightCostLine, 
 	/** Get Min. Value.
 		@return Minimum Value for a field
 	  */
-	public String getValueMin()
+	public BigDecimal getValueMin()
 	{
-		return (String)get_Value(COLUMNNAME_ValueMin);
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ValueMin);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Weight.

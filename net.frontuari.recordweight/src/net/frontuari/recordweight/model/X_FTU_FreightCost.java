@@ -34,7 +34,7 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230713L;
 
     /** Standard Constructor */
     public X_FTU_FreightCost (Properties ctx, int FTU_FreightCost_ID, String trxName)
@@ -276,6 +276,28 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
 
+	/** Set Adjust Price.
+		@param FTU_AdjustPrice Adjust Price
+	*/
+	public void setFTU_AdjustPrice (boolean FTU_AdjustPrice)
+	{
+		set_Value (COLUMNNAME_FTU_AdjustPrice, Boolean.valueOf(FTU_AdjustPrice));
+	}
+
+	/** Get Adjust Price.
+		@return Adjust Price	  */
+	public boolean isFTU_AdjustPrice()
+	{
+		Object oo = get_Value(COLUMNNAME_FTU_AdjustPrice);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	public net.frontuari.recordweight.model.I_FTU_Driver getFTU_Driver() throws RuntimeException
 	{
 		return (net.frontuari.recordweight.model.I_FTU_Driver)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_Driver.Table_ID)
@@ -366,12 +388,6 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return (String)get_Value(COLUMNNAME_FTU_FreightCost_UU);
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_ID)
-			.getPO(getFTU_LoadOrder_ID(), get_TrxName());
-	}
-
 	/** Set Load Order.
 		@param FTU_LoadOrder_ID Load Order
 	*/
@@ -388,6 +404,33 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 	public int getFTU_LoadOrder_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_LoadOrder_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public net.frontuari.recordweight.model.I_FTU_PriceForTrip getFTU_PriceForTrip() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_PriceForTrip)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_PriceForTrip.Table_ID)
+			.getPO(getFTU_PriceForTrip_ID(), get_TrxName());
+	}
+
+	/** Set Price For Trip.
+		@param FTU_PriceForTrip_ID Price For Trip
+	*/
+	public void setFTU_PriceForTrip_ID (int FTU_PriceForTrip_ID)
+	{
+		if (FTU_PriceForTrip_ID < 1)
+			set_Value (COLUMNNAME_FTU_PriceForTrip_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_PriceForTrip_ID, Integer.valueOf(FTU_PriceForTrip_ID));
+	}
+
+	/** Get Price For Trip.
+		@return Price For Trip	  */
+	public int getFTU_PriceForTrip_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_PriceForTrip_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -420,6 +463,28 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return ii.intValue();
 	}
 
+	/** Set Zero Cost.
+		@param FTU_ZeroCost Zero Cost
+	*/
+	public void setFTU_ZeroCost (boolean FTU_ZeroCost)
+	{
+		set_Value (COLUMNNAME_FTU_ZeroCost, Boolean.valueOf(FTU_ZeroCost));
+	}
+
+	/** Get Zero Cost.
+		@return Zero Cost	  */
+	public boolean isFTU_ZeroCost()
+	{
+		Object oo = get_Value(COLUMNNAME_FTU_ZeroCost);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Grand Total.
 		@param GrandTotal Total amount of document
 	*/
@@ -437,50 +502,6 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
-	}
-
-	/** Set Adjust Weight.
-		@param IsAdjustWeight Adjust Weight
-	*/
-	public void setIsAdjustWeight (boolean IsAdjustWeight)
-	{
-		set_Value (COLUMNNAME_IsAdjustWeight, Boolean.valueOf(IsAdjustWeight));
-	}
-
-	/** Get Adjust Weight.
-		@return Adjust Weight	  */
-	public boolean isAdjustWeight()
-	{
-		Object oo = get_Value(COLUMNNAME_IsAdjustWeight);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
-	}
-
-	/** Set Zero Cost.
-		@param IsZeroCost Zero Cost
-	*/
-	public void setIsZeroCost (boolean IsZeroCost)
-	{
-		set_Value (COLUMNNAME_IsZeroCost, Boolean.valueOf(IsZeroCost));
-	}
-
-	/** Get Zero Cost.
-		@return Zero Cost	  */
-	public boolean isZeroCost()
-	{
-		Object oo = get_Value(COLUMNNAME_IsZeroCost);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
 	}
 
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException
@@ -509,6 +530,21 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Create.
+		@param ProcCreate Create
+	*/
+	public void setProcCreate (String ProcCreate)
+	{
+		set_Value (COLUMNNAME_ProcCreate, ProcCreate);
+	}
+
+	/** Get Create.
+		@return Create	  */
+	public String getProcCreate()
+	{
+		return (String)get_Value(COLUMNNAME_ProcCreate);
 	}
 
 	/** Set SealNo.

@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
+import org.compiere.util.KeyNamePair;
 
 /** Generated Model for FTU_PriceForTrip
  *  @author iDempiere (generated) 
@@ -33,7 +34,7 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230713L;
 
     /** Standard Constructor */
     public X_FTU_PriceForTrip (Properties ctx, int FTU_PriceForTrip_ID, String trxName)
@@ -41,6 +42,10 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
       super (ctx, FTU_PriceForTrip_ID, trxName);
       /** if (FTU_PriceForTrip_ID == 0)
         {
+			setValueMax (Env.ZERO);
+// 0
+			setValueMin (Env.ZERO);
+// 0
         } */
     }
 
@@ -50,6 +55,10 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
       super (ctx, FTU_PriceForTrip_ID, trxName, virtualColumns);
       /** if (FTU_PriceForTrip_ID == 0)
         {
+			setValueMax (Env.ZERO);
+// 0
+			setValueMin (Env.ZERO);
+// 0
         } */
     }
 
@@ -183,52 +192,25 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 		return bd;
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_AssignedRegions getFTU_AssignedRegions() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_AssignedRegions)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_AssignedRegions.Table_ID)
-			.getPO(getFTU_AssignedRegions_ID(), get_TrxName());
-	}
-
-	/** Set Assigned Regions.
-		@param FTU_AssignedRegions_ID Assigned Regions
-	*/
-	public void setFTU_AssignedRegions_ID (int FTU_AssignedRegions_ID)
-	{
-		if (FTU_AssignedRegions_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_FTU_AssignedRegions_ID, null);
-		else
-			set_ValueNoCheck (COLUMNNAME_FTU_AssignedRegions_ID, Integer.valueOf(FTU_AssignedRegions_ID));
-	}
-
-	/** Get Assigned Regions.
-		@return Assigned Regions	  */
-	public int getFTU_AssignedRegions_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_AssignedRegions_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException
 	{
 		return (net.frontuari.recordweight.model.I_FTU_DeliveryRute)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_DeliveryRute.Table_ID)
 			.getPO(getFTU_DeliveryRute_ID(), get_TrxName());
 	}
 
-	/** Set Delivery Rute.
-		@param FTU_DeliveryRute_ID Delivery Rute
+	/** Set FTU_DeliveryRute_ID.
+		@param FTU_DeliveryRute_ID FTU_DeliveryRute_ID
 	*/
 	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID)
 	{
 		if (FTU_DeliveryRute_ID < 1)
-			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, null);
+			set_ValueNoCheck (COLUMNNAME_FTU_DeliveryRute_ID, null);
 		else
-			set_Value (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
+			set_ValueNoCheck (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
 	}
 
-	/** Get Delivery Rute.
-		@return Delivery Rute	  */
+	/** Get FTU_DeliveryRute_ID.
+		@return FTU_DeliveryRute_ID	  */
 	public int getFTU_DeliveryRute_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_DeliveryRute_ID);
@@ -311,10 +293,18 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 		return bd;
 	}
 
+    /** Get Record ID/ColumnName
+        @return ID/ColumnName pair
+      */
+    public KeyNamePair getKeyNamePair() 
+    {
+        return new KeyNamePair(get_ID(), String.valueOf(getPriceActual()));
+    }
+
 	/** Set Max. Value.
 		@param ValueMax Maximum Value for a field
 	*/
-	public void setValueMax (String ValueMax)
+	public void setValueMax (BigDecimal ValueMax)
 	{
 		set_Value (COLUMNNAME_ValueMax, ValueMax);
 	}
@@ -322,15 +312,18 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 	/** Get Max. Value.
 		@return Maximum Value for a field
 	  */
-	public String getValueMax()
+	public BigDecimal getValueMax()
 	{
-		return (String)get_Value(COLUMNNAME_ValueMax);
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ValueMax);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 
 	/** Set Min. Value.
 		@param ValueMin Minimum Value for a field
 	*/
-	public void setValueMin (String ValueMin)
+	public void setValueMin (BigDecimal ValueMin)
 	{
 		set_Value (COLUMNNAME_ValueMin, ValueMin);
 	}
@@ -338,8 +331,11 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 	/** Get Min. Value.
 		@return Minimum Value for a field
 	  */
-	public String getValueMin()
+	public BigDecimal getValueMin()
 	{
-		return (String)get_Value(COLUMNNAME_ValueMin);
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ValueMin);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 }
