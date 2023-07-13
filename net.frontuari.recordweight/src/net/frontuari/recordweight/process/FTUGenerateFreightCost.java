@@ -69,7 +69,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 				if (p_ConsolidateDocument) {
 				
 					MFTURecordWeight rw = new MFTURecordWeight(getCtx(), rs.getInt("FTU_RecordWeight_ID"), get_TrxName());
-						if (cost == null || cost.getM_Shipper_ID() != rw.getFTU_EntryTicket().getM_Shipper_ID()) {
+					if (cost == null || cost.getM_Shipper_ID() != rw.getFTU_EntryTicket().getM_Shipper_ID()) {
 							if (cost != null)
 								cost.saveEx();
 							
@@ -77,69 +77,26 @@ public class FTUGenerateFreightCost extends FTUProcess{
 						cost.setAD_Org_ID(rw.getAD_Org_ID());
 						cost.setC_DocType_ID(p_C_DocType_ID);
 						cost.setDateDoc(now);
-						cost.set_ValueOfColumn("FTU_PriceForTrip_ID", p_FTU_PriceForTrip_ID);
+						cost.setAD_User_ID(getAD_User_ID());
+						cost.setFTU_PriceForTrip_ID(p_FTU_PriceForTrip_ID);
+						cost.setC_Currency_ID(pft.getC_Currency_ID());
+						cost.setC_ConversionType_ID(pft.getC_ConversionType_ID());
 						cost.setM_Shipper_ID(rw.getFTU_EntryTicket().getM_Shipper_ID());
-						cost.set_ValueOfColumn("FTU_EntryTicket_ID", rw.getFTU_EntryTicket_ID());
+						cost.setFTU_EntryTicket_ID(rw.getFTU_EntryTicket_ID());
 						cost.setFTU_LoadOrder_ID(rw.getFTU_LoadOrder_ID());
 						cost.setFTU_Driver_ID(rw.getFTU_Driver_ID());
 						cost.setFTU_Vehicle_ID(rw.getFTU_Vehicle_ID());
-						cost.setDocStatus("DR");
+						cost.setDocStatus(MFTUFreightCost.DOCSTATUS_Drafted);
+						cost.setDocAction(MFTUFreightCost.ACTION_Prepare);
 						cost.saveEx();
 						
 						addBufferLog(cost.getFTU_FreightCost_ID(), now, null, cost.getDocumentNo(), MFTUFreightCost.Table_ID, cost.getFTU_FreightCost_ID());
-
 					}
-						MFTUFreightCostLine line = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
-						line.setFTU_FreightCost_ID(cost.getFTU_FreightCost_ID());
-						line.setFTU_DeliveryRute_ID(pft.getFTU_DeliveryRute_ID());
-						line.set_ValueOfColumn("FTU_RecordWeight_ID", rw.getFTU_RecordWeight_ID());
-						line.setC_Charge_ID(p_C_Charge_ID);
-						int ioID = DB.getSQLValue(get_TrxName(), "SELECT MAX(M_InOut_ID) FROM M_InOut WHERE FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL') ", rw.get_ID());
-						if(ioID >0 )
-							line.setM_InOut_ID(ioID);
-						int invID = DB.getSQLValue(get_TrxName(), "SELECT MAX(C_Invoice_ID) FROM C_Invoice WHERE DocStatus IN ('CO','CL') AND C_Order_ID = (SELECT MAX(C_Order_ID) FROM M_InOut WHERE FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')) ", rw.get_ID());
-						if(invID > 0)
-							line.setC_Invoice_ID(invID);
-						line.setWeight(rw.getNetWeight());
-						line.set_ValueOfColumn("DiscountWeight", rw.getDifferenceQty());
-						line.setValueMin(pft.getValueMin());
-						line.setValueMax(pft.getValueMax());
-						line.setPrice(pft.getPrice());
-						line.setPriceActual(pft.getPriceActual());
-						line.setC_ConversionType_ID(pft.getC_ConversionType_ID());
-						line.setC_Currency_ID(pft.getC_Currency_ID());
-						BigDecimal rate = MConversionRate.getRate(pft.getC_Currency_ID(), cost.getC_Currency_ID(), cost.getDateDoc(), pft.getC_ConversionType_ID(), cost.getAD_Client_ID(), cost.getAD_Org_ID());
-						line.setFinalPrice(pft.getPriceActual());
-						line.setRate(rate);
-						line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(2, RoundingMode.HALF_UP));
-						line.saveEx();
 					
-				}
-				
-				else {
-					
-					MFTURecordWeight rw = new MFTURecordWeight(getCtx(), rs.getInt("FTU_RecordWeight_ID"), get_TrxName());
-					cost = new MFTUFreightCost(getCtx(), 0, get_TrxName());
-					cost.setAD_Org_ID(rw.getAD_Org_ID());
-					cost.setC_DocType_ID(p_C_DocType_ID);
-					cost.set_ValueOfColumn("FTU_PriceForTrip_ID", p_FTU_PriceForTrip_ID);
-					cost.setM_Shipper_ID(rw.getFTU_EntryTicket().getM_Shipper_ID());
-					cost.set_ValueOfColumn("FTU_EntryTicket_ID", rw.getFTU_EntryTicket_ID());
-					cost.setFTU_LoadOrder_ID(rw.getFTU_LoadOrder_ID());
-					cost.setFTU_Driver_ID(rw.getFTU_Driver_ID());
-					cost.setFTU_Vehicle_ID(rw.getFTU_Vehicle_ID());
-					cost.setDateDoc(now);
-					cost.setDocStatus("DR");
-					cost.saveEx();
-					
-					addBufferLog(cost.getFTU_FreightCost_ID(), now, null, cost.getDocumentNo(), MFTUFreightCost.Table_ID, cost.getFTU_FreightCost_ID());
-
-					
-					MFTUFreightCostLine line = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
-					line.setFTU_FreightCost_ID(cost.getFTU_FreightCost_ID());
+					MFTUFreightCostLine line = new MFTUFreightCostLine(cost);
 					line.setFTU_DeliveryRute_ID(pft.getFTU_DeliveryRute_ID());
+					line.setFTU_RecordWeight_ID(rw.getFTU_RecordWeight_ID());
 					line.setC_Charge_ID(p_C_Charge_ID);
-					line.set_ValueOfColumn("FTU_RecordWeight_ID", rw.getFTU_RecordWeight_ID());
 					int ioID = DB.getSQLValue(get_TrxName(), "SELECT MAX(M_InOut_ID) FROM M_InOut WHERE FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL') ", rw.get_ID());
 					if(ioID >0 )
 						line.setM_InOut_ID(ioID);
@@ -147,7 +104,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 					if(invID > 0)
 						line.setC_Invoice_ID(invID);
 					line.setWeight(rw.getNetWeight());
-					line.set_ValueOfColumn("DiscountWeight", rw.getDifferenceQty());
+					line.setDiscountWeight(rw.getDifferenceQty());
 					line.setValueMin(pft.getValueMin());
 					line.setValueMax(pft.getValueMax());
 					line.setPrice(pft.getPrice());
@@ -159,10 +116,53 @@ public class FTUGenerateFreightCost extends FTUProcess{
 					line.setRate(rate);
 					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(2, RoundingMode.HALF_UP));
 					line.saveEx();
-				}
-				
-				
-				}
+				} else {
+					MFTURecordWeight rw = new MFTURecordWeight(getCtx(), rs.getInt("FTU_RecordWeight_ID"), get_TrxName());
+					cost = new MFTUFreightCost(getCtx(), 0, get_TrxName());
+					cost.setAD_Org_ID(rw.getAD_Org_ID());
+					cost.setDateDoc(now);
+					cost.setAD_User_ID(getAD_User_ID());
+					cost.setC_DocType_ID(p_C_DocType_ID);
+					cost.setFTU_PriceForTrip_ID(p_FTU_PriceForTrip_ID);
+					cost.setC_Currency_ID(pft.getC_Currency_ID());
+					cost.setC_ConversionType_ID(pft.getC_ConversionType_ID());
+					cost.setM_Shipper_ID(rw.getFTU_EntryTicket().getM_Shipper_ID());
+					cost.setFTU_EntryTicket_ID(rw.getFTU_EntryTicket_ID());
+					cost.setFTU_LoadOrder_ID(rw.getFTU_LoadOrder_ID());
+					cost.setFTU_Driver_ID(rw.getFTU_Driver_ID());
+					cost.setFTU_Vehicle_ID(rw.getFTU_Vehicle_ID());
+					cost.setDocStatus(MFTUFreightCost.DOCSTATUS_Drafted);
+					cost.setDocAction(MFTUFreightCost.ACTION_Prepare);
+					cost.saveEx();
+					
+					addBufferLog(cost.getFTU_FreightCost_ID(), now, null, cost.getDocumentNo(), MFTUFreightCost.Table_ID, cost.getFTU_FreightCost_ID());
+
+					MFTUFreightCostLine line = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
+					line.setFTU_FreightCost_ID(cost.getFTU_FreightCost_ID());
+					line.setFTU_DeliveryRute_ID(pft.getFTU_DeliveryRute_ID());
+					line.setC_Charge_ID(p_C_Charge_ID);
+					line.setFTU_RecordWeight_ID(rw.getFTU_RecordWeight_ID());
+					int ioID = DB.getSQLValue(get_TrxName(), "SELECT MAX(M_InOut_ID) FROM M_InOut WHERE FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL') ", rw.get_ID());
+					if(ioID >0 )
+						line.setM_InOut_ID(ioID);
+					int invID = DB.getSQLValue(get_TrxName(), "SELECT MAX(C_Invoice_ID) FROM C_Invoice WHERE DocStatus IN ('CO','CL') AND C_Order_ID = (SELECT MAX(C_Order_ID) FROM M_InOut WHERE FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')) ", rw.get_ID());
+					if(invID > 0)
+						line.setC_Invoice_ID(invID);
+					line.setWeight(rw.getNetWeight());
+					line.setDiscountWeight(rw.getDifferenceQty());
+					line.setValueMin(pft.getValueMin());
+					line.setValueMax(pft.getValueMax());
+					line.setPrice(pft.getPrice());
+					line.setPriceActual(pft.getPriceActual());
+					line.setC_ConversionType_ID(pft.getC_ConversionType_ID());
+					line.setC_Currency_ID(pft.getC_Currency_ID());
+					BigDecimal rate = MConversionRate.getRate(pft.getC_Currency_ID(), cost.getC_Currency_ID(), cost.getDateDoc(), pft.getC_ConversionType_ID(), cost.getAD_Client_ID(), cost.getAD_Org_ID());
+					line.setFinalPrice(pft.getPriceActual());
+					line.setRate(rate);
+					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(2, RoundingMode.HALF_UP));
+					line.saveEx();
+				}	
+			}
 		}catch (Exception e) {
 			throw new AdempiereException(e);
 		}finally {

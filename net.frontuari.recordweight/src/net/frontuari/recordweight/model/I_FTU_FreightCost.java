@@ -64,6 +64,51 @@ public interface I_FTU_FreightCost
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name AD_User_ID */
+    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
+
+	/** Set User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public void setAD_User_ID (int AD_User_ID);
+
+	/** Get User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public int getAD_User_ID();
+
+	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+
+    /** Column name C_ConversionType_ID */
+    public static final String COLUMNNAME_C_ConversionType_ID = "C_ConversionType_ID";
+
+	/** Set Currency Type.
+	  * Currency Conversion Rate Type
+	  */
+	public void setC_ConversionType_ID (int C_ConversionType_ID);
+
+	/** Get Currency Type.
+	  * Currency Conversion Rate Type
+	  */
+	public int getC_ConversionType_ID();
+
+	public org.compiere.model.I_C_ConversionType getC_ConversionType() throws RuntimeException;
+
+    /** Column name C_Currency_ID */
+    public static final String COLUMNNAME_C_Currency_ID = "C_Currency_ID";
+
+	/** Set Currency.
+	  * The Currency for this record
+	  */
+	public void setC_Currency_ID (int C_Currency_ID);
+
+	/** Get Currency.
+	  * The Currency for this record
+	  */
+	public int getC_Currency_ID();
+
+	public org.compiere.model.I_C_Currency getC_Currency() throws RuntimeException;
+
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
@@ -175,15 +220,6 @@ public interface I_FTU_FreightCost
 	  */
 	public String getDocumentNo();
 
-    /** Column name FTU_AdjustPrice */
-    public static final String COLUMNNAME_FTU_AdjustPrice = "FTU_AdjustPrice";
-
-	/** Set Adjust Price	  */
-	public void setFTU_AdjustPrice (boolean FTU_AdjustPrice);
-
-	/** Get Adjust Price	  */
-	public boolean isFTU_AdjustPrice();
-
     /** Column name FTU_Driver_ID */
     public static final String COLUMNNAME_FTU_Driver_ID = "FTU_Driver_ID";
 
@@ -255,15 +291,6 @@ public interface I_FTU_FreightCost
 
 	public net.frontuari.recordweight.model.I_FTU_Vehicle getFTU_Vehicle() throws RuntimeException;
 
-    /** Column name FTU_ZeroCost */
-    public static final String COLUMNNAME_FTU_ZeroCost = "FTU_ZeroCost";
-
-	/** Set Zero Cost	  */
-	public void setFTU_ZeroCost (boolean FTU_ZeroCost);
-
-	/** Get Zero Cost	  */
-	public boolean isFTU_ZeroCost();
-
     /** Column name GrandTotal */
     public static final String COLUMNNAME_GrandTotal = "GrandTotal";
 
@@ -290,6 +317,19 @@ public interface I_FTU_FreightCost
 	  */
 	public boolean isActive();
 
+    /** Column name IsApproved */
+    public static final String COLUMNNAME_IsApproved = "IsApproved";
+
+	/** Set Approved.
+	  * Indicates if this document requires approval
+	  */
+	public void setIsApproved (boolean IsApproved);
+
+	/** Get Approved.
+	  * Indicates if this document requires approval
+	  */
+	public boolean isApproved();
+
     /** Column name M_Shipper_ID */
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
 
@@ -314,14 +354,40 @@ public interface I_FTU_FreightCost
 	/** Get Create	  */
 	public String getProcCreate();
 
-    /** Column name SealNo */
-    public static final String COLUMNNAME_SealNo = "SealNo";
+    /** Column name Processed */
+    public static final String COLUMNNAME_Processed = "Processed";
 
-	/** Set SealNo	  */
-	public void setSealNo (String SealNo);
+	/** Set Processed.
+	  * The document has been processed
+	  */
+	public void setProcessed (boolean Processed);
 
-	/** Get SealNo	  */
-	public String getSealNo();
+	/** Get Processed.
+	  * The document has been processed
+	  */
+	public boolean isProcessed();
+
+    /** Column name ProcessedOn */
+    public static final String COLUMNNAME_ProcessedOn = "ProcessedOn";
+
+	/** Set Processed On.
+	  * The date+time (expressed in decimal format) when the document has been processed
+	  */
+	public void setProcessedOn (BigDecimal ProcessedOn);
+
+	/** Get Processed On.
+	  * The date+time (expressed in decimal format) when the document has been processed
+	  */
+	public BigDecimal getProcessedOn();
+
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
+
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
+
+	/** Get Process Now	  */
+	public boolean isProcessing();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

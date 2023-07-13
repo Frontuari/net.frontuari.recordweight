@@ -42,6 +42,12 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
       super (ctx, FTU_FreightCost_ID, trxName);
       /** if (FTU_FreightCost_ID == 0)
         {
+			setIsApproved (false);
+// N
+			setProcessed (false);
+// N
+			setProcessing (false);
+// N
         } */
     }
 
@@ -51,6 +57,12 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
       super (ctx, FTU_FreightCost_ID, trxName, virtualColumns);
       /** if (FTU_FreightCost_ID == 0)
         {
+			setIsApproved (false);
+// N
+			setProcessed (false);
+// N
+			setProcessing (false);
+// N
         } */
     }
 
@@ -81,6 +93,90 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException
+	{
+		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_ID)
+			.getPO(getAD_User_ID(), get_TrxName());
+	}
+
+	/** Set User/Contact.
+		@param AD_User_ID User within the system - Internal or Business Partner Contact
+	*/
+	public void setAD_User_ID (int AD_User_ID)
+	{
+		if (AD_User_ID < 1)
+			set_Value (COLUMNNAME_AD_User_ID, null);
+		else
+			set_Value (COLUMNNAME_AD_User_ID, Integer.valueOf(AD_User_ID));
+	}
+
+	/** Get User/Contact.
+		@return User within the system - Internal or Business Partner Contact
+	  */
+	public int getAD_User_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_User_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_ConversionType getC_ConversionType() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_ConversionType)MTable.get(getCtx(), org.compiere.model.I_C_ConversionType.Table_ID)
+			.getPO(getC_ConversionType_ID(), get_TrxName());
+	}
+
+	/** Set Currency Type.
+		@param C_ConversionType_ID Currency Conversion Rate Type
+	*/
+	public void setC_ConversionType_ID (int C_ConversionType_ID)
+	{
+		if (C_ConversionType_ID < 1)
+			set_Value (COLUMNNAME_C_ConversionType_ID, null);
+		else
+			set_Value (COLUMNNAME_C_ConversionType_ID, Integer.valueOf(C_ConversionType_ID));
+	}
+
+	/** Get Currency Type.
+		@return Currency Conversion Rate Type
+	  */
+	public int getC_ConversionType_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_ConversionType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_Currency getC_Currency() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_Currency)MTable.get(getCtx(), org.compiere.model.I_C_Currency.Table_ID)
+			.getPO(getC_Currency_ID(), get_TrxName());
+	}
+
+	/** Set Currency.
+		@param C_Currency_ID The Currency for this record
+	*/
+	public void setC_Currency_ID (int C_Currency_ID)
+	{
+		if (C_Currency_ID < 1)
+			set_Value (COLUMNNAME_C_Currency_ID, null);
+		else
+			set_Value (COLUMNNAME_C_Currency_ID, Integer.valueOf(C_Currency_ID));
+	}
+
+	/** Get Currency.
+		@return The Currency for this record
+	  */
+	public int getC_Currency_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Currency_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
 	{
@@ -276,28 +372,6 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
 
-	/** Set Adjust Price.
-		@param FTU_AdjustPrice Adjust Price
-	*/
-	public void setFTU_AdjustPrice (boolean FTU_AdjustPrice)
-	{
-		set_Value (COLUMNNAME_FTU_AdjustPrice, Boolean.valueOf(FTU_AdjustPrice));
-	}
-
-	/** Get Adjust Price.
-		@return Adjust Price	  */
-	public boolean isFTU_AdjustPrice()
-	{
-		Object oo = get_Value(COLUMNNAME_FTU_AdjustPrice);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
-	}
-
 	public net.frontuari.recordweight.model.I_FTU_Driver getFTU_Driver() throws RuntimeException
 	{
 		return (net.frontuari.recordweight.model.I_FTU_Driver)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_Driver.Table_ID)
@@ -463,28 +537,6 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return ii.intValue();
 	}
 
-	/** Set Zero Cost.
-		@param FTU_ZeroCost Zero Cost
-	*/
-	public void setFTU_ZeroCost (boolean FTU_ZeroCost)
-	{
-		set_Value (COLUMNNAME_FTU_ZeroCost, Boolean.valueOf(FTU_ZeroCost));
-	}
-
-	/** Get Zero Cost.
-		@return Zero Cost	  */
-	public boolean isFTU_ZeroCost()
-	{
-		Object oo = get_Value(COLUMNNAME_FTU_ZeroCost);
-		if (oo != null) 
-		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
-			return "Y".equals(oo);
-		}
-		return false;
-	}
-
 	/** Set Grand Total.
 		@param GrandTotal Total amount of document
 	*/
@@ -502,6 +554,29 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Approved.
+		@param IsApproved Indicates if this document requires approval
+	*/
+	public void setIsApproved (boolean IsApproved)
+	{
+		set_Value (COLUMNNAME_IsApproved, Boolean.valueOf(IsApproved));
+	}
+
+	/** Get Approved.
+		@return Indicates if this document requires approval
+	  */
+	public boolean isApproved()
+	{
+		Object oo = get_Value(COLUMNNAME_IsApproved);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException
@@ -547,19 +622,68 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 		return (String)get_Value(COLUMNNAME_ProcCreate);
 	}
 
-	/** Set SealNo.
-		@param SealNo SealNo
+	/** Set Processed.
+		@param Processed The document has been processed
 	*/
-	public void setSealNo (String SealNo)
+	public void setProcessed (boolean Processed)
 	{
-		set_Value (COLUMNNAME_SealNo, SealNo);
+		set_Value (COLUMNNAME_Processed, Boolean.valueOf(Processed));
 	}
 
-	/** Get SealNo.
-		@return SealNo	  */
-	public String getSealNo()
+	/** Get Processed.
+		@return The document has been processed
+	  */
+	public boolean isProcessed()
 	{
-		return (String)get_Value(COLUMNNAME_SealNo);
+		Object oo = get_Value(COLUMNNAME_Processed);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Processed On.
+		@param ProcessedOn The date+time (expressed in decimal format) when the document has been processed
+	*/
+	public void setProcessedOn (BigDecimal ProcessedOn)
+	{
+		set_Value (COLUMNNAME_ProcessedOn, ProcessedOn);
+	}
+
+	/** Get Processed On.
+		@return The date+time (expressed in decimal format) when the document has been processed
+	  */
+	public BigDecimal getProcessedOn()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ProcessedOn);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Process Now.
+		@param Processing Process Now
+	*/
+	public void setProcessing (boolean Processing)
+	{
+		set_Value (COLUMNNAME_Processing, Boolean.valueOf(Processing));
+	}
+
+	/** Get Process Now.
+		@return Process Now	  */
+	public boolean isProcessing()
+	{
+		Object oo = get_Value(COLUMNNAME_Processing);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Weight.
