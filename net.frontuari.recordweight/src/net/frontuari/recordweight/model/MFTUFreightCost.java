@@ -3,8 +3,12 @@ package net.frontuari.recordweight.model;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Properties;
 
+import org.compiere.model.I_C_InvoiceLine;
+import org.compiere.model.MInvoiceLine;
+import org.compiere.model.Query;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
@@ -152,5 +156,22 @@ public class MFTUFreightCost extends X_FTU_FreightCost implements DocAction, Doc
 		
 		return index;
 	}
+	
+	/**
+	 * 	Get Invoice Lines of Invoice
+	 * 	@param whereClause starting with AND
+	 * 	@return lines
+	 */
+	public MFTUFreightCostLine[] getLines (String whereClause)
+	{
+		String whereClauseFinal = "FTU_FreightCost_ID=? ";
+		if (whereClause != null)
+			whereClauseFinal += whereClause;
+		List<MFTUFreightCostLine> list = new Query(getCtx(), MFTUFreightCostLine.Table_Name, whereClauseFinal, get_TrxName())
+										.setParameters(getFTU_FreightCost_ID())
+										.setOrderBy("FTU_FreightCostLine_ID")
+										.list();		
+		return list.toArray(new MFTUFreightCostLine[list.size()]);
+	}	//	getLines
 
 }
