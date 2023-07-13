@@ -1,4 +1,4 @@
-package net.frontuari.recordweight.process;
+	package net.frontuari.recordweight.process;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -114,7 +114,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 					BigDecimal rate = MConversionRate.getRate(pft.getC_Currency_ID(), cost.getC_Currency_ID(), cost.getDateDoc(), pft.getC_ConversionType_ID(), cost.getAD_Client_ID(), cost.getAD_Org_ID());
 					line.setFinalPrice(pft.getPriceActual());
 					line.setRate(rate);
-					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(2, RoundingMode.HALF_UP));
+					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(4, RoundingMode.HALF_UP));
 					line.saveEx();
 				} else {
 					MFTURecordWeight rw = new MFTURecordWeight(getCtx(), rs.getInt("FTU_RecordWeight_ID"), get_TrxName());
@@ -159,7 +159,7 @@ public class FTUGenerateFreightCost extends FTUProcess{
 					BigDecimal rate = MConversionRate.getRate(pft.getC_Currency_ID(), cost.getC_Currency_ID(), cost.getDateDoc(), pft.getC_ConversionType_ID(), cost.getAD_Client_ID(), cost.getAD_Org_ID());
 					line.setFinalPrice(pft.getPriceActual());
 					line.setRate(rate);
-					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(2, RoundingMode.HALF_UP));
+					line.setCosts(rw.getNetWeight().multiply(pft.getPriceActual()).setScale(4, RoundingMode.HALF_UP));
 					line.saveEx();
 				}	
 			}
