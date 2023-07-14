@@ -62,7 +62,8 @@ public class MFTUShipperLiquidationLine extends X_FTU_SLLine {
 			BigDecimal discount = parent.getDiscountAmt();
 			BigDecimal grandTotal = parent.getGrandTotal();
 			BigDecimal prepayamt = parent.getPrePaymentAmt();
-			switch (getDeductionType()) {
+			String deduction = (getDeductionType() != null ? getDeductionType() : "None"); 
+			switch (deduction) {
 				case DEDUCTIONTYPE_DeductionByAP:
 					discount = discount.subtract(oldValue);
 					discount = discount.add(getAmount());
@@ -105,7 +106,8 @@ public class MFTUShipperLiquidationLine extends X_FTU_SLLine {
 		BigDecimal discount = parent.getDiscountAmt();
 		BigDecimal grandTotal = parent.getGrandTotal();
 		BigDecimal prepayamt = parent.getPrePaymentAmt();
-		switch (getDeductionType()) {
+		String deduction = (getDeductionType() != null ? getDeductionType() : "None"); 
+		switch (deduction) {
 			case DEDUCTIONTYPE_DeductionByAP:
 				discount = discount.subtract(oldValue);
 				parent.setGrandTotal(discount);

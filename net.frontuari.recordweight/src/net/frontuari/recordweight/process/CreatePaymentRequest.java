@@ -60,7 +60,7 @@ public class CreatePaymentRequest extends FTUProcess {
 		pr.setC_Currency_ID(liq.getC_Currency_ID());
 		pr.set_ValueOfColumn("C_ConversionType_ID",liq.getC_ConversionType_ID());
 		pr.setDateDoc(new Timestamp(System.currentTimeMillis()));
-		pr.setDescription("@liquidation.shipper@ "+liq.getDocumentInfo());
+		pr.setDescription(Msg.translate(getCtx(), "liquidation.shipper")+" "+liq.getDocumentInfo());
 		pr.saveEx(get_TrxName());
 		//	Create line
 		MFTUPaymentRequestLine prl = new MFTUPaymentRequestLine(getCtx(), 0, get_TrxName());
