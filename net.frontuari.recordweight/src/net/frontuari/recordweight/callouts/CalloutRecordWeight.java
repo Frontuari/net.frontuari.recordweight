@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import org.adempiere.base.annotation.Callout;
 import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
+import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -18,6 +19,7 @@ import net.frontuari.recordweight.model.MFTUChute;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
 import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.MFTULoadOrderLine;
+import net.frontuari.recordweight.model.MFTUMobilizationGuide;
 import net.frontuari.recordweight.model.MFTURecordWeight;
 import net.frontuari.recordweight.model.MFTUWeightScale;
 import net.frontuari.recordweight.model.MHRSAnalysis;
@@ -28,9 +30,12 @@ import net.frontuari.recordweight.model.X_FTU_RecordWeight;
 		I_FTU_RecordWeight.COLUMNNAME_FTU_WeightScale_ID,I_FTU_RecordWeight.COLUMNNAME_FTU_EntryTicket_ID,
 		I_FTU_RecordWeight.COLUMNNAME_GrossWeight,I_FTU_RecordWeight.COLUMNNAME_TareWeight,
 		I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID,I_FTU_RecordWeight.COLUMNNAME_FTU_Chute_ID,
-		I_FTU_RecordWeight.COLUMNNAME_FTU_RecordWeightSource_ID})
+		I_FTU_RecordWeight.COLUMNNAME_FTU_RecordWeightSource_ID,I_FTU_RecordWeight.COLUMNNAME_OperationType,
+		I_FTU_RecordWeight.COLUMNNAME_IsSOTrx})
 public class CalloutRecordWeight extends FTUCallout {
 
+	CLogger log = CLogger.getCLogger(CalloutRecordWeight.class);
+	
 	@Override
 	protected String start() {
 		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_C_DocType_ID)) {
@@ -59,7 +64,8 @@ public class CalloutRecordWeight extends FTUCallout {
 			Integer m_FTU_EntryTicket_ID = (Integer) getValue();
 			if (m_FTU_EntryTicket_ID == null || m_FTU_EntryTicket_ID.intValue() == 0)
 				return "";
-			
+
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), m_FTU_EntryTicket_ID, null);
 			//	Set load order
 			//	Return Load Order 
 			String sql = " SELECT FTU_LoadOrder_ID " +
@@ -71,9 +77,10 @@ public class CalloutRecordWeight extends FTUCallout {
 			//	Set Value Load Order into Record Weight
 			if(m_FTU_LoadOrder_ID > 0)
 				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, m_FTU_LoadOrder_ID);
+			else if(et.getFTU_LoadOrder_ID()>0)
+				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, et.getFTU_LoadOrder_ID());
 			
 			//Set Product From Entry Ticket
-			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), m_FTU_EntryTicket_ID, null);
 			//	Set Trailer Plate, Vehicle and driver of Entry Ticket
 			if (et.getM_Product_ID()!= 0 ) {
 				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Product_ID, et.getM_Product_ID());
@@ -94,20 +101,35 @@ public class CalloutRecordWeight extends FTUCallout {
 			if (!(et.getOperationType()== null) || !(et.getOperationType().equalsIgnoreCase("")))
 				setValue(I_FTU_RecordWeight.COLUMNNAME_OperationType,et.getOperationType());
 			
-			
 			if(et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
-					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)) {
-				int warehouseID = et.getC_Order().getM_Warehouse_ID();
-				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Warehouse_ID, warehouseID);
-				
+					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
+					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement)) {
 				int p_HRS_Analysis_ID = MHRSAnalysis.getByEntryTicket(et.getFTU_EntryTicket_ID());
 				if(p_HRS_Analysis_ID > 0)
 					setValue(I_FTU_RecordWeight.COLUMNNAME_HRS_Analysis_ID, p_HRS_Analysis_ID);
 			}
-			
-		} 
+		}
+		
+		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_OperationType)) {
+			String p_OperationType = (String) getValue();
+			if (p_OperationType  == null || p_OperationType.equals(""))
+				return "";
+			//	if is Receipt
+			if(p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_RawMaterialReceipt)
+					|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ProductBulkReceipt)
+						|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ReceiptMoreThanOneProduct)
+						|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_MaterialInputMovement)
+						|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ImportRawMaterial)) {
+				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "N");
+				getTab().setValue("IsSOTrx", "N");
+			}else {
+				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "Y");
+				getTab().setValue("IsSOTrx", "Y");
+			}
+		}
+		
 		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_GrossWeight)
-					|| getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_TareWeight) ) {
+					|| getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_TareWeight)) {
 			BigDecimal value = (BigDecimal) getValue();
 			//	BR [ 7 ]
 			if(value == null)
@@ -169,6 +191,50 @@ public class CalloutRecordWeight extends FTUCallout {
 		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_Completed);
 		    } 
 		} 
+		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_IsSOTrx)) {
+			boolean isSOTrx = getValue(I_FTU_RecordWeight.COLUMNNAME_IsSOTrx).equals("Y");
+			BigDecimal tareWeight = (BigDecimal) (getValue(I_FTU_RecordWeight.COLUMNNAME_TareWeight) != null
+					? getValue(I_FTU_RecordWeight.COLUMNNAME_TareWeight)
+					: Env.ZERO);
+		    BigDecimal grossWeight = (BigDecimal) (getValue(I_FTU_RecordWeight.COLUMNNAME_GrossWeight) != null
+		    		? getValue(I_FTU_RecordWeight.COLUMNNAME_GrossWeight)
+		    		: Env.ZERO);
+			
+		    Timestamp today = new Timestamp(System.currentTimeMillis());  
+		    //	Set Day
+		    if(!isSOTrx){
+		    	if(getField().getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_TareWeight)
+		    			&& tareWeight.compareTo(Env.ZERO) != 0){
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_OutDate, today);
+		    	}else if(getField().getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_GrossWeight)
+		    			&& grossWeight.compareTo(Env.ZERO) != 0){
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_InDate, today);
+		    	}
+		    	//	Valid Weight Status
+		    	if(grossWeight.compareTo(Env.ZERO) == 0)
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_WaitingForGrossWeight);
+		    	else if(tareWeight.compareTo(Env.ZERO) == 0)
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_WaitingForTareWeight);
+		    	else
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_Completed);	    	
+		    } else{
+		    	if(getField().getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_TareWeight)
+		    			&& tareWeight.compareTo(Env.ZERO) != 0){
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_InDate, today);
+		    	}else if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_GrossWeight)
+		    			&& grossWeight.compareTo(Env.ZERO) != 0){
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_OutDate, today);
+		    	}
+		    	//	Valid Weight Status
+		    	if(tareWeight.compareTo(Env.ZERO) == 0)
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_WaitingForTareWeight);
+		    	else if(grossWeight.compareTo(Env.ZERO) == 0)
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_WaitingForGrossWeight);
+		    	else
+		    		setValue(I_FTU_RecordWeight.COLUMNNAME_WeightStatus, X_FTU_RecordWeight.WEIGHTSTATUS_Completed);
+		    } 
+		}
+		
 		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID)) {
 
 			if (getValue() == null)
@@ -177,9 +243,22 @@ public class CalloutRecordWeight extends FTUCallout {
 			if (getField().getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID)){
 				int l_FTU_LoadOrder_ID = (Integer) getValue();
 				
-				if (l_FTU_LoadOrder_ID != 0)
+				if (l_FTU_LoadOrder_ID > 0)
 				{
 					MFTULoadOrder lo = new MFTULoadOrder(getCtx(), l_FTU_LoadOrder_ID, null);
+					if(getTab().get_ValueAsString("OperationType").equals(X_FTU_RecordWeight.OPERATIONTYPE_MaterialInputMovement)) {
+						MFTURecordWeight rw = lo.getRecordWeight();
+						MFTUMobilizationGuide mg = lo.getMobilizationGuide();
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginNetWeight, rw.getNetWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginGrossWeight, rw.getGrossWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginTareWeight, rw.getTareWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_SealNo, lo.getSealNo());
+						if(mg!=null) {
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_GuideOrigen, mg.getDocumentNo());
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_GuideSada, mg.getGuide());
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_TripNumber, "1");
+						}
+					}
 					MFTULoadOrderLine[] lolines = lo.getLines(true);
 					//get First Product From Load Order
 					if (lolines.length > 0 )

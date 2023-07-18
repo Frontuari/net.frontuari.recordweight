@@ -688,6 +688,20 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		return new MFTURecordWeight(getCtx(), m_FTU_RecordWeight_ID, get_TrxName());
 	}
 	
+	/**
+	 * Get Current Mobilization Guide
+	 * @return MFTUMobilizationGuide
+	 */
+	public MFTUMobilizationGuide getMobilizationGuide(){
+		int m_FTU_MobilizationGuide_ID = DB.getSQLValue(get_TrxName(), "SELECT MAX(rw.FTU_MobilizationGuide_ID) " +
+				"FROM FTU_MobilizationGuide rw " +
+				"WHERE rw.DocStatus = 'CO' " +
+				"AND rw.FTU_LoadOrder_ID = ?", getFTU_LoadOrder_ID());
+		if(m_FTU_MobilizationGuide_ID <= 0)
+			return null;
+		//	Instance
+		return new MFTUMobilizationGuide(getCtx(), m_FTU_MobilizationGuide_ID, get_TrxName());
+	}
 	
 	/**
 	 * 	Close Document.

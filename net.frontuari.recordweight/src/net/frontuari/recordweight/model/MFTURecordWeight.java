@@ -294,11 +294,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}
 		//	End Jorge Colmenarez
-		//Added By David Castillo 17/10/2022 Support to validate on MaterialOutputMovement
+		//	Added By David Castillo 17/10/2022 Support to validate on MaterialOutputMovement
 		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialOutputMovement) && !isApproved())
 		{
 			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
-			
 			BigDecimal toleranceAmt = (new BigDecimal(tolerancePercentage).divide(Env.ONEHUNDRED, 2,RoundingMode.HALF_UP));
 			toleranceAmt = oNetWeight.multiply(toleranceAmt);
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
@@ -313,6 +312,23 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return DocAction.STATUS_WaitingConfirmation;
 			}
 		}
+		//	Added By Jorge Colmenarez, 2023-07-15 13:57 Support to validate on MaterialInputMovement
+		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement) && !isApproved())
+		{
+			BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
+			BigDecimal oNetWeight = getOriginNetWeight();
+			BigDecimal difference = getNetWeight().subtract(oNetWeight);
+			if(difference.compareTo(maxtolerance.negate()) == -1)
+			{
+				//	Added by Jorge Colmenarez, 2021-11-04 14:53
+				//	Support for write QtyDifference
+				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
+				//	End Jorge Colmenarez
+				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = ["+maxtolerance+"] se requiere una autorizacion.";
+				return DocAction.STATUS_WaitingConfirmation;
+			}
+		}
+		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_COMPLETE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
