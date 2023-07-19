@@ -342,7 +342,7 @@ public class CalloutRecordWeight extends FTUCallout {
 	}
 	
 	private void fillOperationType() {
-		String p_OperationType = (String) getValue();
+		String p_OperationType = (String) getValue("OperationType");
 		if (p_OperationType  == null || p_OperationType.equals(""))
 			return;
 		//	if is Receipt
