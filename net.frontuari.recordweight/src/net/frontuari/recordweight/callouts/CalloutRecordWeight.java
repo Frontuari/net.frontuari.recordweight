@@ -108,6 +108,8 @@ public class CalloutRecordWeight extends FTUCallout {
 				if(p_HRS_Analysis_ID > 0)
 					setValue(I_FTU_RecordWeight.COLUMNNAME_HRS_Analysis_ID, p_HRS_Analysis_ID);
 			}
+			fillLoadOrderData();
+			fillOperationType();
 		}
 		
 		if(getColumnName().equals(I_FTU_RecordWeight.COLUMNNAME_OperationType)) {
@@ -305,4 +307,55 @@ public class CalloutRecordWeight extends FTUCallout {
 		return "";
 	}
 
+	private void fillLoadOrderData() {
+		
+		if (getTab().getValue("FTU_LoadOrder_ID")!=null) {
+		
+			
+				int l_FTU_LoadOrder_ID = (Integer) getTab().getValue("FTU_LoadOrder_ID");
+				
+				if (l_FTU_LoadOrder_ID > 0)
+				{
+					MFTULoadOrder lo = new MFTULoadOrder(getCtx(), l_FTU_LoadOrder_ID, null);
+					if(getTab().get_ValueAsString("OperationType").equals(X_FTU_RecordWeight.OPERATIONTYPE_MaterialInputMovement)) {
+						MFTURecordWeight rw = lo.getRecordWeight();
+						MFTUMobilizationGuide mg = lo.getMobilizationGuide();
+						if (rw != null) {
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginNetWeight, rw.getNetWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginGrossWeight, rw.getGrossWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_OriginTareWeight, rw.getTareWeight());
+						getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_SealNo, lo.getSealNo());
+						}
+						if(mg!=null) {
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_GuideOrigen, mg.getDocumentNo());
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_GuideSada, mg.getGuide());
+							getTab().setValue(X_FTU_RecordWeight.COLUMNNAME_TripNumber, "1");
+						}
+					}
+					MFTULoadOrderLine[] lolines = lo.getLines(true);
+					//get First Product From Load Order
+					if (lolines.length > 0 )
+						setValue(I_FTU_RecordWeight.COLUMNNAME_M_Product_ID, lolines[0].getM_Product_ID());
+				}
+			
+		}
+	}
+	
+	private void fillOperationType() {
+		String p_OperationType = (String) getValue();
+		if (p_OperationType  == null || p_OperationType.equals(""))
+			return;
+		//	if is Receipt
+		if(p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_RawMaterialReceipt)
+				|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ProductBulkReceipt)
+					|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ReceiptMoreThanOneProduct)
+					|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_MaterialInputMovement)
+					|| p_OperationType.equals(X_FTU_RecordWeight.OPERATIONTYPE_ImportRawMaterial)) {
+			Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "N");
+			getTab().setValue("IsSOTrx", "N");
+		}else {
+			Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "Y");
+			getTab().setValue("IsSOTrx", "Y");
+		}
+	}
 }

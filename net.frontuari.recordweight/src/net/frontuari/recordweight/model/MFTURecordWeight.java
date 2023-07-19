@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MAttributeSet;
+import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
@@ -1496,6 +1497,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				if(orderLines[i].getM_AttributeSetInstance_ID()>0)
 					ioLine.setM_AttributeSetInstance_ID(orderLines[i].getM_AttributeSetInstance_ID());
 			}
+			
+			//added by david castillo 18/07/2023 
+			if (product.getM_AttributeSet_ID()>0 && !(ioLine.getM_AttributeSetInstance_ID()>0)) {
+			MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
+			ioLine.setM_AttributeSetInstance_ID(inst.getM_AttributeSetInstance_ID());
+			}
 			// Set Quantity
 			ioLine.setQty(m_MovementQty);
 			ioLine.saveEx(get_TrxName());
@@ -1813,6 +1820,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				// References
 				shipmentLine.setM_Locator_ID(m_MovementQty);
 				shipmentLine.setC_OrderLine_ID(line.getC_OrderLine_ID());
+				
 				// Save Line
 				shipmentLine.saveEx(get_TrxName());
 
@@ -1879,10 +1887,19 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (!reload && m_Valideight != null)
 			return m_Valideight;
 
-		if (MSysConfig.getBooleanValue("FTU_IS_PAY_WEIGHT_RECEIPT_QTY", false, getAD_Client_ID()))
-			return getPayWeight();
-		else
-			return getNetWeight();
+		if (MSysConfig.getBooleanValue("FTU_IS_PAY_WEIGHT_RECEIPT_QTY", false, getAD_Client_ID())) {
+			return getPayWeight();}
+		else {
+			if (getOriginNetWeight().compareTo(getNetWeight())>0) {
+				
+				return getOriginNetWeight();
+
+			}else {
+				
+				return getNetWeight();
+	
+			}
+		}
 	}
 
 	/**
