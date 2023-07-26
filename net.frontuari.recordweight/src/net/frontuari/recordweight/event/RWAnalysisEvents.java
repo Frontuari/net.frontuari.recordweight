@@ -1,4 +1,4 @@
-package net.frontuari.recordweight.events;
+package net.frontuari.recordweight.event;
 
 import java.math.BigDecimal;
 import java.util.Properties;

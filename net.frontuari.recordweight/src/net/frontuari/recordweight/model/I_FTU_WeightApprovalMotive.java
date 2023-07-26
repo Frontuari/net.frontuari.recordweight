@@ -64,6 +64,32 @@ public interface I_FTU_WeightApprovalMotive
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name C_Charge_ID */
+    public static final String COLUMNNAME_C_Charge_ID = "C_Charge_ID";
+
+	/** Set Charge.
+	  * Additional document charges
+	  */
+	public void setC_Charge_ID (int C_Charge_ID);
+
+	/** Get Charge.
+	  * Additional document charges
+	  */
+	public int getC_Charge_ID();
+
+	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException;
+
+    /** Column name C_DocTypeInventory_ID */
+    public static final String COLUMNNAME_C_DocTypeInventory_ID = "C_DocTypeInventory_ID";
+
+	/** Set C_DocTypeInventory_ID	  */
+	public void setC_DocTypeInventory_ID (int C_DocTypeInventory_ID);
+
+	/** Get C_DocTypeInventory_ID	  */
+	public int getC_DocTypeInventory_ID();
+
+	public org.compiere.model.I_C_DocType getC_DocTypeInventory() throws RuntimeException;
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -123,6 +149,19 @@ public interface I_FTU_WeightApprovalMotive
 	  * Indicates if this document requires approval
 	  */
 	public boolean isApproved();
+
+    /** Column name IsGenerateLoss */
+    public static final String COLUMNNAME_IsGenerateLoss = "IsGenerateLoss";
+
+	/** Set Generate Loss.
+	  * Generate loss inventory
+	  */
+	public void setIsGenerateLoss (boolean IsGenerateLoss);
+
+	/** Get Generate Loss.
+	  * Generate loss inventory
+	  */
+	public boolean isGenerateLoss();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
