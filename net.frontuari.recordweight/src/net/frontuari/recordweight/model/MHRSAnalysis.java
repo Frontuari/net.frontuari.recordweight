@@ -380,6 +380,22 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	}
 	
 	/***
+	 * Replace Basic Code
+	 * @param code
+	 * @return code clean
+	 */
+	private String replaceBasicCode(String code, boolean isQualitativeAnaysis) {
+		//	Get Lines to Lab Analysis
+		for(MHRSAnalysisLine line : getLines(true, ""))
+		{
+			String value = line.getFTU_AnalysisType().getValue();
+			String result = isQualitativeAnaysis ? line.get_ValueAsString("QualitativeResult") : line.getResult().toString();
+			code=code.replaceAll("#("+value+")", result);
+		}
+		return code;
+	}
+	
+	/***
 	 * Extract Formulas from Code
 	 * @param code
 	 * @return code with formulas
@@ -426,21 +442,32 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				String code=rs.getString("Code");
 				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_ID");
 				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
+				boolean isQualitativeAnalysis = qparam.get_ValueAsBoolean("isQualitativeAnalysis");
 				//	Replace Code
 				code = getFormulas(code);
-				code = replaceBasicCode(code);
+				code = replaceBasicCode(code,isQualitativeAnalysis);
 				code = replaceTableAndColumn(code, getFTU_EntryTicket_ID());
 				code = processFunctions(code);
 				code = cleanCode(code);
 				//	Execute Code
+				String result ;
+				if (isQualitativeAnalysis) {
+				result = code;	
+				}else {
 				String sqlCode = "SELECT ("+code+") AS result";
-				String result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				}
 				if(result!=null) {
 					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
+					if (!isQualitativeAnalysis) {
 					lcr.setHumanResult(result.toUpperCase());
+					}else {
+					lcr.set_ValueOfColumn("QualitativeResult", result.toUpperCase());	
+					lcr.setHumanResult("0");
+					}
 					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
 					lcr.setSystemResult(SysResult);
 					lcr.saveEx();

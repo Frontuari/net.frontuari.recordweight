@@ -74,11 +74,6 @@ public class CalloutRecordWeight extends FTUCallout {
 					" AND FTU_LoadOrder.DocStatus IN ('CO')";
 			
 			int m_FTU_LoadOrder_ID = DB.getSQLValue(null, sql, m_FTU_EntryTicket_ID);
-			//	Set Value Load Order into Record Weight
-			if(m_FTU_LoadOrder_ID > 0)
-				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, m_FTU_LoadOrder_ID);
-			else if(et.getFTU_LoadOrder_ID()>0)
-				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, et.getFTU_LoadOrder_ID());
 			
 			//Set Product From Entry Ticket
 			//	Set Trailer Plate, Vehicle and driver of Entry Ticket
@@ -108,6 +103,12 @@ public class CalloutRecordWeight extends FTUCallout {
 				if(p_HRS_Analysis_ID > 0)
 					setValue(I_FTU_RecordWeight.COLUMNNAME_HRS_Analysis_ID, p_HRS_Analysis_ID);
 			}
+//			Set Value Load Order into Record Weight
+			
+					if(m_FTU_LoadOrder_ID > 0)
+						setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, m_FTU_LoadOrder_ID);
+					else if(et.getFTU_LoadOrder_ID()>0)
+						setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, et.getFTU_LoadOrder_ID());
 			fillLoadOrderData();
 			fillOperationType();
 		}
@@ -309,10 +310,10 @@ public class CalloutRecordWeight extends FTUCallout {
 
 	private void fillLoadOrderData() {
 		
-		if (getTab().getValue("FTU_LoadOrder_ID")!=null) {
+		if (getTab().getValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID)!=null) {
 		
 			
-				int l_FTU_LoadOrder_ID = (Integer) getTab().getValue("FTU_LoadOrder_ID");
+				int l_FTU_LoadOrder_ID = (Integer) getTab().getValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID);
 				
 				if (l_FTU_LoadOrder_ID > 0)
 				{
