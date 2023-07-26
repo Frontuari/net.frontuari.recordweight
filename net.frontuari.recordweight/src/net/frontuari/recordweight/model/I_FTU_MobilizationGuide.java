@@ -32,7 +32,7 @@ public interface I_FTU_MobilizationGuide
     /** TableName=FTU_MobilizationGuide */
     public static final String Table_Name = "FTU_MobilizationGuide";
 
-    /** AD_Table_ID=1000083 */
+    /** AD_Table_ID=1000507 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -196,8 +196,6 @@ public interface I_FTU_MobilizationGuide
 
 	/** Get Load Order	  */
 	public int getFTU_LoadOrder_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
 
     /** Column name FTU_MobilizationGuide_ID */
     public static final String COLUMNNAME_FTU_MobilizationGuide_ID = "FTU_MobilizationGuide_ID";

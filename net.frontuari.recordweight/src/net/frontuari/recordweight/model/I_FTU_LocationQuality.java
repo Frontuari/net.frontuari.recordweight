@@ -21,18 +21,18 @@ import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
 
-/** Generated Interface for FTU_VehicleBrand
+/** Generated Interface for FTU_LocationQuality
  *  @author iDempiere (generated) 
  *  @version Release 10
  */
 @SuppressWarnings("all")
-public interface I_FTU_VehicleBrand 
+public interface I_FTU_LocationQuality 
 {
 
-    /** TableName=FTU_VehicleBrand */
-    public static final String Table_Name = "FTU_VehicleBrand";
+    /** TableName=FTU_LocationQuality */
+    public static final String Table_Name = "FTU_LocationQuality";
 
-    /** AD_Table_ID=1000490 */
+    /** AD_Table_ID=1000939 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -93,23 +93,27 @@ public interface I_FTU_VehicleBrand
 	  */
 	public String getDescription();
 
-    /** Column name FTU_VehicleBrand_ID */
-    public static final String COLUMNNAME_FTU_VehicleBrand_ID = "FTU_VehicleBrand_ID";
+    /** Column name FTU_LocationQuality_ID */
+    public static final String COLUMNNAME_FTU_LocationQuality_ID = "FTU_LocationQuality_ID";
 
-	/** Set Vehicle Brand	  */
-	public void setFTU_VehicleBrand_ID (int FTU_VehicleBrand_ID);
+	/** Set Location Quality.
+	  * Location Quality
+	  */
+	public void setFTU_LocationQuality_ID (int FTU_LocationQuality_ID);
 
-	/** Get Vehicle Brand	  */
-	public int getFTU_VehicleBrand_ID();
+	/** Get Location Quality.
+	  * Location Quality
+	  */
+	public int getFTU_LocationQuality_ID();
 
-    /** Column name FTU_VehicleBrand_UU */
-    public static final String COLUMNNAME_FTU_VehicleBrand_UU = "FTU_VehicleBrand_UU";
+    /** Column name FTU_LocationQuality_UU */
+    public static final String COLUMNNAME_FTU_LocationQuality_UU = "FTU_LocationQuality_UU";
 
-	/** Set FTU_VehicleBrand_UU	  */
-	public void setFTU_VehicleBrand_UU (String FTU_VehicleBrand_UU);
+	/** Set FTU_LocationQuality_UU	  */
+	public void setFTU_LocationQuality_UU (String FTU_LocationQuality_UU);
 
-	/** Get FTU_VehicleBrand_UU	  */
-	public String getFTU_VehicleBrand_UU();
+	/** Get FTU_LocationQuality_UU	  */
+	public String getFTU_LocationQuality_UU();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -152,4 +156,17 @@ public interface I_FTU_VehicleBrand
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name Value */
+    public static final String COLUMNNAME_Value = "Value";
+
+	/** Set Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public void setValue (String Value);
+
+	/** Get Search Key.
+	  * Search key for the record in the format required - must be unique
+	  */
+	public String getValue();
 }

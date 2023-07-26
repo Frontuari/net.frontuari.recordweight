@@ -124,21 +124,6 @@ public interface I_FTU_FreightCostLine
 
 	public org.compiere.model.I_C_Invoice getC_Invoice() throws RuntimeException;
 
-    /** Column name C_SalesRegion_ID */
-    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
-
-	/** Set Sales Region.
-	  * Sales coverage region
-	  */
-	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
-
-	/** Get Sales Region.
-	  * Sales coverage region
-	  */
-	public int getC_SalesRegion_ID();
-
-	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
-
     /** Column name Costs */
     public static final String COLUMNNAME_Costs = "Costs";
 
@@ -168,6 +153,21 @@ public interface I_FTU_FreightCostLine
 	  */
 	public int getCreatedBy();
 
+    /** Column name C_SalesRegion_ID */
+    public static final String COLUMNNAME_C_SalesRegion_ID = "C_SalesRegion_ID";
+
+	/** Set Sales Region.
+	  * Sales coverage region
+	  */
+	public void setC_SalesRegion_ID (int C_SalesRegion_ID);
+
+	/** Get Sales Region.
+	  * Sales coverage region
+	  */
+	public int getC_SalesRegion_ID();
+
+	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
+
     /** Column name DiscountWeight */
     public static final String COLUMNNAME_DiscountWeight = "DiscountWeight";
 
@@ -176,48 +176,6 @@ public interface I_FTU_FreightCostLine
 
 	/** Get Discount Weight	  */
 	public BigDecimal getDiscountWeight();
-
-    /** Column name FTU_DeliveryRute_ID */
-    public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
-
-	/** Set FTU_DeliveryRute_ID	  */
-	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
-
-	/** Get FTU_DeliveryRute_ID	  */
-	public int getFTU_DeliveryRute_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException;
-
-    /** Column name FTU_FreightCostLine_ID */
-    public static final String COLUMNNAME_FTU_FreightCostLine_ID = "FTU_FreightCostLine_ID";
-
-	/** Set Bill of Lading Line	  */
-	public void setFTU_FreightCostLine_ID (int FTU_FreightCostLine_ID);
-
-	/** Get Bill of Lading Line	  */
-	public int getFTU_FreightCostLine_ID();
-
-    /** Column name FTU_FreightCost_ID */
-    public static final String COLUMNNAME_FTU_FreightCost_ID = "FTU_FreightCost_ID";
-
-	/** Set Bill of Lading	  */
-	public void setFTU_FreightCost_ID (int FTU_FreightCost_ID);
-
-	/** Get Bill of Lading	  */
-	public int getFTU_FreightCost_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_FreightCost getFTU_FreightCost() throws RuntimeException;
-
-    /** Column name FTU_RecordWeight_ID */
-    public static final String COLUMNNAME_FTU_RecordWeight_ID = "FTU_RecordWeight_ID";
-
-	/** Set Record Weight	  */
-	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID);
-
-	/** Get Record Weight	  */
-	public int getFTU_RecordWeight_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException;
 
     /** Column name Factor */
     public static final String COLUMNNAME_Factor = "Factor";
@@ -240,6 +198,48 @@ public interface I_FTU_FreightCostLine
 
 	/** Get Final Price	  */
 	public BigDecimal getFinalPrice();
+
+    /** Column name FTU_DeliveryRute_ID */
+    public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
+
+	/** Set FTU_DeliveryRute_ID	  */
+	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
+
+	/** Get FTU_DeliveryRute_ID	  */
+	public int getFTU_DeliveryRute_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException;
+
+    /** Column name FTU_FreightCost_ID */
+    public static final String COLUMNNAME_FTU_FreightCost_ID = "FTU_FreightCost_ID";
+
+	/** Set Bill of Lading	  */
+	public void setFTU_FreightCost_ID (int FTU_FreightCost_ID);
+
+	/** Get Bill of Lading	  */
+	public int getFTU_FreightCost_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_FreightCost getFTU_FreightCost() throws RuntimeException;
+
+    /** Column name FTU_FreightCostLine_ID */
+    public static final String COLUMNNAME_FTU_FreightCostLine_ID = "FTU_FreightCostLine_ID";
+
+	/** Set Bill of Lading Line	  */
+	public void setFTU_FreightCostLine_ID (int FTU_FreightCostLine_ID);
+
+	/** Get Bill of Lading Line	  */
+	public int getFTU_FreightCostLine_ID();
+
+    /** Column name FTU_RecordWeight_ID */
+    public static final String COLUMNNAME_FTU_RecordWeight_ID = "FTU_RecordWeight_ID";
+
+	/** Set Record Weight	  */
+	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID);
+
+	/** Get Record Weight	  */
+	public int getFTU_RecordWeight_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException;
 
     /** Column name M_InOut_ID */
     public static final String COLUMNNAME_M_InOut_ID = "M_InOut_ID";

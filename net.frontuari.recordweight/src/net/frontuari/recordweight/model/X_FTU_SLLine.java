@@ -33,7 +33,7 @@ public class X_FTU_SLLine extends PO implements I_FTU_SLLine, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230708L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_SLLine (Properties ctx, int FTU_SLLine_ID, String trxName)
@@ -290,5 +290,33 @@ public class X_FTU_SLLine extends PO implements I_FTU_SLLine, I_Persistent
 	public String getFTU_SLLine_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_SLLine_UU);
+	}
+
+	public org.compiere.model.I_M_Inventory getM_Inventory() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_Inventory)MTable.get(getCtx(), org.compiere.model.I_M_Inventory.Table_ID)
+			.getPO(getM_Inventory_ID(), get_TrxName());
+	}
+
+	/** Set Phys.Inventory.
+		@param M_Inventory_ID Parameters for a Physical Inventory
+	*/
+	public void setM_Inventory_ID (int M_Inventory_ID)
+	{
+		if (M_Inventory_ID < 1)
+			set_Value (COLUMNNAME_M_Inventory_ID, null);
+		else
+			set_Value (COLUMNNAME_M_Inventory_ID, Integer.valueOf(M_Inventory_ID));
+	}
+
+	/** Get Phys.Inventory.
+		@return Parameters for a Physical Inventory
+	  */
+	public int getM_Inventory_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Inventory_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 }

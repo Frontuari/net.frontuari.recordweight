@@ -34,7 +34,7 @@ public class X_FTU_LoadOrderLineMA extends PO implements I_FTU_LoadOrderLineMA, 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_LoadOrderLineMA (Properties ctx, int FTU_LoadOrderLineMA_ID, String trxName)
@@ -100,12 +100,6 @@ public class X_FTU_LoadOrderLineMA extends PO implements I_FTU_LoadOrderLineMA, 
 	public Timestamp getDateMaterialPolicy()
 	{
 		return (Timestamp)get_Value(COLUMNNAME_DateMaterialPolicy);
-	}
-
-	public net.frontuari.recordweight.model.I_FTU_LoadOrderLine getFTU_LoadOrderLine() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrderLine)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrderLine.Table_ID)
-			.getPO(getFTU_LoadOrderLine_ID(), get_TrxName());
 	}
 
 	/** Set Load Order Line.

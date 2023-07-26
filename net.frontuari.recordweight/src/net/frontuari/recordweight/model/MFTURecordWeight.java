@@ -295,24 +295,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}
 		//	End Jorge Colmenarez
-		//	Added By David Castillo 17/10/2022 Support to validate on MaterialOutputMovement
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialOutputMovement) && !isApproved())
-		{
-			BigDecimal oNetWeight = getFTU_LoadOrder().getWeight();
-			BigDecimal toleranceAmt = (new BigDecimal(tolerancePercentage).divide(Env.ONEHUNDRED, 2,RoundingMode.HALF_UP));
-			toleranceAmt = oNetWeight.multiply(toleranceAmt);
-			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(toleranceAmt.negate()) == -1 
-					|| difference.compareTo(toleranceAmt) == 1)
-			{
-				//	Added by Jorge Colmenarez, 2021-11-04 14:53
-				//	Support for write QtyDifference
-				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
-				//	End Jorge Colmenarez
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = ["+tolerancePercentage+"% = "+toleranceAmt+"] se requiere una autorizacion.";
-				return DocAction.STATUS_WaitingConfirmation;
-			}
-		}
 		//	Added By Jorge Colmenarez, 2023-07-15 13:57 Support to validate on MaterialInputMovement
 		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement) && !isApproved())
 		{
@@ -1138,7 +1120,28 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					m_MovementLine.setM_AttributeSetInstanceTo_ID(m_DD_OrderLine.getM_AttributeSetInstanceTo_ID());
 				
 				if (prod.get_ValueAsBoolean("IsBulk")){
-					m_MovementLine.setMovementQty(getNetWeight());
+					//	Added by Jorge Colmenarez, 2023-07-25 17:06
+					//	Support for set DifferenceQty on Movement
+					if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement))
+					{
+						if(getDifferenceQty().compareTo(BigDecimal.ZERO)>0) {
+							if(getOriginNetWeight().compareTo(getNetWeight())<0)
+								m_MovementLine.setMovementQty(getOriginNetWeight());
+							else
+								m_MovementLine.setMovementQty(getNetWeight());
+						}
+						else {
+							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
+							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
+							m_MovementLine.setMovementQty(getNetWeight());
+							if(realDiff.compareTo(BigDecimal.ZERO)<0)
+								m_MovementLine.setScrappedQty(getDifferenceQty());
+						}
+					}
+					else {
+						m_MovementLine.setMovementQty(getNetWeight());
+					}
+					//	End Jorge Colmenarez
 				}
 				else {
 					m_MovementLine.setMovementQty(line.getQty());

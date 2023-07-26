@@ -31,7 +31,7 @@ public class X_FTU_WS_Warehouse extends PO implements I_FTU_WS_Warehouse, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_WS_Warehouse (Properties ctx, int FTU_WS_Warehouse_ID, String trxName)

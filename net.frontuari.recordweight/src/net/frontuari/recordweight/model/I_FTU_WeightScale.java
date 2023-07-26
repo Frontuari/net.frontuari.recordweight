@@ -32,7 +32,7 @@ public interface I_FTU_WeightScale
     /** TableName=FTU_WeightScale */
     public static final String Table_Name = "FTU_WeightScale";
 
-    /** AD_Table_ID=1000077 */
+    /** AD_Table_ID=1000497 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -50,6 +50,15 @@ public interface I_FTU_WeightScale
 	  * Client/Tenant for this installation.
 	  */
 	public int getAD_Client_ID();
+
+    /** Column name Address */
+    public static final String COLUMNNAME_Address = "Address";
+
+	/** Set Address	  */
+	public void setAddress (String Address);
+
+	/** Get Address	  */
+	public String getAddress();
 
     /** Column name AD_Org_ID */
     public static final String COLUMNNAME_AD_Org_ID = "AD_Org_ID";
@@ -164,6 +173,19 @@ public interface I_FTU_WeightScale
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name IsTest */
+    public static final String COLUMNNAME_IsTest = "IsTest";
+
+	/** Set Test.
+	  * Execute in Test Mode
+	  */
+	public void setIsTest (boolean IsTest);
+
+	/** Get Test.
+	  * Execute in Test Mode
+	  */
+	public boolean isTest();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";

@@ -162,6 +162,19 @@ public interface I_FTU_ShipperLiquidation
 	  */
 	public int getCreatedBy();
 
+    /** Column name CreateLinesFrom */
+    public static final String COLUMNNAME_CreateLinesFrom = "CreateLinesFrom";
+
+	/** Set Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public void setCreateLinesFrom (String CreateLinesFrom);
+
+	/** Get Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateLinesFrom();
+
     /** Column name DateApproval */
     public static final String COLUMNNAME_DateApproval = "DateApproval";
 
@@ -269,17 +282,11 @@ public interface I_FTU_ShipperLiquidation
     /** Column name FTU_PaymentRequest_ID */
     public static final String COLUMNNAME_FTU_PaymentRequest_ID = "FTU_PaymentRequest_ID";
 
-	/** Set Payment Request.
-	  * Shipper Liquidation
-	  */
+	/** Set Payment Request_ID	  */
 	public void setFTU_PaymentRequest_ID (int FTU_PaymentRequest_ID);
 
-	/** Get Payment Request.
-	  * Shipper Liquidation
-	  */
+	/** Get Payment Request_ID	  */
 	public int getFTU_PaymentRequest_ID();
-
-	public net.frontuari.payselection.model.I_FTU_PaymentRequest getFTU_PaymentRequest() throws RuntimeException;
 
     /** Column name FTU_ShipperLiquidation_ID */
     public static final String COLUMNNAME_FTU_ShipperLiquidation_ID = "FTU_ShipperLiquidation_ID";
@@ -346,12 +353,12 @@ public interface I_FTU_ShipperLiquidation
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
 
 	/** Set Shipper.
-	  * Document type or rules
+	  * Method or manner of product delivery
 	  */
 	public void setM_Shipper_ID (int M_Shipper_ID);
 
 	/** Get Shipper.
-	  * Document type or rules
+	  * Method or manner of product delivery
 	  */
 	public int getM_Shipper_ID();
 

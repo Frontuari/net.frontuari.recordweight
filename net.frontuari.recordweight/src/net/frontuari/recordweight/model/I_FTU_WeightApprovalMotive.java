@@ -32,7 +32,7 @@ public interface I_FTU_WeightApprovalMotive
     /** TableName=FTU_WeightApprovalMotive */
     public static final String Table_Name = "FTU_WeightApprovalMotive";
 
-    /** AD_Table_ID=1000074 */
+    /** AD_Table_ID=1000496 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -92,10 +92,10 @@ public interface I_FTU_WeightApprovalMotive
     /** Column name FTU_WeightApprovalMotive_UU */
     public static final String COLUMNNAME_FTU_WeightApprovalMotive_UU = "FTU_WeightApprovalMotive_UU";
 
-	/** Set FTU_RW_ApprovalMotive_UU	  */
+	/** Set FTU_WeightApprovalMotive_UU	  */
 	public void setFTU_WeightApprovalMotive_UU (String FTU_WeightApprovalMotive_UU);
 
-	/** Get FTU_RW_ApprovalMotive_UU	  */
+	/** Get FTU_WeightApprovalMotive_UU	  */
 	public String getFTU_WeightApprovalMotive_UU();
 
     /** Column name IsActive */

@@ -34,7 +34,7 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_RecordWeight (Properties ctx, int FTU_RecordWeight_ID, String trxName)
@@ -452,12 +452,6 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 		return ii.intValue();
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_ID)
-			.getPO(getFTU_LoadOrder_ID(), get_TrxName());
-	}
-
 	/** Set Load Order.
 		@param FTU_LoadOrder_ID Load Order
 	*/
@@ -477,6 +471,12 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+	
+	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_ID)
+			.getPO(getFTU_LoadOrder_ID(), get_TrxName());
 	}
 
 	/** Set Record Weight.
@@ -686,12 +686,6 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 		return (String)get_Value(COLUMNNAME_GuideSurvey);
 	}
 
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());
-	}
-
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis
 	*/
@@ -711,6 +705,12 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	@Override
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException {
+		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
+				.getPO(getHRS_Analysis_ID(), get_TrxName());
 	}
 
 	/** Set ImportWeight.
@@ -851,6 +851,21 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 	public String getLineDescription()
 	{
 		return (String)get_Value(COLUMNNAME_LineDescription);
+	}
+
+	/** Set Loss Cause.
+		@param LossCause Loss Cause
+	*/
+	public void setLossCause (String LossCause)
+	{
+		set_Value (COLUMNNAME_LossCause, LossCause);
+	}
+
+	/** Get Loss Cause.
+		@return Loss Cause	  */
+	public String getLossCause()
+	{
+		return (String)get_Value(COLUMNNAME_LossCause);
 	}
 
 	/** Set MaxWeight.

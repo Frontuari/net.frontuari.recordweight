@@ -33,7 +33,7 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230709L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisLine (Properties ctx, int HRS_AnalysisLine_ID, String trxName)
@@ -118,12 +118,6 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 		return ii.intValue();
 	}
 
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());
-	}
-
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis
 	*/
@@ -179,6 +173,21 @@ public class X_HRS_AnalysisLine extends PO implements I_HRS_AnalysisLine, I_Pers
 	public String getHRS_AnalysisLine_UU()
 	{
 		return (String)get_Value(COLUMNNAME_HRS_AnalysisLine_UU);
+	}
+
+	/** Set QualitativeResult.
+		@param QualitativeResult QualitativeResult
+	*/
+	public void setQualitativeResult (String QualitativeResult)
+	{
+		set_Value (COLUMNNAME_QualitativeResult, QualitativeResult);
+	}
+
+	/** Get QualitativeResult.
+		@return QualitativeResult	  */
+	public String getQualitativeResult()
+	{
+		return (String)get_Value(COLUMNNAME_QualitativeResult);
 	}
 
 	/** Set Result.

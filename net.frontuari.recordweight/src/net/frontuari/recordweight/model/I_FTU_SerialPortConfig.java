@@ -32,7 +32,7 @@ public interface I_FTU_SerialPortConfig
     /** TableName=FTU_SerialPortConfig */
     public static final String Table_Name = "FTU_SerialPortConfig";
 
-    /** AD_Table_ID=1000079 */
+    /** AD_Table_ID=1000501 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

@@ -100,8 +100,6 @@ public interface I_HRS_AnalysisValuation
 	/** Get Analysis	  */
 	public int getHRS_Analysis_ID();
 
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
-
     /** Column name HRS_AnalysisValuation_ID */
     public static final String COLUMNNAME_HRS_AnalysisValuation_ID = "HRS_AnalysisValuation_ID";
 
@@ -141,6 +139,28 @@ public interface I_HRS_AnalysisValuation
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name IsInvoiced */
+    public static final String COLUMNNAME_IsInvoiced = "IsInvoiced";
+
+	/** Set Invoiced.
+	  * Is this invoiced?
+	  */
+	public void setIsInvoiced (boolean IsInvoiced);
+
+	/** Get Invoiced.
+	  * Is this invoiced?
+	  */
+	public boolean isInvoiced();
+
+    /** Column name QualitativeResult */
+    public static final String COLUMNNAME_QualitativeResult = "QualitativeResult";
+
+	/** Set QualitativeResult	  */
+	public void setQualitativeResult (String QualitativeResult);
+
+	/** Get QualitativeResult	  */
+	public String getQualitativeResult();
 
     /** Column name SystemResult */
     public static final String COLUMNNAME_SystemResult = "SystemResult";

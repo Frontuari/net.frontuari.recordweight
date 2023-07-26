@@ -32,7 +32,7 @@ public interface I_FTU_EntryTicket
     /** TableName=FTU_EntryTicket */
     public static final String Table_Name = "FTU_EntryTicket";
 
-    /** AD_Table_ID=1000063 */
+    /** AD_Table_ID=1000482 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -289,6 +289,15 @@ public interface I_FTU_EntryTicket
 	/** Get FTU_EntryTicket_UU	  */
 	public String getFTU_EntryTicket_UU();
 
+    /** Column name FTU_Land_ID */
+    public static final String COLUMNNAME_FTU_Land_ID = "FTU_Land_ID";
+
+	/** Set Land	  */
+	public void setFTU_Land_ID (int FTU_Land_ID);
+
+	/** Get Land	  */
+	public int getFTU_Land_ID();
+
     /** Column name FTU_LoadOrder_ID */
     public static final String COLUMNNAME_FTU_LoadOrder_ID = "FTU_LoadOrder_ID";
 
@@ -298,7 +307,14 @@ public interface I_FTU_EntryTicket
 	/** Get Load Order	  */
 	public int getFTU_LoadOrder_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
+    /** Column name FTU_Lot_ID */
+    public static final String COLUMNNAME_FTU_Lot_ID = "FTU_Lot_ID";
+
+	/** Set Lot	  */
+	public void setFTU_Lot_ID (int FTU_Lot_ID);
+
+	/** Get Lot	  */
+	public int getFTU_Lot_ID();
 
     /** Column name FTU_MobilizationGuide_ID */
     public static final String COLUMNNAME_FTU_MobilizationGuide_ID = "FTU_MobilizationGuide_ID";

@@ -34,7 +34,7 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230713L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_FreightCost (Properties ctx, int FTU_FreightCost_ID, String trxName)
@@ -42,6 +42,11 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
       super (ctx, FTU_FreightCost_ID, trxName);
       /** if (FTU_FreightCost_ID == 0)
         {
+			setAD_User_ID (0);
+// @#AD_User_ID@
+			setC_ConversionType_ID (0);
+			setC_Currency_ID (0);
+// @$C_Currency_ID@
 			setIsApproved (false);
 // N
 			setProcessed (false);
@@ -57,6 +62,11 @@ public class X_FTU_FreightCost extends PO implements I_FTU_FreightCost, I_Persis
       super (ctx, FTU_FreightCost_ID, trxName, virtualColumns);
       /** if (FTU_FreightCost_ID == 0)
         {
+			setAD_User_ID (0);
+// @#AD_User_ID@
+			setC_ConversionType_ID (0);
+			setC_Currency_ID (0);
+// @$C_Currency_ID@
 			setIsApproved (false);
 // N
 			setProcessed (false);

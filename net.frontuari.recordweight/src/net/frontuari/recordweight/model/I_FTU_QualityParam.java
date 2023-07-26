@@ -209,6 +209,15 @@ public interface I_FTU_QualityParam
 	  */
 	public boolean isActive();
 
+    /** Column name isQualitativeAnalysis */
+    public static final String COLUMNNAME_isQualitativeAnalysis = "isQualitativeAnalysis";
+
+	/** Set isQualitativeAnalysis	  */
+	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis);
+
+	/** Get isQualitativeAnalysis	  */
+	public boolean isQualitativeAnalysis();
+
     /** Column name IsQualityDiscount */
     public static final String COLUMNNAME_IsQualityDiscount = "IsQualityDiscount";
 

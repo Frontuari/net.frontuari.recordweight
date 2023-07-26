@@ -31,7 +31,7 @@ public class X_FTU_WeightScale_Role extends PO implements I_FTU_WeightScale_Role
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_WeightScale_Role (Properties ctx, int FTU_WeightScale_Role_ID, String trxName)

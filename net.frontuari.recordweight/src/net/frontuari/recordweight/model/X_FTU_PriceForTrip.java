@@ -34,7 +34,7 @@ public class X_FTU_PriceForTrip extends PO implements I_FTU_PriceForTrip, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230713L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_PriceForTrip (Properties ctx, int FTU_PriceForTrip_ID, String trxName)

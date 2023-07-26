@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import org.adempiere.exceptions.PeriodClosedException;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
+import org.compiere.model.MInventory;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MPeriod;
 import org.compiere.model.ModelValidationEngine;
@@ -204,8 +205,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		deleteDeduction();
 		//	Get Deductions of CxP
 		createDeduction();
-		//	Get Invoices of CxC
-		createInvoice();
+		//	Get Inventory of CxC
+		createInventory();
 		//	Get PrePayments
 		createPrepayments();
 		
@@ -633,30 +634,24 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	}
 	
 	/****
-	 * Create Invoices of ARI
+	 * Create Inventory of CxC
 	 */
-	private void createInvoice() {
-		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'Y' "
-				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'ARI') "
-				+ "AND invoiceopen(C_Invoice_ID,0) > 0 "
-				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND DeductionType = '02') ";
-		List<MInvoice> list = new Query(getCtx(), MInvoice.Table_Name, whereClause, get_TrxName())
+	private void createInventory() {
+		String whereClause = "M_Shipper_ID = ? AND DocStatus = 'CO' AND IsInternal = 'Y' "
+				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'MMI' AND DocSubTypeInv = 'IU') "
+				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.M_Inventory_ID = M_Inventory.M_Inventory_ID AND DeductionType = '02') ";
+		List<MInventory> list = new Query(getCtx(), MInventory.Table_Name, whereClause, get_TrxName())
 				.setParameters(getM_Shipper_ID())
-				.setOrderBy("DateInvoiced,DocumentNo")
+				.setOrderBy("MovementDate,DocumentNo")
 				.list();
 		if(list.size()>0) {
-			MInvoice[] invoices = list.toArray(new MInvoice[list.size()]);
-			for(MInvoice i : invoices) {
+			MInventory[] invoices = list.toArray(new MInventory[list.size()]);
+			for(MInventory i : invoices) {
 				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(this);
 				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_DeductionByAC);
-				d.setC_Invoice_ID(i.get_ID());
+				d.setM_Inventory_ID(i.get_ID());
 				d.setDescription(i.getDocumentInfo());
-				BigDecimal grandTotal = MConversionRate.convert(getCtx(), i.getGrandTotal(), i.getC_Currency_ID()
-						, getC_Currency_ID(), i.getDateInvoiced(),getC_ConversionType_ID()
-						, getAD_Client_ID(), getAD_Org_ID());
-				if(grandTotal==null)
-					grandTotal = BigDecimal.ZERO;
-				d.setAmount(grandTotal);
+				d.setAmount(getInventoryCost(i.get_ID(),getC_Currency_ID(),get_TrxName()));
 				d.saveEx();
 			}
 		}
@@ -711,6 +706,28 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			for(MFTUShipperLiquidationLine line : deductions)
 				line.deleteEx(true);
 		}
+	}
+	
+	/***
+	 * get Inventory Cost
+	 * @param InventoryID
+	 * @param CurrencyID
+	 * @param trxName
+	 * @return
+	 */
+	private BigDecimal getInventoryCost(int InventoryID, int CurrencyID, String trxName) {
+		BigDecimal costs = BigDecimal.ZERO;
+		
+		String sql = "SELECT SUM(CurrentCostPrice) FROM M_CostDetail cd "
+				+ "JOIN M_InventoryLine il ON (cd.M_InventoryLine_ID = il.M_InventoryLine_ID) "
+				+ "JOIN C_AcctSchema a ON (cd.C_AcctSchema_ID = a.C_AcctSchema_ID) "
+				+ "WHERE il.M_Inventory_ID = ? AND a.C_Currency_ID = ?";
+		
+		costs = DB.getSQLValueBD(trxName, sql, new Object[] {InventoryID,CurrencyID});
+		if(costs.compareTo(BigDecimal.ZERO) == 0)
+			costs = BigDecimal.ZERO;
+		
+		return costs;
 	}
 	
 }

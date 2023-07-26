@@ -20,13 +20,12 @@ package net.frontuari.recordweight.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
-import org.compiere.util.KeyNamePair;
 
-/** Generated Model for FTU_DeliveryRute
+/** Generated Model for FTU_LocationQuality
  *  @author iDempiere (generated) 
  *  @version Release 10 - $Id$ */
-@org.adempiere.base.Model(table="FTU_DeliveryRute")
-public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Persistent 
+@org.adempiere.base.Model(table="FTU_LocationQuality")
+public class X_FTU_LocationQuality extends PO implements I_FTU_LocationQuality, I_Persistent 
 {
 
 	/**
@@ -35,29 +34,29 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
-    public X_FTU_DeliveryRute (Properties ctx, int FTU_DeliveryRute_ID, String trxName)
+    public X_FTU_LocationQuality (Properties ctx, int FTU_LocationQuality_ID, String trxName)
     {
-      super (ctx, FTU_DeliveryRute_ID, trxName);
-      /** if (FTU_DeliveryRute_ID == 0)
+      super (ctx, FTU_LocationQuality_ID, trxName);
+      /** if (FTU_LocationQuality_ID == 0)
         {
-			setFTU_DeliveryRute_ID (0);
+			setFTU_LocationQuality_ID (0);
 			setName (null);
         } */
     }
 
     /** Standard Constructor */
-    public X_FTU_DeliveryRute (Properties ctx, int FTU_DeliveryRute_ID, String trxName, String ... virtualColumns)
+    public X_FTU_LocationQuality (Properties ctx, int FTU_LocationQuality_ID, String trxName, String ... virtualColumns)
     {
-      super (ctx, FTU_DeliveryRute_ID, trxName, virtualColumns);
-      /** if (FTU_DeliveryRute_ID == 0)
+      super (ctx, FTU_LocationQuality_ID, trxName, virtualColumns);
+      /** if (FTU_LocationQuality_ID == 0)
         {
-			setFTU_DeliveryRute_ID (0);
+			setFTU_LocationQuality_ID (0);
 			setName (null);
         } */
     }
 
     /** Load Constructor */
-    public X_FTU_DeliveryRute (Properties ctx, ResultSet rs, String trxName)
+    public X_FTU_LocationQuality (Properties ctx, ResultSet rs, String trxName)
     {
       super (ctx, rs, trxName);
     }
@@ -79,7 +78,7 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 
     public String toString()
     {
-      StringBuilder sb = new StringBuilder ("X_FTU_DeliveryRute[")
+      StringBuilder sb = new StringBuilder ("X_FTU_LocationQuality[")
         .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
@@ -100,40 +99,41 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set FTU_DeliveryRute_ID.
-		@param FTU_DeliveryRute_ID FTU_DeliveryRute_ID
+	/** Set Location Quality.
+		@param FTU_LocationQuality_ID Location Quality
 	*/
-	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID)
+	public void setFTU_LocationQuality_ID (int FTU_LocationQuality_ID)
 	{
-		if (FTU_DeliveryRute_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_FTU_DeliveryRute_ID, null);
+		if (FTU_LocationQuality_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_FTU_LocationQuality_ID, null);
 		else
-			set_ValueNoCheck (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
+			set_ValueNoCheck (COLUMNNAME_FTU_LocationQuality_ID, Integer.valueOf(FTU_LocationQuality_ID));
 	}
 
-	/** Get FTU_DeliveryRute_ID.
-		@return FTU_DeliveryRute_ID	  */
-	public int getFTU_DeliveryRute_ID()
+	/** Get Location Quality.
+		@return Location Quality
+	  */
+	public int getFTU_LocationQuality_ID()
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_DeliveryRute_ID);
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_LocationQuality_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
 	}
 
-	/** Set FTU_DeliveryRute_UU.
-		@param FTU_DeliveryRute_UU FTU_DeliveryRute_UU
+	/** Set FTU_LocationQuality_UU.
+		@param FTU_LocationQuality_UU FTU_LocationQuality_UU
 	*/
-	public void setFTU_DeliveryRute_UU (String FTU_DeliveryRute_UU)
+	public void setFTU_LocationQuality_UU (String FTU_LocationQuality_UU)
 	{
-		set_Value (COLUMNNAME_FTU_DeliveryRute_UU, FTU_DeliveryRute_UU);
+		set_Value (COLUMNNAME_FTU_LocationQuality_UU, FTU_LocationQuality_UU);
 	}
 
-	/** Get FTU_DeliveryRute_UU.
-		@return FTU_DeliveryRute_UU	  */
-	public String getFTU_DeliveryRute_UU()
+	/** Get FTU_LocationQuality_UU.
+		@return FTU_LocationQuality_UU	  */
+	public String getFTU_LocationQuality_UU()
 	{
-		return (String)get_Value(COLUMNNAME_FTU_DeliveryRute_UU);
+		return (String)get_Value(COLUMNNAME_FTU_LocationQuality_UU);
 	}
 
 	/** Set Name.
@@ -151,14 +151,6 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 	{
 		return (String)get_Value(COLUMNNAME_Name);
 	}
-
-    /** Get Record ID/ColumnName
-        @return ID/ColumnName pair
-      */
-    public KeyNamePair getKeyNamePair() 
-    {
-        return new KeyNamePair(get_ID(), getName());
-    }
 
 	/** Set Search Key.
 		@param Value Search key for the record in the format required - must be unique

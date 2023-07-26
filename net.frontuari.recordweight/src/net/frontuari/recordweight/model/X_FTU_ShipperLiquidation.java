@@ -34,7 +34,7 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230708L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_ShipperLiquidation (Properties ctx, int FTU_ShipperLiquidation_ID, String trxName)
@@ -61,6 +61,7 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 // 0
 			setIsApproved (false);
 // N
+			setM_Shipper_ID (0);
 			setPayAmt (Env.ZERO);
 // 0
 			setPrePaymentAmt (Env.ZERO);
@@ -97,6 +98,7 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 // 0
 			setIsApproved (false);
 // N
+			setM_Shipper_ID (0);
 			setPayAmt (Env.ZERO);
 // 0
 			setPrePaymentAmt (Env.ZERO);
@@ -296,6 +298,22 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 		return ii.intValue();
 	}
 
+	/** Set Create lines from.
+		@param CreateLinesFrom Process which will generate a new document lines based on an existing document
+	*/
+	public void setCreateLinesFrom (String CreateLinesFrom)
+	{
+		set_Value (COLUMNNAME_CreateLinesFrom, CreateLinesFrom);
+	}
+
+	/** Get Create lines from.
+		@return Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateLinesFrom()
+	{
+		return (String)get_Value(COLUMNNAME_CreateLinesFrom);
+	}
+
 	/** Set Approval Date.
 		@param DateApproval Approval Date
 	*/
@@ -484,27 +502,20 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 	{
 		return (String)get_Value(COLUMNNAME_DocumentNo);
 	}
-	
-	public net.frontuari.payselection.model.I_FTU_PaymentRequest getFTU_PaymentRequest() throws RuntimeException
-	{
-		return (net.frontuari.payselection.model.I_FTU_PaymentRequest)MTable.get(getCtx(), net.frontuari.payselection.model.I_FTU_PaymentRequest.Table_ID)
-			.getPO(getFTU_PaymentRequest_ID(), get_TrxName());
-	}
 
-	/** Set Payment Request.
-		@param FTU_PaymentRequest_ID Payment Request
+	/** Set Payment Request_ID.
+		@param FTU_PaymentRequest_ID Payment Request_ID
 	*/
 	public void setFTU_PaymentRequest_ID (int FTU_PaymentRequest_ID)
 	{
-		if (FTU_PaymentRequest_ID < 0)
+		if (FTU_PaymentRequest_ID < 1)
 			set_Value (COLUMNNAME_FTU_PaymentRequest_ID, null);
 		else
 			set_Value (COLUMNNAME_FTU_PaymentRequest_ID, Integer.valueOf(FTU_PaymentRequest_ID));
 	}
 
-	/** Get Payment Request.
-		@return Payment Request or rules
-	  */
+	/** Get Payment Request_ID.
+		@return Payment Request_ID	  */
 	public int getFTU_PaymentRequest_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_PaymentRequest_ID);
@@ -591,7 +602,7 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 		}
 		return false;
 	}
-	
+
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException
 	{
 		return (org.compiere.model.I_M_Shipper)MTable.get(getCtx(), org.compiere.model.I_M_Shipper.Table_ID)
@@ -599,18 +610,18 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 	}
 
 	/** Set Shipper.
-		@param M_Shipper_ID Shipper
+		@param M_Shipper_ID Method or manner of product delivery
 	*/
 	public void setM_Shipper_ID (int M_Shipper_ID)
 	{
-		if (M_Shipper_ID < 0)
+		if (M_Shipper_ID < 1)
 			set_Value (COLUMNNAME_M_Shipper_ID, null);
 		else
 			set_Value (COLUMNNAME_M_Shipper_ID, Integer.valueOf(M_Shipper_ID));
 	}
 
 	/** Get Shipper.
-		@return Shipper or rules
+		@return Method or manner of product delivery
 	  */
 	public int getM_Shipper_ID()
 	{

@@ -31,7 +31,7 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_WeightApprovalMotive (Properties ctx, int FTU_WeightApprovalMotive_ID, String trxName)
@@ -104,16 +104,16 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
 		return ii.intValue();
 	}
 
-	/** Set FTU_RW_ApprovalMotive_UU.
-		@param FTU_WeightApprovalMotive_UU FTU_RW_ApprovalMotive_UU
+	/** Set FTU_WeightApprovalMotive_UU.
+		@param FTU_WeightApprovalMotive_UU FTU_WeightApprovalMotive_UU
 	*/
 	public void setFTU_WeightApprovalMotive_UU (String FTU_WeightApprovalMotive_UU)
 	{
 		set_Value (COLUMNNAME_FTU_WeightApprovalMotive_UU, FTU_WeightApprovalMotive_UU);
 	}
 
-	/** Get FTU_RW_ApprovalMotive_UU.
-		@return FTU_RW_ApprovalMotive_UU	  */
+	/** Get FTU_WeightApprovalMotive_UU.
+		@return FTU_WeightApprovalMotive_UU	  */
 	public String getFTU_WeightApprovalMotive_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WeightApprovalMotive_UU);

@@ -32,7 +32,7 @@ public interface I_FTU_AnalysisType
     /** TableName=FTU_AnalysisType */
     public static final String Table_Name = "FTU_AnalysisType";
 
-    /** AD_Table_ID=1000112 */
+    /** AD_Table_ID=1000481 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -114,10 +114,10 @@ public interface I_FTU_AnalysisType
     /** Column name FTU_AnalysisType_UU */
     public static final String COLUMNNAME_FTU_AnalysisType_UU = "FTU_AnalysisType_UU";
 
-	/** Set FTU_AnalysisType_UU	  */
+	/** Set FTU_Analysis_Type_UU	  */
 	public void setFTU_AnalysisType_UU (String FTU_AnalysisType_UU);
 
-	/** Get FTU_AnalysisType_UU	  */
+	/** Get FTU_Analysis_Type_UU	  */
 	public String getFTU_AnalysisType_UU();
 
     /** Column name IsActive */

@@ -31,7 +31,7 @@ public class X_FTU_AnalysisType extends PO implements I_FTU_AnalysisType, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_AnalysisType (Properties ctx, int FTU_AnalysisType_ID, String trxName)
@@ -140,16 +140,16 @@ public class X_FTU_AnalysisType extends PO implements I_FTU_AnalysisType, I_Pers
 		return ii.intValue();
 	}
 
-	/** Set FTU_AnalysisType_UU.
-		@param FTU_AnalysisType_UU FTU_AnalysisType_UU
+	/** Set FTU_Analysis_Type_UU.
+		@param FTU_AnalysisType_UU FTU_Analysis_Type_UU
 	*/
 	public void setFTU_AnalysisType_UU (String FTU_AnalysisType_UU)
 	{
 		set_ValueNoCheck (COLUMNNAME_FTU_AnalysisType_UU, FTU_AnalysisType_UU);
 	}
 
-	/** Get FTU_AnalysisType_UU.
-		@return FTU_AnalysisType_UU	  */
+	/** Get FTU_Analysis_Type_UU.
+		@return FTU_Analysis_Type_UU	  */
 	public String getFTU_AnalysisType_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_AnalysisType_UU);
