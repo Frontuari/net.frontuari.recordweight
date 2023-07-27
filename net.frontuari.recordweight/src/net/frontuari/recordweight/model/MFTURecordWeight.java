@@ -252,7 +252,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		MDocType doc = (MDocType) getC_DocType();
 		
 		if (doc.get_ValueAsBoolean("RequiresQualityAnalysis")) {
-			if (getHRS_Analysis_ID()<0) {
+			if (getHRS_Analysis_ID()<=0) {
 				m_processMsg = "Requiere un Análisis de Calidad válido o aprobación para poder completar el documento";
 				return DocAction.STATUS_WaitingConfirmation;
 			}
@@ -1164,18 +1164,18 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					//	Support for set DifferenceQty on Movement
 					if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement))
 					{
-						if(getDifferenceQty().compareTo(BigDecimal.ZERO)>0) {
-							if(getOriginNetWeight().compareTo(getNetWeight())<0)
-								m_MovementLine.setMovementQty(getOriginNetWeight());
-							else
-								m_MovementLine.setMovementQty(getNetWeight());
-						}
-						else {
+						if(getDifferenceQty().compareTo(BigDecimal.ZERO)<0) {
 							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
 							m_MovementLine.setMovementQty(getNetWeight());
 							if(realDiff.compareTo(BigDecimal.ZERO)<0)
 								m_MovementLine.setScrappedQty(getDifferenceQty().abs());
+						}
+						else {
+							if(getOriginNetWeight().compareTo(getNetWeight())<0)
+								m_MovementLine.setMovementQty(getOriginNetWeight());
+							else
+								m_MovementLine.setMovementQty(getNetWeight());
 						}
 					}
 					else {

@@ -389,7 +389,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		for(MHRSAnalysisLine line : getLines(true, ""))
 		{
 			String value = line.getFTU_AnalysisType().getValue();
-			String result = isQualitativeAnaysis ? line.get_ValueAsString("QualitativeResult") : line.getResult().toString();
+			String result = isQualitativeAnaysis ? line.getQualitativeResult() : line.getResult().toString();
 			code=code.replaceAll("#("+value+")", result);
 		}
 		return code;
@@ -442,7 +442,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				String code=rs.getString("Code");
 				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_ID");
 				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
-				boolean isQualitativeAnalysis = qparam.get_ValueAsBoolean("isQualitativeAnalysis");
+				boolean isQualitativeAnalysis = qparam.isQualitativeAnalysis();
 				//	Replace Code
 				code = getFormulas(code);
 				code = replaceBasicCode(code,isQualitativeAnalysis);
@@ -465,10 +465,10 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 					if (!isQualitativeAnalysis) {
 					lcr.setHumanResult(result.toUpperCase());
 					}else {
-					lcr.set_ValueOfColumn("QualitativeResult", result.toUpperCase());	
-					lcr.setHumanResult("0");
+						lcr.setQualitativeResult(result.toUpperCase());
+						lcr.setHumanResult("0");
 					}
-					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
+					String SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					lcr.setSystemResult(SysResult);
 					lcr.saveEx();
 				}
@@ -503,6 +503,13 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				return STATUS_Invalid;
 		}
 		//	End Jorge Colmenarez
+		//	Validate that has lines
+		MHRSAnalysisLine[] lines = getLines(true, "");
+		if(lines.length <= 0)
+		{
+			m_processMsg = "No hay lineas de resultados, por favor agregue al menos un registro.";
+			return STATUS_Invalid;
+		}
 		
 		//	Clasificar
 		String AnalysisType = (isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
@@ -594,7 +601,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			}
 		}
 		
-		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(SystemResult) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
+		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(SystemResult) = LOWER('Rechazar')")) {
 			msg.append( valuation.getFTU_QualityParam().getName() )
 				.append(" = " )
 				.append(valuation.getHumanResult())

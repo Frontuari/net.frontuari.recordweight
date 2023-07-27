@@ -48,7 +48,6 @@ public class FTUApproveQualityAnalysis extends FTUProcess {
 			{
 				MHRSAnalysis analysis = new MHRSAnalysis(getCtx(), rs.getInt(1), get_TrxName());
 				analysis.setIsApprovedAnalysis(!analysis.isApprovedAnalysis());
-				analysis.setIsValidAnalysis(true);
 				analysis.setHelp(p_Help);
 				analysis.saveEx();
 				updated++;

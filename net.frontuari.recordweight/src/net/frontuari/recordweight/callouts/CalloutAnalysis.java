@@ -4,19 +4,21 @@
 package net.frontuari.recordweight.callouts;
 
 import org.adempiere.base.annotation.Callout;
+import org.compiere.model.MDocType;
 import org.compiere.util.DB;
 import org.eevolution.model.X_PP_Order;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_HRS_Analysis;
 import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.X_HRS_Analysis;
 
 /**
  * @author Jorge Colmenarez, 2023-06-07 15:13
  */
 @Callout(tableName = I_HRS_Analysis.Table_Name, columnName = {I_HRS_Analysis.COLUMNNAME_PP_Order_ID,
-		I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID})
+		I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID, I_HRS_Analysis.COLUMNNAME_C_DocType_ID})
 public class CalloutAnalysis extends FTUCallout {
 
 	@Override
@@ -44,16 +46,16 @@ public class CalloutAnalysis extends FTUCallout {
 			int m_Product_ID = -1;
 			if(mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_DeliveryBulkMaterial)) {
 				String sql = "SELECT lo.M_Product_ID "
-						+ "FROM FTU_LoadOrder "
+						+ "FROM FTU_LoadOrder lo "
 						+ "INNER JOIN FTU_LoadOrderLine lol ON (lo.FTU_LoadOrder_ID = lol.FTU_LoadOrder_ID) "
-						+ "WHERE lo.FTU_EntryTicket_ID = ?"
-						;
+						+ "WHERE lo.FTU_EntryTicket_ID = ?";
 				m_Product_ID = DB.getSQLValue(mEntryTicket.get_TrxName(), sql, mEntryTicket.getFTU_EntryTicket_ID());
-			} else if(mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_RawMaterialReceipt)
+			} 
+			else if(mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_RawMaterialReceipt)
 					|| mEntryTicket.getOperationType().contentEquals(X_HRS_Analysis.OPERATIONTYPE_ProductBulkReceipt)) {
 				m_Product_ID = mEntryTicket.getM_Product_ID();
 			}
-			if(m_Product_ID > 0 )
+			if(m_Product_ID > 0)
 				setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, m_Product_ID );
 			//	Added by Jorge Colmenarez, 2022-12-03 09:06
 			if(mEntryTicket.getC_BPartner_ID()>0)
@@ -69,7 +71,20 @@ public class CalloutAnalysis extends FTUCallout {
 				if(mEntryTicket.getC_OrderLine().getM_AttributeSetInstance_ID()>0)
 					setValue(I_HRS_Analysis.COLUMNNAME_Analysis_ID, mEntryTicket.getC_OrderLine().getM_AttributeSetInstance_ID());
 			}
+			//	Only for MIM Operation Type
+			if(mEntryTicket.getFTU_LoadOrder_ID()>0) {
+				MFTULoadOrder lo = new MFTULoadOrder(getCtx(), mEntryTicket.getFTU_LoadOrder_ID(), null);
+				setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, lo.getM_Product_ID());
+				setValue("C_BPartner_ID",lo.getFTU_EntryTicket().getDD_Order().getC_BPartner_ID());
+				setValue("Qty", lo.getConfirmedWeight());
+			}
 			//	End Jorge Colmenarez
+		}
+		if(getColumnName().equals(I_HRS_Analysis.COLUMNNAME_C_DocType_ID)) {
+			if(getValue()!=null) {
+				MDocType dt = new MDocType(getCtx(), (Integer)getValue(), null);
+				setValue("IsCompletePercent", dt.get_ValueAsBoolean("IsCompletePercent"));
+			}
 		}
 		
 		return "";
