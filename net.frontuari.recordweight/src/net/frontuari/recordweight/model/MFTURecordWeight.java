@@ -1569,13 +1569,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			else
 				ioLine.setM_Locator_ID(m_MovementQty);
 			
-			MOrderLine[] orderLines = order.getLines("AND M_Product_ID=" + product.getM_Product_ID(), "");
+			/*MOrderLine[] orderLines = order.getLines("AND M_Product_ID=" + product.getM_Product_ID(), "");
 			for (int i = 0; i < orderLines.length; i++) {
 				ioLine.setC_OrderLine_ID(orderLines[i].getC_OrderLine_ID());
 				if(orderLines[i].getM_AttributeSetInstance_ID()>0)
 					ioLine.setM_AttributeSetInstance_ID(orderLines[i].getM_AttributeSetInstance_ID());
-			}
+			}*/
 			
+			MOrderLine line = (MOrderLine) et.getC_OrderLine();
+			ioLine.setC_OrderLine_ID(line.getC_OrderLine_ID());
+			if(line.getM_AttributeSetInstance_ID()>0)
+				ioLine.setM_AttributeSetInstance_ID(line.getM_AttributeSetInstance_ID());
 			//added by david castillo 18/07/2023 
 			if (product.getM_AttributeSet_ID()>0 && !(ioLine.getM_AttributeSetInstance_ID()>0)) {
 			MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
