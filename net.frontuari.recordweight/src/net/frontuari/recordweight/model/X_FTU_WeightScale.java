@@ -31,7 +31,7 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_WeightScale (Properties ctx, int FTU_WeightScale_ID, String trxName)
@@ -88,6 +88,21 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
         .append(get_ID()).append(",Name=").append(getName()).append("]");
       return sb.toString();
     }
+
+	/** Set Address.
+		@param Address Address
+	*/
+	public void setAddress (String Address)
+	{
+		set_Value (COLUMNNAME_Address, Address);
+	}
+
+	/** Get Address.
+		@return Address	  */
+	public String getAddress()
+	{
+		return (String)get_Value(COLUMNNAME_Address);
+	}
 
 	public org.compiere.model.I_C_UOM getC_UOM() throws RuntimeException
 	{
@@ -222,6 +237,29 @@ public class X_FTU_WeightScale extends PO implements I_FTU_WeightScale, I_Persis
 	public String getFTU_WeightScale_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WeightScale_UU);
+	}
+
+	/** Set Test.
+		@param IsTest Execute in Test Mode
+	*/
+	public void setIsTest (boolean IsTest)
+	{
+		set_Value (COLUMNNAME_IsTest, Boolean.valueOf(IsTest));
+	}
+
+	/** Get Test.
+		@return Execute in Test Mode
+	  */
+	public boolean isTest()
+	{
+		Object oo = get_Value(COLUMNNAME_IsTest);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Name.

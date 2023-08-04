@@ -32,7 +32,7 @@ public interface I_FTU_FreightCost
     /** TableName=FTU_FreightCost */
     public static final String Table_Name = "FTU_FreightCost";
 
-    /** AD_Table_ID=1000086 */
+    /** AD_Table_ID=1000493 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -63,6 +63,51 @@ public interface I_FTU_FreightCost
 	  * Organizational entity within client
 	  */
 	public int getAD_Org_ID();
+
+    /** Column name AD_User_ID */
+    public static final String COLUMNNAME_AD_User_ID = "AD_User_ID";
+
+	/** Set User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public void setAD_User_ID (int AD_User_ID);
+
+	/** Get User/Contact.
+	  * User within the system - Internal or Business Partner Contact
+	  */
+	public int getAD_User_ID();
+
+	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
+
+    /** Column name C_ConversionType_ID */
+    public static final String COLUMNNAME_C_ConversionType_ID = "C_ConversionType_ID";
+
+	/** Set Currency Type.
+	  * Currency Conversion Rate Type
+	  */
+	public void setC_ConversionType_ID (int C_ConversionType_ID);
+
+	/** Get Currency Type.
+	  * Currency Conversion Rate Type
+	  */
+	public int getC_ConversionType_ID();
+
+	public org.compiere.model.I_C_ConversionType getC_ConversionType() throws RuntimeException;
+
+    /** Column name C_Currency_ID */
+    public static final String COLUMNNAME_C_Currency_ID = "C_Currency_ID";
+
+	/** Set Currency.
+	  * The Currency for this record
+	  */
+	public void setC_Currency_ID (int C_Currency_ID);
+
+	/** Get Currency.
+	  * The Currency for this record
+	  */
+	public int getC_Currency_ID();
+
+	public org.compiere.model.I_C_Currency getC_Currency() throws RuntimeException;
 
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
@@ -224,7 +269,16 @@ public interface I_FTU_FreightCost
 	/** Get Load Order	  */
 	public int getFTU_LoadOrder_ID();
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
+    /** Column name FTU_PriceForTrip_ID */
+    public static final String COLUMNNAME_FTU_PriceForTrip_ID = "FTU_PriceForTrip_ID";
+
+	/** Set Price For Trip	  */
+	public void setFTU_PriceForTrip_ID (int FTU_PriceForTrip_ID);
+
+	/** Get Price For Trip	  */
+	public int getFTU_PriceForTrip_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_PriceForTrip getFTU_PriceForTrip() throws RuntimeException;
 
     /** Column name FTU_Vehicle_ID */
     public static final String COLUMNNAME_FTU_Vehicle_ID = "FTU_Vehicle_ID";
@@ -263,23 +317,18 @@ public interface I_FTU_FreightCost
 	  */
 	public boolean isActive();
 
-    /** Column name IsAdjustWeight */
-    public static final String COLUMNNAME_IsAdjustWeight = "IsAdjustWeight";
+    /** Column name IsApproved */
+    public static final String COLUMNNAME_IsApproved = "IsApproved";
 
-	/** Set Adjust Weight	  */
-	public void setIsAdjustWeight (boolean IsAdjustWeight);
+	/** Set Approved.
+	  * Indicates if this document requires approval
+	  */
+	public void setIsApproved (boolean IsApproved);
 
-	/** Get Adjust Weight	  */
-	public boolean isAdjustWeight();
-
-    /** Column name IsZeroCost */
-    public static final String COLUMNNAME_IsZeroCost = "IsZeroCost";
-
-	/** Set Zero Cost	  */
-	public void setIsZeroCost (boolean IsZeroCost);
-
-	/** Get Zero Cost	  */
-	public boolean isZeroCost();
+	/** Get Approved.
+	  * Indicates if this document requires approval
+	  */
+	public boolean isApproved();
 
     /** Column name M_Shipper_ID */
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
@@ -296,14 +345,49 @@ public interface I_FTU_FreightCost
 
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException;
 
-    /** Column name SealNo */
-    public static final String COLUMNNAME_SealNo = "SealNo";
+    /** Column name ProcCreate */
+    public static final String COLUMNNAME_ProcCreate = "ProcCreate";
 
-	/** Set SealNo	  */
-	public void setSealNo (String SealNo);
+	/** Set Create	  */
+	public void setProcCreate (String ProcCreate);
 
-	/** Get SealNo	  */
-	public String getSealNo();
+	/** Get Create	  */
+	public String getProcCreate();
+
+    /** Column name Processed */
+    public static final String COLUMNNAME_Processed = "Processed";
+
+	/** Set Processed.
+	  * The document has been processed
+	  */
+	public void setProcessed (boolean Processed);
+
+	/** Get Processed.
+	  * The document has been processed
+	  */
+	public boolean isProcessed();
+
+    /** Column name ProcessedOn */
+    public static final String COLUMNNAME_ProcessedOn = "ProcessedOn";
+
+	/** Set Processed On.
+	  * The date+time (expressed in decimal format) when the document has been processed
+	  */
+	public void setProcessedOn (BigDecimal ProcessedOn);
+
+	/** Get Processed On.
+	  * The date+time (expressed in decimal format) when the document has been processed
+	  */
+	public BigDecimal getProcessedOn();
+
+    /** Column name Processing */
+    public static final String COLUMNNAME_Processing = "Processing";
+
+	/** Set Process Now	  */
+	public void setProcessing (boolean Processing);
+
+	/** Get Process Now	  */
+	public boolean isProcessing();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

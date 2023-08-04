@@ -27,7 +27,7 @@ public class CalloutFactory extends AnnotationBasedColumnCalloutFactory {
 
 	@Override
 	protected String[] getPackages() {
-		return new String[] {"net.frontuari.recordweight.model", "net.frontuari.recordweight.callout"};
+		return new String[] {"net.frontuari.recordweight.model", "net.frontuari.recordweight.callouts"};
 	}
 
 }

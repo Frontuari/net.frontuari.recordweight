@@ -16,7 +16,7 @@ import net.frontuari.recordweight.model.MFTUAnalysisType;
 import net.frontuari.recordweight.model.X_FTU_FormuleFunction;
 import net.frontuari.recordweight.model.X_FTU_QualityParam;
 
-@Callout(tableName = X_FTU_QualityParam.Table_Name, columnName = {X_FTU_QualityParam.COLUMNNAME_HumanCode,
+@Callout(tableName = X_FTU_QualityParam.Table_Name, columnName = {X_FTU_QualityParam.COLUMNNAME_TranslateCode,
 		X_FTU_QualityParam.COLUMNNAME_AD_Column_ID,X_FTU_QualityParam.COLUMNNAME_FTU_Parent_ID,
 		X_FTU_QualityParam.COLUMNNAME_FTU_FormuleFunction_ID,X_FTU_QualityParam.COLUMNNAME_FTU_AnalysisType_ID})
 public class CalloutQualityParam extends FTUCallout {
@@ -27,7 +27,7 @@ public class CalloutQualityParam extends FTUCallout {
 		String codigo;
 		int id;
 		switch(colummName) {
-			case X_FTU_QualityParam.COLUMNNAME_HumanCode:
+			case X_FTU_QualityParam.COLUMNNAME_TranslateCode:
 				if(getValue()==null) return null;
 				campoCodigo=(String) getTab().getValue("Code");
 				actualizarCodigoHumano();
@@ -56,7 +56,7 @@ public class CalloutQualityParam extends FTUCallout {
 			case X_FTU_QualityParam.COLUMNNAME_FTU_FormuleFunction_ID:
 				if(getValue()==null) return null;
 				id=(int) getValue();
-				X_FTU_FormuleFunction ff = new Query(getCtx(), X_FTU_FormuleFunction.Table_Name, "FTU_Functions_Formule_ID=?", null)
+				X_FTU_FormuleFunction ff = new Query(getCtx(), X_FTU_FormuleFunction.Table_Name, "FTU_FormuleFunction_ID=?", null)
 						.setParameters(id)
 						.setOnlyActiveRecords(true)
 						.first();
@@ -72,7 +72,7 @@ public class CalloutQualityParam extends FTUCallout {
 			case X_FTU_QualityParam.COLUMNNAME_FTU_AnalysisType_ID:
 				if(getValue()==null) return null;
 				id=(int) getValue();
-				MFTUAnalysisType at = new Query(getCtx(), MFTUAnalysisType.Table_Name, "FTU_Analysis_Type_ID=?", null)
+				MFTUAnalysisType at = new Query(getCtx(), MFTUAnalysisType.Table_Name, "FTU_AnalysisType_ID=?", null)
 						.setParameters(id)
 						.setOnlyActiveRecords(true)
 						.first();
@@ -130,16 +130,16 @@ public class CalloutQualityParam extends FTUCallout {
 				rs = null; ps = null;
 			}
 		}
-		getTab().setValue("human_code", campoCodigo.toString());
+		getTab().setValue("HumanCode", campoCodigo.toString());
 	}
 
 	/***
 	 * Update Human Code
 	 */
 	private void actualizarCodigoHumano() {
-		String sql="SELECT at.value, at.name FROM FTU_Analysis_Type at";
-		String sqlFunciones="SELECT value, name FROM FTU_Functions_Formule";
-		String sqlFormulas="SELECT value, name, ftu_quality_param_id FROM FTU_Quality_Param";
+		String sql="SELECT at.value, at.name FROM FTU_AnalysisType at";
+		String sqlFunciones="SELECT value, name FROM FTU_FormuleFunction";
+		String sqlFormulas="SELECT value, name, FTU_QualityParam_ID FROM FTU_QualityParam";
 		
 		campoCodigo=campoCodigo.toLowerCase();
 		campoCodigo=campoCodigo.replaceAll(" or ", " O ");
@@ -150,13 +150,13 @@ public class CalloutQualityParam extends FTUCallout {
 		campoCodigo=campoCodigo.replaceAll(" end", " ");
 		campoCodigo=campoCodigo.replaceAll(" else ", " SiNo ");
 		//	Search in Analysis Type
-		campoCodigo = replaceCode(sql, campoCodigo);
+		campoCodigo = replaceCode(sql, campoCodigo, 1);
 		//	Search in Functions Formule
-		campoCodigo = replaceCode(sqlFunciones, campoCodigo);
+		campoCodigo = replaceCode(sqlFunciones, campoCodigo, 2);
 		//	Search in Quality Param
-		campoCodigo = replaceCode(sqlFormulas, campoCodigo);
+		campoCodigo = replaceCode(sqlFormulas, campoCodigo, 3);
 		
-		getTab().setValue("human_code", campoCodigo.toString());
+		getTab().setValue("HumanCode", campoCodigo.toString());
 	}
 	
 	/***
@@ -165,7 +165,7 @@ public class CalloutQualityParam extends FTUCallout {
 	 * @param code
 	 * @return
 	 */
-	private String replaceCode(String sql, String code) {
+	private String replaceCode(String sql, String code, int type) {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		String value="";
@@ -176,7 +176,12 @@ public class CalloutQualityParam extends FTUCallout {
 			while(rs.next()) {
 				value=rs.getString("value");
 				name=rs.getString("name");
-				code=code.replaceAll("#("+value+")", "("+name+")");
+				if(type==1)
+					code=code.replaceAll("#("+value+")", "("+name+")");
+				else if(type==2)
+					code=code.replaceAll("@("+value+")", "("+name+")");
+				else if(type==3)
+					code=code.replaceAll("f("+value+")", "("+name+")");
 			}
 		}catch(SQLException e) {
 			e.printStackTrace();

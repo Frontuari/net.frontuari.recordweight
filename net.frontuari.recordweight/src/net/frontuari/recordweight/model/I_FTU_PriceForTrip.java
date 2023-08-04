@@ -32,7 +32,7 @@ public interface I_FTU_PriceForTrip
     /** TableName=FTU_PriceForTrip */
     public static final String Table_Name = "FTU_PriceForTrip";
 
-    /** AD_Table_ID=1000085 */
+    /** AD_Table_ID=1000495 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -134,24 +134,13 @@ public interface I_FTU_PriceForTrip
 	/** Get Distance on Km	  */
 	public BigDecimal getDistance();
 
-    /** Column name FTU_AssignedRegions_ID */
-    public static final String COLUMNNAME_FTU_AssignedRegions_ID = "FTU_AssignedRegions_ID";
-
-	/** Set Assigned Regions	  */
-	public void setFTU_AssignedRegions_ID (int FTU_AssignedRegions_ID);
-
-	/** Get Assigned Regions	  */
-	public int getFTU_AssignedRegions_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_AssignedRegions getFTU_AssignedRegions() throws RuntimeException;
-
     /** Column name FTU_DeliveryRute_ID */
     public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
 
-	/** Set Delivery Rute	  */
+	/** Set FTU_DeliveryRute_ID	  */
 	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
 
-	/** Get Delivery Rute	  */
+	/** Get FTU_DeliveryRute_ID	  */
 	public int getFTU_DeliveryRute_ID();
 
 	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException;
@@ -235,12 +224,12 @@ public interface I_FTU_PriceForTrip
 	/** Set Max. Value.
 	  * Maximum Value for a field
 	  */
-	public void setValueMax (String ValueMax);
+	public void setValueMax (BigDecimal ValueMax);
 
 	/** Get Max. Value.
 	  * Maximum Value for a field
 	  */
-	public String getValueMax();
+	public BigDecimal getValueMax();
 
     /** Column name ValueMin */
     public static final String COLUMNNAME_ValueMin = "ValueMin";
@@ -248,10 +237,10 @@ public interface I_FTU_PriceForTrip
 	/** Set Min. Value.
 	  * Minimum Value for a field
 	  */
-	public void setValueMin (String ValueMin);
+	public void setValueMin (BigDecimal ValueMin);
 
 	/** Get Min. Value.
 	  * Minimum Value for a field
 	  */
-	public String getValueMin();
+	public BigDecimal getValueMin();
 }

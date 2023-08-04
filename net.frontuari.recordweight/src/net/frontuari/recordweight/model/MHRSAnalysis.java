@@ -360,7 +360,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	}
         }
         
-	    return code;	
+	    return code;
 	}
 	
 	/***
@@ -374,6 +374,22 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		{
 			String value = line.getFTU_AnalysisType().getValue();
 			String result = line.getResult().toString();
+			code=code.replaceAll("#("+value+")", result);
+		}
+		return code;
+	}
+	
+	/***
+	 * Replace Basic Code
+	 * @param code
+	 * @return code clean
+	 */
+	private String replaceBasicCode(String code, boolean isQualitativeAnaysis) {
+		//	Get Lines to Lab Analysis
+		for(MHRSAnalysisLine line : getLines(true, ""))
+		{
+			String value = line.getFTU_AnalysisType().getValue();
+			String result = isQualitativeAnaysis ? line.getQualitativeResult() : line.getResult().toString();
 			code=code.replaceAll("#("+value+")", result);
 		}
 		return code;
@@ -405,41 +421,55 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	 * Process Clasifications of Analysis
 	 * @author Jorge Colmenarez, 2022-08-04 17:42
 	 */
-	private void clasification() {
+	private void clasification(String type) {
 		//	Delete Cultive Result
 		String dSql = "DELETE FROM HRS_AnalysisValuation WHERE HRS_Analysis_ID=?";
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
-		String sql="SELECT qp.FTU_QualityParam_id,name,code "
-				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y'";
+		String sql="SELECT qp.FTU_QualityParam_ID,Name,Code "
+				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y' "
+				+ "AND qp.IsUsedFor IN (?,?) ";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
 			pst = DB.prepareStatement(sql, get_TrxName());
 			pst.setInt(1, getM_Product_ID());
+			pst.setString(2, type);
+			pst.setString(3, X_FTU_QualityParam.ISUSEDFOR_Both);
 			rs = pst.executeQuery();
 			while(rs.next())
 			{
-				String code=rs.getString("code");
-				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_id");
+				String code=rs.getString("Code");
+				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_ID");
 				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
+				boolean isQualitativeAnalysis = qparam.isQualitativeAnalysis();
 				//	Replace Code
 				code = getFormulas(code);
-				code = replaceBasicCode(code);
+				code = replaceBasicCode(code,isQualitativeAnalysis);
 				code = replaceTableAndColumn(code, getFTU_EntryTicket_ID());
 				code = processFunctions(code);
 				code = cleanCode(code);
 				//	Execute Code
+				String result ;
+				if (isQualitativeAnalysis) {
+				result = code;	
+				}else {
 				String sqlCode = "SELECT ("+code+") AS result";
-				String result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				result = DB.getSQLValueString(get_TrxName(), sqlCode);
+				}
 				if(result!=null) {
 					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
-					lcr.setResult_Human(result.toUpperCase());
-					String SysResult = (result.equalsIgnoreCase(qparam.get_ValueAsString("Result")) ? "Aceptar" : "Rechazar");
-					lcr.setResult_System(SysResult);
+					if (!isQualitativeAnalysis) {
+					lcr.setHumanResult(result.toUpperCase());
+					}else {
+						lcr.setQualitativeResult(result.toUpperCase());
+						lcr.setHumanResult("0");
+					}
+					String SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
+					lcr.setSystemResult(SysResult);
 					lcr.saveEx();
 				}
 			}
@@ -462,7 +492,6 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 
 		MPeriod.testPeriodOpen(getCtx(), getDateDoc(), getC_DocType_ID(), getAD_Org_ID());
 		//	ER [ 8 ]
-		//Add Validation by Argenis Rodríguez
 		//	Added by Jorge Colmenarez, 2022-12-03 12:03
 		//	Validate Ticket Duplicated only for Receipt
 		if(getOperationType() != null && (getOperationType().equalsIgnoreCase(OPERATIONTYPE_ImportRawMaterial)
@@ -474,10 +503,17 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				return STATUS_Invalid;
 		}
 		//	End Jorge Colmenarez
-		//End By Argenis Rodríguez
+		//	Validate that has lines
+		MHRSAnalysisLine[] lines = getLines(true, "");
+		if(lines.length <= 0)
+		{
+			m_processMsg = "No hay lineas de resultados, por favor agregue al menos un registro.";
+			return STATUS_Invalid;
+		}
 		
 		//	Clasificar
-		clasification();
+		String AnalysisType = (isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
+		clasification(AnalysisType);
 		setDescription(null);
 		String valid = validateAnalysis();
 		if (valid != null) {
@@ -527,7 +563,14 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 		
+		
+		if (!isValidAnalysis() && !isApprovedAnalysis()) {
+			m_processMsg = "no se puede completar análisis, necesita ser validado o aprobado";
+			return DocAction.STATUS_Invalid;
+		}
+			
 		setDefiniteDocumentNo();
+		
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_COMPLETE);
 		if (m_processMsg != null) {
@@ -540,15 +583,28 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	}
 
 	/**
+	 * Validate if requires 100% input analysis or if valuation it's successfull
 	 * @return
 	 */
 	private String validateAnalysis() {
 		StringBuilder msg = new StringBuilder();
 		
-		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(Result_System) = (SELECT LOWER(Result) FROM FTU_QualityParam WHERE FTU_QualityParam.FTU_QualityParam_ID = HRS_AnalysisValuation.FTU_QualityParam_ID)")) {
+		if(isCompletePercent()) {
+			BigDecimal percent = BigDecimal.ZERO;
+			for(MHRSAnalysisLine line : getLines(true, "")) {
+				percent = percent.add(line.getResult());
+			}
+			//	Valid to 100%
+			if(percent.compareTo(new BigDecimal(100))!=0){
+				msg.append("Se requiere ingresar el 100% valor ingresado en los analisis: "+percent+"%");
+				return msg.toString();
+			}
+		}
+		
+		for (MHRSAnalysisValuation valuation : getValuationLines(true, "LOWER(SystemResult) = LOWER('Rechazar')")) {
 			msg.append( valuation.getFTU_QualityParam().getName() )
 				.append(" = " )
-				.append(valuation.getResult_Human())
+				.append(valuation.getHumanResult())
 				.append(Env.NL); 
 		}
 		if(msg.length() > 0) 

@@ -32,7 +32,7 @@ public interface I_FTU_RecordWeight
     /** TableName=FTU_RecordWeight */
     public static final String Table_Name = "FTU_RecordWeight";
 
-    /** AD_Table_ID=1000064 */
+    /** AD_Table_ID=1000503 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -260,7 +260,7 @@ public interface I_FTU_RecordWeight
 
 	/** Get Load Order	  */
 	public int getFTU_LoadOrder_ID();
-
+	
 	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException;
 
     /** Column name FTU_RecordWeight_ID */
@@ -369,6 +369,8 @@ public interface I_FTU_RecordWeight
 
 	/** Get Analysis	  */
 	public int getHRS_Analysis_ID();
+	
+	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
 
     /** Column name ImportWeight */
     public static final String COLUMNNAME_ImportWeight = "ImportWeight";
@@ -461,6 +463,15 @@ public interface I_FTU_RecordWeight
 	  * Description of the Line
 	  */
 	public String getLineDescription();
+
+    /** Column name LossCause */
+    public static final String COLUMNNAME_LossCause = "LossCause";
+
+	/** Set Loss Cause	  */
+	public void setLossCause (String LossCause);
+
+	/** Get Loss Cause	  */
+	public String getLossCause();
 
     /** Column name MaxWeight */
     public static final String COLUMNNAME_MaxWeight = "MaxWeight";

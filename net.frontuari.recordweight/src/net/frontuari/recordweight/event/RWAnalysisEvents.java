@@ -1,4 +1,4 @@
-package net.frontuari.recordweight.events;
+package net.frontuari.recordweight.event;
 
 import java.math.BigDecimal;
 import java.util.Properties;
@@ -15,6 +15,7 @@ import org.osgi.service.event.Event;
 import net.frontuari.recordweight.model.MFTUQualityParam;
 import net.frontuari.recordweight.model.MHRSAnalysis;
 import net.frontuari.recordweight.model.MHRSAnalysisLine;
+import net.frontuari.recordweight.model.X_FTU_QualityParam;
 
 @EventTopicDelegate
 @ModelEventTopic(modelClass = MHRSAnalysis.class)
@@ -30,7 +31,8 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 	@AfterNew
 	public void onAfterNew() {
 		MHRSAnalysis a = getModel();
-		createAnalysisLine(a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
+		String AnalysisType = (a.isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
+		createAnalysisLine(AnalysisType,a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
 	}
 	
 	@AfterChange
@@ -43,7 +45,8 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 				return;
 			//	Delete last analysis lines
 			DB.executeUpdate("DELETE FROM HRS_AnalysisLine WHERE HRS_Analysis_ID = ?", a.get_ID(), a.get_TrxName());
-			createAnalysisLine(a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
+			String AnalysisType = (a.isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
+			createAnalysisLine(AnalysisType,a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
 		}
 	}
 	
@@ -54,8 +57,8 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 	 * @param LoteID
 	 * @param trxName
 	 */
-	private void createAnalysisLine(int AnalysisID, int ProductID, int LotID, Properties ctx, String trxName) {
-		MFTUQualityParam[] qparams = MFTUQualityParam.getLines(ProductID, " AND FTU_AnalysisType_ID IS NOT NULL");
+	private void createAnalysisLine(String AnalysisType,int AnalysisID, int ProductID, int LotID, Properties ctx, String trxName) {
+		MFTUQualityParam[] qparams = MFTUQualityParam.getLines(ProductID, " AND FTU_AnalysisType_ID IS NOT NULL AND IsUsedFor IN ('"+AnalysisType+"','BO') ");
 		if(qparams == null || qparams.length <= 0)
 			return;
 		//	Create Lines from Quality Params
@@ -63,7 +66,11 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 			MHRSAnalysisLine line = new MHRSAnalysisLine(ctx, 0, trxName);
 			line.setHRS_Analysis_ID(AnalysisID);
 			line.setFTU_AnalysisType_ID(qparam.getFTU_AnalysisType_ID());
-			line.setResult(getCondition(qparam.getFTU_AnalysisType_ID(),ProductID,LotID,trxName));
+			if(!qparam.isQualitativeAnalysis())
+				line.setResult(getCondition(qparam.getFTU_AnalysisType_ID(),ProductID,LotID,trxName));
+			else
+				line.setResult(BigDecimal.ZERO);
+			line.setQualitativeResult("");
 			line.saveEx(trxName);
 		}
 	}

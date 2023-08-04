@@ -32,7 +32,7 @@ public interface I_FTU_AnalysisType
     /** TableName=FTU_AnalysisType */
     public static final String Table_Name = "FTU_AnalysisType";
 
-    /** AD_Table_ID=1000112 */
+    /** AD_Table_ID=1000481 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

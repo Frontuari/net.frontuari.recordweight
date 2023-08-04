@@ -32,7 +32,7 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_DeliveryRute (Properties ctx, int FTU_DeliveryRute_ID, String trxName)
@@ -100,8 +100,8 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
-	/** Set Delivery Rute.
-		@param FTU_DeliveryRute_ID Delivery Rute
+	/** Set FTU_DeliveryRute_ID.
+		@param FTU_DeliveryRute_ID FTU_DeliveryRute_ID
 	*/
 	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID)
 	{
@@ -111,8 +111,8 @@ public class X_FTU_DeliveryRute extends PO implements I_FTU_DeliveryRute, I_Pers
 			set_ValueNoCheck (COLUMNNAME_FTU_DeliveryRute_ID, Integer.valueOf(FTU_DeliveryRute_ID));
 	}
 
-	/** Get Delivery Rute.
-		@return Delivery Rute	  */
+	/** Get FTU_DeliveryRute_ID.
+		@return FTU_DeliveryRute_ID	  */
 	public int getFTU_DeliveryRute_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_DeliveryRute_ID);

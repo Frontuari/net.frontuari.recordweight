@@ -31,7 +31,7 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230726L;
 
     /** Standard Constructor */
     public X_FTU_WeightApprovalMotive (Properties ctx, int FTU_WeightApprovalMotive_ID, String trxName)
@@ -83,6 +83,61 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
       return sb.toString();
     }
 
+	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_Charge)MTable.get(getCtx(), org.compiere.model.I_C_Charge.Table_ID)
+			.getPO(getC_Charge_ID(), get_TrxName());
+	}
+
+	/** Set Charge.
+		@param C_Charge_ID Additional document charges
+	*/
+	public void setC_Charge_ID (int C_Charge_ID)
+	{
+		if (C_Charge_ID < 1)
+			set_Value (COLUMNNAME_C_Charge_ID, null);
+		else
+			set_Value (COLUMNNAME_C_Charge_ID, Integer.valueOf(C_Charge_ID));
+	}
+
+	/** Get Charge.
+		@return Additional document charges
+	  */
+	public int getC_Charge_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Charge_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_DocType getC_DocTypeInventory() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_ID)
+			.getPO(getC_DocTypeInventory_ID(), get_TrxName());
+	}
+
+	/** Set C_DocTypeInventory_ID.
+		@param C_DocTypeInventory_ID C_DocTypeInventory_ID
+	*/
+	public void setC_DocTypeInventory_ID (int C_DocTypeInventory_ID)
+	{
+		if (C_DocTypeInventory_ID < 1)
+			set_Value (COLUMNNAME_C_DocTypeInventory_ID, null);
+		else
+			set_Value (COLUMNNAME_C_DocTypeInventory_ID, Integer.valueOf(C_DocTypeInventory_ID));
+	}
+
+	/** Get C_DocTypeInventory_ID.
+		@return C_DocTypeInventory_ID	  */
+	public int getC_DocTypeInventory_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocTypeInventory_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Approval Motive (Weight).
 		@param FTU_WeightApprovalMotive_ID Approval Motive (Weight)
 	*/
@@ -104,16 +159,16 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
 		return ii.intValue();
 	}
 
-	/** Set FTU_RW_ApprovalMotive_UU.
-		@param FTU_WeightApprovalMotive_UU FTU_RW_ApprovalMotive_UU
+	/** Set FTU_WeightApprovalMotive_UU.
+		@param FTU_WeightApprovalMotive_UU FTU_WeightApprovalMotive_UU
 	*/
 	public void setFTU_WeightApprovalMotive_UU (String FTU_WeightApprovalMotive_UU)
 	{
 		set_Value (COLUMNNAME_FTU_WeightApprovalMotive_UU, FTU_WeightApprovalMotive_UU);
 	}
 
-	/** Get FTU_RW_ApprovalMotive_UU.
-		@return FTU_RW_ApprovalMotive_UU	  */
+	/** Get FTU_WeightApprovalMotive_UU.
+		@return FTU_WeightApprovalMotive_UU	  */
 	public String getFTU_WeightApprovalMotive_UU()
 	{
 		return (String)get_Value(COLUMNNAME_FTU_WeightApprovalMotive_UU);
@@ -133,6 +188,29 @@ public class X_FTU_WeightApprovalMotive extends PO implements I_FTU_WeightApprov
 	public boolean isApproved()
 	{
 		Object oo = get_Value(COLUMNNAME_IsApproved);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Generate Loss.
+		@param IsGenerateLoss Generate loss inventory
+	*/
+	public void setIsGenerateLoss (boolean IsGenerateLoss)
+	{
+		set_Value (COLUMNNAME_IsGenerateLoss, Boolean.valueOf(IsGenerateLoss));
+	}
+
+	/** Get Generate Loss.
+		@return Generate loss inventory
+	  */
+	public boolean isGenerateLoss()
+	{
+		Object oo = get_Value(COLUMNNAME_IsGenerateLoss);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

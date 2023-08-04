@@ -31,7 +31,7 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_HRS_AnalysisValuation (Properties ctx, int HRS_AnalysisValuation_ID, String trxName)
@@ -110,12 +110,6 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 		return ii.intValue();
 	}
 
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_HRS_Analysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_HRS_Analysis.Table_ID)
-			.getPO(getHRS_Analysis_ID(), get_TrxName());
-	}
-
 	/** Set Analysis.
 		@param HRS_Analysis_ID Analysis
 	*/
@@ -173,33 +167,71 @@ public class X_HRS_AnalysisValuation extends PO implements I_HRS_AnalysisValuati
 		return (String)get_Value(COLUMNNAME_HRS_AnalysisValuation_UU);
 	}
 
-	/** Set Result Human.
-		@param Result_Human Result Human
+	/** Set Human Result.
+		@param HumanResult Human Result
 	*/
-	public void setResult_Human (String Result_Human)
+	public void setHumanResult (String HumanResult)
 	{
-		set_Value (COLUMNNAME_Result_Human, Result_Human);
+		set_Value (COLUMNNAME_HumanResult, HumanResult);
 	}
 
-	/** Get Result Human.
-		@return Result Human	  */
-	public String getResult_Human()
+	/** Get Human Result.
+		@return Human Result	  */
+	public String getHumanResult()
 	{
-		return (String)get_Value(COLUMNNAME_Result_Human);
+		return (String)get_Value(COLUMNNAME_HumanResult);
 	}
 
-	/** Set Result System.
-		@param Result_System Result System
+	/** Set Invoiced.
+		@param IsInvoiced Is this invoiced?
 	*/
-	public void setResult_System (String Result_System)
+	public void setIsInvoiced (boolean IsInvoiced)
 	{
-		set_Value (COLUMNNAME_Result_System, Result_System);
+		set_Value (COLUMNNAME_IsInvoiced, Boolean.valueOf(IsInvoiced));
 	}
 
-	/** Get Result System.
-		@return Result System	  */
-	public String getResult_System()
+	/** Get Invoiced.
+		@return Is this invoiced?
+	  */
+	public boolean isInvoiced()
 	{
-		return (String)get_Value(COLUMNNAME_Result_System);
+		Object oo = get_Value(COLUMNNAME_IsInvoiced);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set QualitativeResult.
+		@param QualitativeResult QualitativeResult
+	*/
+	public void setQualitativeResult (String QualitativeResult)
+	{
+		set_Value (COLUMNNAME_QualitativeResult, QualitativeResult);
+	}
+
+	/** Get QualitativeResult.
+		@return QualitativeResult	  */
+	public String getQualitativeResult()
+	{
+		return (String)get_Value(COLUMNNAME_QualitativeResult);
+	}
+
+	/** Set System Result.
+		@param SystemResult System Result
+	*/
+	public void setSystemResult (String SystemResult)
+	{
+		set_Value (COLUMNNAME_SystemResult, SystemResult);
+	}
+
+	/** Get System Result.
+		@return System Result	  */
+	public String getSystemResult()
+	{
+		return (String)get_Value(COLUMNNAME_SystemResult);
 	}
 }

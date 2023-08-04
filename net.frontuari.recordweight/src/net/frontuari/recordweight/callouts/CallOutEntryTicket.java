@@ -14,6 +14,7 @@ import org.eevolution.model.MDDOrderLine;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
+import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 
 /**
@@ -22,7 +23,7 @@ import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 @Callout(tableName = I_FTU_EntryTicket.Table_Name, columnName = {I_FTU_EntryTicket.COLUMNNAME_M_Shipper_ID,
 		I_FTU_EntryTicket.COLUMNNAME_C_Order_ID,I_FTU_EntryTicket.COLUMNNAME_C_OrderLine_ID,
 		I_FTU_EntryTicket.COLUMNNAME_OperationType,I_FTU_EntryTicket.COLUMNNAME_DD_Order_ID,
-		I_FTU_EntryTicket.COLUMNNAME_DD_OrderLine_ID})
+		I_FTU_EntryTicket.COLUMNNAME_DD_OrderLine_ID,I_FTU_EntryTicket.COLUMNNAME_FTU_LoadOrder_ID})
 public class CallOutEntryTicket extends FTUCallout {
 
 	@Override
@@ -66,10 +67,14 @@ public class CallOutEntryTicket extends FTUCallout {
 			if(p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 					|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_ProductBulkReceipt)
 						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_ReceiptMoreThanOneProduct)
-						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement))
+						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement)
+						|| p_OperationType.equals(X_FTU_EntryTicket.OPERATIONTYPE_ImportRawMaterial)) {
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "N");
-			else
+				getTab().setValue("IsSOTrx", "N");
+			}else {
 				Env.setContext(getCtx(), getWindowNo(), "IsSOTrx", "Y");
+				getTab().setValue("IsSOTrx", "Y");
+			}
 		} else if (I_FTU_EntryTicket.COLUMNNAME_DD_Order_ID.equals(getColumnName())) {
 			
 			int DD_Order_ID = Optional.ofNullable((Integer) getValue())
@@ -90,6 +95,18 @@ public class CallOutEntryTicket extends FTUCallout {
 			
 			MDDOrderLine ddOLine = new MDDOrderLine(getCtx(), DD_OrderLine_ID, null);
 			setValue(I_FTU_EntryTicket.COLUMNNAME_M_Product_ID, ddOLine.getM_Product_ID());
+		} else if (I_FTU_EntryTicket.COLUMNNAME_FTU_LoadOrder_ID.equals(getColumnName())) {
+			
+			int FTU_Order_ID = Optional.ofNullable((Integer) getValue())
+					.orElse(0);
+			
+			if (FTU_Order_ID == 0)
+				return "";
+			
+			MFTULoadOrder LoadOrder = new MFTULoadOrder(getCtx(), FTU_Order_ID, null);
+			setValue(I_FTU_EntryTicket.COLUMNNAME_FTU_Driver_ID, LoadOrder.getFTU_Driver_ID());
+			setValue(I_FTU_EntryTicket.COLUMNNAME_FTU_Vehicle_ID, LoadOrder.getFTU_Vehicle_ID());
+			setValue(I_FTU_EntryTicket.COLUMNNAME_M_Shipper_ID, LoadOrder.getM_Shipper_ID());
 		}
 		
 		return "";

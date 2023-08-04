@@ -1,17 +1,22 @@
 package net.frontuari.recordweight.form;
 
+import static org.adempiere.webui.ClientInfo.MEDIUM_WIDTH;
+import static org.adempiere.webui.ClientInfo.SMALL_WIDTH;
+import static org.adempiere.webui.ClientInfo.maxWidth;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import org.adempiere.util.Callback;
-import org.adempiere.webui.component.Borderlayout;
-import org.adempiere.webui.component.Button;
-import org.adempiere.webui.component.Checkbox;
-import org.adempiere.webui.component.Datebox;
+import org.adempiere.webui.ClientInfo;
+import org.adempiere.webui.LayoutUtils;
+import org.adempiere.webui.apps.AEnv;
 import org.adempiere.webui.component.Grid;
 import org.adempiere.webui.component.GridFactory;
 import org.adempiere.webui.component.Label;
@@ -31,9 +36,10 @@ import org.adempiere.webui.event.WTableModelEvent;
 import org.adempiere.webui.event.WTableModelListener;
 import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
-import org.adempiere.webui.panel.IFormController;
 import org.adempiere.webui.panel.StatusBarPanel;
 import org.adempiere.webui.session.SessionManager;
+import org.adempiere.webui.util.ZKUpdateUtil;
+import org.adempiere.webui.window.Dialog;
 import org.adempiere.webui.window.FDialog;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.I_C_Order;
@@ -42,6 +48,7 @@ import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
+import org.compiere.model.MPaySelection;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MUOM;
@@ -58,113 +65,47 @@ import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
 import org.idempiere.ui.zk.annotation.Form;
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Center;
+import org.zkoss.zul.Div;
 import org.zkoss.zul.Doublebox;
+import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.North;
 import org.zkoss.zul.South;
 import org.zkoss.zul.Space;
+import org.adempiere.webui.component.Borderlayout;
+import org.adempiere.webui.component.Button;
+import org.adempiere.webui.component.Checkbox;
+import org.adempiere.webui.component.Column;
+import org.adempiere.webui.component.Columns;
+import org.adempiere.webui.component.Datebox;
 
 import net.frontuari.recordweight.model.I_FTU_LoadOrder;
+import net.frontuari.recordweight.model.MFTUEntryTicket;
+import net.frontuari.recordweight.model.MFTULoadOrder;
 import net.frontuari.recordweight.util.StringNamePair;
 
-@Form(name = "net.frontuari.recordweight.form.WFTULoadOrder")
-public class WFTULoadOrder extends FTULoadOrder
-	implements IFormController, EventListener<Event>, WTableModelListener, ValueChangeListener
-{
-	
-	private static final long serialVersionUID = 5961538334805894474L;
-	/**
-	 * 
-	 * *** Constructor ***
-	 */
-	public WFTULoadOrder() {
-		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "Y");   //  defaults to no
-		try	{
-			
-			dyInit();
-			zkInit();
-			//	Load Default Values
-			loadDefaultValues();
-			
-		} catch(Exception e) {
-			log.severe("Error:" + e.getLocalizedMessage());
-		}
-	}
+/***
+ * Generate Load Order Form
+ * @author Jorge Colmenarez, 2023-06-26 10:13
+ */
+public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, WTableModelListener {
+
+	private static final long serialVersionUID = 1789610484400318910L;
 
 	/**	Window No			*/
 	private int         	m_WindowNo = 0;
 	
 	/**	Custom Form			*/
 	private CustomForm form = new CustomForm();
-
+	private int noOfColumn;
 	private Borderlayout mainLayout = new Borderlayout();
-
-	private Grid 			parameterLayout		= GridFactory.newGridLayout();
-	private Panel 			parameterPanel = new Panel();
-	/**	Organization			*/
-	private WTableDirEditor organizationPick = null;
-	/**	Sales Region			*/
-	private WTableDirEditor salesRegionPick = null;
-	/**	Sales Representative	*/
-	private Label 			salesRepLabel = new Label();
-	private WTableDirEditor 		salesRepSearch = null;
-	/**	Warehouse				*/
-	private Label 			warehouseLabel = new Label();
-	private Listbox 		warehouseSearch = ListboxFactory.newDropdownListbox();
-	/**	Operation Type			*/
-	private WTableDirEditor operationTypePick = null;
-	/**	Document Type			*/
-	private Label 			docTypeLabel = new Label();
-	private Listbox 		docTypeSearch = ListboxFactory.newDropdownListbox();
-	/**	Document Type Target	*/
-	private WTableDirEditor	docTypeTargetPick = null;
-	/**	Invoice Rule			*/
-	private Label 			invoiceRuleLabel = new Label();
-	private WTableDirEditor invoiceRulePick = null;
-	/**	Delivery Rule			*/
-	private Label 			deliveryRuleLabel = new Label();
-	private WTableDirEditor deliveryRulePick = null;
-	/**	Vehicle Type			*/
-	private WTableDirEditor vehicleTypePick = null;
-	/**	Document Date			*/
-	private Label 			labelDateDoc = new Label();
-	private Datebox 		dateDocField = new Datebox();
-	/**	Shipment Date			*/
-	private Label 			labelShipDate = new Label();
-	private Datebox 		shipDateField = new Datebox();
-	/**	Entry Ticket			*/
-	private Label 			entryTicketLabel = new Label();
-	private WSearchEditor 	entryTicketPick = null;
-	/**	Shipper					*/
-	private Label 			shipperLabel = new Label();
-	private WTableDirEditor shipperPick = null;
-	/**	Driver					*/
-	private Label 			driverLabel = new Label();
-	private Listbox 		driverSearch = ListboxFactory.newDropdownListbox();
-	/**	Vehicle					*/
-	private Label 			vehicleLabel = new Label();
-	private Listbox 		vehicleSearch = ListboxFactory.newDropdownListbox();
-	/**	Load Capacity			*/
-	private Label 			loadCapacityLabel = new Label();
-	private Doublebox 		loadCapacityField = new Doublebox();
-	
-	/**	Volume Capacity			*/
-	private Label 			volumeCapacityLabel = new Label();
-	private Doublebox 		volumeCapacityField = new Doublebox();
-	/**	Bulk				*/
-	private Checkbox 		isBulkCheck = new Checkbox();
-	/**	Product				*/
-	private Label 			productLabel = new Label();
-	private WSearchEditor 	productSearch = null;
-	/**	Business Partner	*/
-	private Label 			bpartnerLabel = new Label();
-	private WSearchEditor bpartnerSearch = null;
-
 	private DateFormat 		dateFormat 		 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	/** Panels				*/
+	private Panel 			parameterPanel = new Panel();
+	private Grid 			parameterLayout = GridFactory.newGridLayout();
 	private Panel 			orderPanel = new Panel();
 	private Panel 			orderLinePanel = new Panel();
 	private Label 			orderLabel = new Label();
@@ -180,12 +121,8 @@ public class WFTULoadOrder extends FTULoadOrder
 	private Panel 			allocationPanel = new Panel();
 	private Grid 			allocationLayout = GridFactory.newGridLayout();
 	private Borderlayout 	infoLayout = new Borderlayout();
-	private South 			south1 = new South();
-	/**	Collapsible Panel for Parameter		*/
-	private North 			north = new North();
 	private North 			north1 = new North();
-	/** Order Line			*/
-	private Label 			orderLineInfo = new Label();
+	
 	/** Weight Difference	*/
 	private Label 			weightDiffLabel = new Label();
 	private NumberBox 		weightDiffField = null;
@@ -207,32 +144,111 @@ public class WFTULoadOrder extends FTULoadOrder
 	private ListModelTable  stockModel = null; 
 	private int 			count = 0;
 	/**	Payment Info		*/
-	private Label 			paymentInfo = new Label();
+	private Label 			orderInfo = new Label();
+	/** Order Line			*/
+	private Label 			orderLineInfo = new Label();
 	/**	Stock Info		*/
 	private Label 			stockInfo = new Label();
-	/**	Invoice Info		*/
-	private Label 			invoiceInfo = new Label();
-	private Label			invoiceLabel = new Label();
-
+	/** Status Bar */
 	private StatusBarPanel statusBar = new StatusBarPanel();
+	
+	/**	Organization			*/
+	private WTableDirEditor organizationPick = null;
+	/**	Sales Region			*/
+	private WTableDirEditor salesRegionPick = null;
+	/**	Sales Representative	*/
+	private Label salesRepLabel = new Label();
+	private WTableDirEditor salesRepSearch = null;
+	/**	Operation Type			*/
+	private WTableDirEditor operationTypePick = null;
+	/**	Document Type Target	*/
+	private WTableDirEditor	docTypeTargetPick = null;
+	/**	Invoice Rule			*/
+	private Label 			invoiceRuleLabel = new Label();
+	private WTableDirEditor invoiceRulePick = null;
+	/**	Delivery Rule			*/
+	private Label 			deliveryRuleLabel = new Label();
+	private WTableDirEditor deliveryRulePick = null;
+	/**	Entry Ticket			*/
+	private Label 			entryTicketLabel = new Label();
+	private WSearchEditor 	entryTicketPick = null;
+	/**	Shipper					*/
+	private Label 			shipperLabel = new Label();
+	private WTableDirEditor shipperPick = null;
+	/**	Vehicle Type			*/
+	private WTableDirEditor vehicleTypePick = null;
+	/**	Product				*/
+	private Label 			productLabel = new Label();
+	private WSearchEditor 	productSearch = null;
+	/**	Business Partner	*/
+	private Label 			bpartnerLabel = new Label();
+	private WSearchEditor 	bpartnerSearch = null;
+	/**	Warehouse				*/
+	private Label 			warehouseLabel = new Label();
+	private Listbox 		warehouseSearch = ListboxFactory.newDropdownListbox();
+	/**	Document Type			*/
+	private Label 			docTypeLabel = new Label();
+	private Listbox 		docTypeSearch = ListboxFactory.newDropdownListbox();
+	/**	Document Date			*/
+	private Label 			labelDateDoc = new Label();
+	private Datebox 		dateDocField = new Datebox();
+	/**	Shipment Date			*/
+	private Label 			labelShipDate = new Label();
+	private Datebox 		shipDateField = new Datebox();
+	/**	Driver					*/
+	private Label 			driverLabel = new Label();
+	private Listbox 		driverSearch = ListboxFactory.newDropdownListbox();
+	/**	Vehicle					*/
+	private Label 			vehicleLabel = new Label();
+	private Listbox 		vehicleSearch = ListboxFactory.newDropdownListbox();
+	/**	Load Capacity			*/
+	private Label 			loadCapacityLabel = new Label();
+	private Doublebox 		loadCapacityField = new Doublebox();
+	/**	Volume Capacity			*/
+	private Label 			volumeCapacityLabel = new Label();
+	private Doublebox 		volumeCapacityField = new Doublebox();
+	/**	Bulk				*/
+	private Checkbox 		isBulkCheck = new Checkbox();
+	
 	/**
-	 *  Static zkInit
+	 * 
+	 * *** Constructor ***
+	 */
+	public WFTULoadOrder() {
+		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "Y");   //  defaults to no
+		try
+		{
+			dynInit();
+			zkInit();
+			//	Load Default Values
+			loadDefaultValues();	
+		}
+		catch(Exception e)
+		{
+			log.log(Level.SEVERE, "", e);
+		}
+		
+		if (ClientInfo.isMobile()) 
+		{
+			ClientInfo.onClientInfo(form, this::onClientInfo);
+		}
+	}
+	
+	/**
+	 *  Static Init
 	 *  @throws Exception
 	 */
 	private void zkInit() throws Exception
 	{
-		form.appendChild(mainLayout);
-
-		mainLayout.setWidth("99%");
-		mainLayout.setHeight("100%");
-		parameterPanel.appendChild(parameterLayout);
+		Div div = new Div();
+		div.setStyle("height: 100%; width: 100%; overflow: auto;");
+		div.appendChild(mainLayout);
+		form.appendChild(div);
+		ZKUpdateUtil.setHeight(mainLayout, "100%");
+		ZKUpdateUtil.setWidth(mainLayout, "99%");
 		
-		Rows rows = null;
-		Row row = null;
-		parameterLayout.setWidth("100%");
-		rows = parameterLayout.newRows();
-		row = rows.newRow();
 		//
+		organizationPick.getLabel().setText(Msg.translate(Env.getCtx(), "AD_Org_ID"));
 		driverLabel.setText(Msg.translate(Env.getCtx(), "FTU_Driver_ID"));
 		shipperLabel.setText(Msg.translate(Env.getCtx(), "M_Shipper_ID"));
 		vehicleLabel.setText(Msg.translate(Env.getCtx(), "FTU_Vehicle_ID"));
@@ -242,10 +258,6 @@ public class WFTULoadOrder extends FTULoadOrder
 		volumeCapacityLabel.setText(Msg.translate(Env.getCtx(), "VolumeCapacity"));
 		vehicleTypePick.getLabel().setText(Msg.translate(Env.getCtx(), "FTU_VehicleType_ID"));
 		entryTicketLabel.setText(Msg.translate(Env.getCtx(), "FTU_EntryTicket_ID"));
-		orderPanel.appendChild(orderLayout);
-		orderLinePanel.appendChild(orderLineLayout);
-		medioPanel.appendChild(medioLayout);
-		stockPanel.appendChild(stockLayout);
 		//	Operation Type
 		operationTypePick.getLabel().setText(Msg.translate(Env.getCtx(), "OperationType"));
 		//	Document Type
@@ -259,26 +271,20 @@ public class WFTULoadOrder extends FTULoadOrder
 		//	Warehouse
 		warehouseLabel.setText(Msg.translate(Env.getCtx(), "M_Warehouse_ID"));
 		//	Product
-		productSearch.getLabel().setText(Msg.translate(Env.getCtx(), "M_Product_ID"));
+		productLabel.setText(Msg.translate(Env.getCtx(), "M_Product_ID"));
 		//	Business Partner
-		bpartnerSearch.getLabel().setText(Msg.translate(Env.getCtx(), "C_BPartner_ID"));
+		bpartnerLabel.setText(Msg.translate(Env.getCtx(), "C_BPartner_ID"));
+		//	Add Layout to Panels
+		parameterPanel.appendChild(parameterLayout);
+		allocationPanel.appendChild(allocationLayout);
+		orderPanel.appendChild(orderLayout);
+		orderLinePanel.appendChild(orderLineLayout);
+		medioPanel.appendChild(medioLayout);
+		stockPanel.appendChild(stockLayout);
 		
 		orderLabel.setText(" " + Msg.translate(Env.getCtx(), "C_Order_ID"));
 		stockLabel.setText("yruy " + Msg.translate(Env.getCtx(), "C_Order_ID"));
 		orderLineLabel.setText(" " + Msg.translate(Env.getCtx(), "C_OrderLine_ID"));
-		orderPanel.appendChild(orderLayout);
-		orderPanel.setWidth("100%");
-		orderPanel.setHeight("100%");
-		orderLayout.setWidth("100%");
-		orderLayout.setHeight("50%");
-		orderLayout.setStyle("border: none");
-		stockPanel.appendChild(stockLayout);
-		stockPanel.setWidth("100%");
-		stockPanel.setHeight("100%");
-		stockLayout.setWidth("100%");
-		stockLayout.setHeight("50%");
-		stockLayout.setStyle("border: none");
-		
 		gLoadOrderButton.addActionListener(this);
 		//	Weight Difference
 		weightDiffLabel.setText("Diferencia de Peso");
@@ -288,239 +294,152 @@ public class WFTULoadOrder extends FTULoadOrder
 		volumeDiffLabel.setText("Diferencia de Volumen");
 		volumeDiffField = new NumberBox(true);
 		volumeDiffField.setValue(Env.ZERO);
+
+		orderInfo.setText(".");
+		orderLineInfo.setText(".");
+		stockInfo.setText(".");
 		
-		organizationPick.getLabel().setText(Msg.translate(Env.getCtx(), "AD_Org_ID"));
-		row.appendChild(organizationPick.getLabel().rightAlign());
-		row.appendChild(organizationPick.getComponent());
-		row.appendChild(salesRegionPick.getLabel().rightAlign());
-		row.appendChild(salesRegionPick.getComponent());
-		row.appendChild(salesRepLabel.rightAlign());
-		row.appendChild(salesRepSearch.getComponent());
-		//	Storage
-		row = rows.newRow();
-		row.appendChild(warehouseLabel.rightAlign());
-		row.appendChild(warehouseSearch);
-		warehouseSearch.setWidth("200px");
-		//	Operation Type
-		row.appendChild(operationTypePick.getLabel().rightAlign());
-		row.appendChild(operationTypePick.getComponent());
-		
-		//	Document Type
-		row.appendChild(docTypeLabel.rightAlign());
-		row.appendChild(docTypeSearch);
-		docTypeSearch.setWidth("200px");
-		row = rows.newRow();
-		//	Document Type Target
-		row.appendChild(docTypeTargetPick.getLabel().rightAlign());
-		row.appendChild(docTypeTargetPick.getComponent());
-		//	Invoice Rule
-		row.appendChild(invoiceRuleLabel.rightAlign());
-		row.appendChild(invoiceRulePick.getComponent());
-		//	Delivery Rule
-		row.appendChild(deliveryRuleLabel.rightAlign());
-		row.appendChild(deliveryRulePick.getComponent());
-		row = rows.newRow();
-		//	Vehicle Type
-		row.appendChild(vehicleTypePick.getLabel().rightAlign());
-		row.appendChild(vehicleTypePick.getComponent());
-		
-		//	Document Date
-		row.appendChild(labelDateDoc.rightAlign());
-		row.appendChild(dateDocField);
-		//	Shipment Date
-		row.appendChild(labelShipDate.rightAlign());
-		row.appendChild(shipDateField);
-		//	Entry Ticket
-		row = rows.newRow();
-		row.appendChild(entryTicketLabel.rightAlign());
-		row.appendChild(entryTicketPick.getComponent());
-		//	Shipper
-		row.appendChild(shipperLabel.rightAlign());
-		row.appendChild(shipperPick.getComponent());
-		
-		//	Driver
-		row.appendChild(driverLabel.rightAlign());
-		row.appendChild(driverSearch);
-		driverSearch.setWidth("200px");
-		row = rows.newRow();
-		//	Vehicle
-		row.appendChild(vehicleLabel.rightAlign());
-		row.appendChild(vehicleSearch);
-		vehicleSearch.setWidth("200px");
-		//	Load Capacity
-		row.appendChild(loadCapacityLabel.rightAlign());
-		row.appendChild(loadCapacityField);
-		loadCapacityField.setReadonly(true);
-		//	Volume Capacity
-		row.appendChild(volumeCapacityLabel.rightAlign());
-		row.appendChild(volumeCapacityField);
-		volumeCapacityField.setReadonly(true);
-		row = rows.newRow();
-		//	Bulk
-		isBulkCheck.setSelected(false);
-		//	Product
-		row.appendChild(productSearch.getLabel().rightAlign());
-		row.appendChild(productSearch.getComponent());
-		productLabel.setVisible(false);
-		productSearch.setVisible(false);
-		//	Business Partner
-		row.appendChild(bpartnerSearch.getLabel().rightAlign());
-		row.appendChild(bpartnerSearch.getComponent());
-		bpartnerLabel.setVisible(false);
-		bpartnerSearch.setVisible(false);
-		//	Search
-		row.appendChild(new Space());
-		row.appendChild(bSearch);
-		bSearch.addActionListener(this);
-		//	
+		//	Drawing Panels
+		//	Draw Main Panel
 		north1 = new North();
+		north1.setSplittable(true);
 		north1.setCollapsible(true);
-		north1.setTitle("Parameter");
-			
+		north1.setTitle(Msg.translate(Env.getCtx(),"Parameter"));
 		north1.setStyle("border-style: solid; border-width: 1px; border-color: rgb(0,0,255)");
 		mainLayout.appendChild(north1);
+		//	Parameter Panel
 		north1.appendChild(parameterPanel);
 		
-		South south = new South();
-		south.setStyle("border: none");
-		mainLayout.appendChild(south);
-		
-		south.appendChild(southPanel);
-		southPanel.appendChild(allocationPanel);
-		southPanel.appendChild(statusBar);
-		allocationPanel.appendChild(allocationLayout);
-		allocationLayout.setWidth("100%");
-		rows = allocationLayout.newRows();
-		row = rows.newRow();
-		row.appendChild(selectAllButton);
-		selectAllButton.setImage("/theme/default/images/Report24.png");
-		row.appendChild(weightDiffLabel.rightAlign());
-		row.appendChild(weightDiffField);
-		row.appendChild(volumeDiffLabel.rightAlign());
-		row.appendChild(volumeDiffField);
-		row.appendChild(gLoadOrderButton);
-		volumeDiffField.setEnabled(false);
-		weightDiffField.setEnabled(false);
-		
-		invoiceLabel.setText(" " + Msg.translate(Env.getCtx(), "C_OrderLine_ID"));
-
-		invoiceInfo.setText(".");
-		stockInfo.setText(".");
-		paymentInfo.setText(".");
+		layoutParameterAndSummary();
+		//	Order Panels
 		orderPanel.appendChild(orderLayout);
-		orderPanel.setWidth("100%");
-		orderPanel.setHeight("100%");
-		orderLayout.setWidth("100%");
-		orderLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(orderPanel, "100%");
+		ZKUpdateUtil.setWidth(orderLayout, "100%");
+		ZKUpdateUtil.setVflex(orderPanel, "1");
+		ZKUpdateUtil.setVflex(orderLayout, "1");
 		orderLayout.setStyle("border: none");
-		
+		//	Order Line Panels
 		orderLinePanel.appendChild(orderLineLayout);
-		orderLinePanel.setWidth("100%");
-		orderLinePanel.setHeight("100%");
-		orderLineLayout.setWidth("100%");
-		orderLineLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(orderLinePanel, "100%");
+		ZKUpdateUtil.setWidth(orderLineLayout, "100%");
+		ZKUpdateUtil.setVflex(orderLinePanel, "1");
+		ZKUpdateUtil.setVflex(orderLineLayout, "1");
 		orderLineLayout.setStyle("border: none");
-		
+		//	Stock Panels
 		stockPanel.appendChild(stockLayout);
-		stockPanel.setWidth("100%");
-		stockPanel.setHeight("100%");
-		stockLayout.setWidth("100%");
-		stockLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(stockPanel, "100%");
+		ZKUpdateUtil.setWidth(stockLayout, "100%");
+		ZKUpdateUtil.setVflex(stockPanel, "1");
+		ZKUpdateUtil.setVflex(stockLayout, "1");
 		stockLayout.setStyle("border: none");
-		
+		//	Medio Panels
 		medioPanel.appendChild(medioLayout);
-		medioPanel.setWidth("100%");
-		medioPanel.setHeight("100%");
-		medioLayout.setWidth("100%");
-		medioLayout.setHeight("100%");
+		ZKUpdateUtil.setWidth(medioPanel, "100%");
+		ZKUpdateUtil.setWidth(medioLayout, "100%");
+		ZKUpdateUtil.setVflex(medioPanel, "1");
+		ZKUpdateUtil.setVflex(medioLayout, "1");
 		medioLayout.setStyle("border: none");
-		
-		
-		north = new North();
+
+		//	Draw Order Layout North - label
+		North north = new North();
 		north.setStyle("border: none");
 		orderLayout.appendChild(north);
 		north.appendChild(orderLabel);
-		south = new South();
+		//	Draw Order Layout South - sum
+		South south = new South();
 		south.setStyle("border: none");
 		orderLayout.appendChild(south);
-		south.appendChild(paymentInfo.rightAlign());
+		south.appendChild(orderInfo.rightAlign());
+		ZKUpdateUtil.setVflex(orderInfo, "min");
+		//	Draw Order Layout Center - order list
 		Center center = new Center();
 		orderLayout.appendChild(center);
 		center.appendChild(w_orderTable);
-		w_orderTable.setWidth("99%");
+		ZKUpdateUtil.setWidth(w_orderTable, "99%");
 		center.setStyle("border: none");
+
+		//	Draw Order Line Layout North - label
 		north = new North();
 		north.setStyle("border: none");
 		orderLineLayout.appendChild(north);
-		north.appendChild(invoiceLabel);
+		north.appendChild(orderLineLabel);
+		//	Draw Order Line Layout South - sum
 		south = new South();
 		south.setStyle("border: none");
-		south.appendChild(invoiceInfo.rightAlign());
+		south.appendChild(orderLineInfo.rightAlign());
+		ZKUpdateUtil.setVflex(orderLineInfo, "min");
+		//	Draw Order Line Layout Center - orderline list
 		center = new Center();
 		orderLineLayout.appendChild(center);
 		center.appendChild(w_orderLineTable);
 		orderLineLayout.appendChild(south);
-		w_orderLineTable.setWidth("100%");
+		ZKUpdateUtil.setWidth(w_orderLineTable, "100%");
 		center.setStyle("border: 1px solid #000; height:100%");
+
+		//	Draw Stock Layout North - label
 		north = new North();
 		north.setStyle("border: none; height:90%;");
 		stockLayout.appendChild(north);
-		north.setTitle(Msg.translate(Env.getCtx(), "WarehouseStockGroup"));
-		north.appendChild(invoiceLabel);
+		//north.setTitle(Msg.translate(Env.getCtx(), "WarehouseStockGroup"));
+		north.appendChild(stockLabel);
+		//	Draw Stock Layout North - sum
 		south = new South();
 		south.setStyle("border: none");
 		south.appendChild(stockInfo.rightAlign());
+		//	Draw Stock Layout Center - stock list
 		center = new Center();
 		stockLayout.appendChild(center);
 		center.appendChild(stockTable);
 		stockLayout.appendChild(south);
-		stockTable.setWidth("100%");
+		ZKUpdateUtil.setWidth(stockTable, "100%");
 		center.setStyle("border: 1px solid #000; height:50%");
 
+		//	Draw Medio Layout North - label
 		north = new North();
 		north.setStyle("border: none; height:90%;");
 		medioLayout.appendChild(north);
 		north.appendChild(w_orderLineTable);
-		north.setHeight("100%");
-		south1 = new South();
+		ZKUpdateUtil.setVflex(north, "min");
+		//	Draw Medio Layout South - ???
+		South south1 = new South();
 		medioLayout.appendChild(south1);
 		south1.appendChild(stockTable);
 		south1.setTitle(Msg.translate(Env.getCtx(), "WarehouseStockGroup"));
 		south1.setStyle("border-style: solid; border-width: 1px; border-color: rgb(0,0,255)");
 		south1.addEventListener("onClick", this);
-		south1.setHeight("50%");
+		ZKUpdateUtil.setHeight(south1, "50%");
 		south1.setZIndex(99);
 		south1.setCollapsible(true);
 		south1.setOpen(false);
 		south1.setSplittable(true);
+		//	Draw Medio Layout Center - ???
 		center = new Center();
 		mainLayout.appendChild(center);
 		center.appendChild(infoLayout);
 		center.setAutoscroll(true);
-
 		infoLayout.setStyle("border: none");
-		infoLayout.setWidth("100%");
-		infoLayout.setHeight("100%");
-		
+		ZKUpdateUtil.setWidth(infoLayout, "100%");
+		ZKUpdateUtil.setVflex(infoLayout, "1");
+		//	Draw Info Layout North - label
 		north = new North();
 		north.setStyle("border: none");
-		north.setHeight("50%");
+		ZKUpdateUtil.setHeight(north, "50%");
 		infoLayout.appendChild(north);
 		north.appendChild(orderLayout);
 		north.setSplittable(true);
-
+		//	Draw Info Layout Center - medioLayout
 		center = new Center();
 		center.setStyle("border: none");
 		infoLayout.appendChild(center);
 		center.appendChild(medioLayout);
 		center.setAutoscroll(true);
-	}   //  jbInit
-
+	}
+	
 	/**
 	 *  Dynamic Init (prepare dynamic fields)
 	 *  @throws Exception if Lookups cannot be initialized
 	 */
-	public void dyInit() throws Exception
+	public void dynInit() throws Exception
 	{
 		//	Set Client
 		m_AD_Client_ID = Env.getAD_Client_ID(Env.getCtx());
@@ -530,7 +449,6 @@ public class WFTULoadOrder extends FTULoadOrder
 		int AD_Column_ID = 	MColumn.getColumn_ID(I_FTU_LoadOrder.Table_Name, I_FTU_LoadOrder.COLUMNNAME_AD_Org_ID);		//	FTU_LoadOrer.AD_Org_ID
 		MLookup lookupOrg = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.TableDir);
 		organizationPick = new WTableDirEditor("AD_Org_ID", true, false, true, lookupOrg);
-		//organizationPick.setValue(Env.getAD_Org_ID(Env.getCtx()));
 		organizationPick.addValueChangeListener(this);
 		organizationPick.setMandatory(true);
 		
@@ -538,14 +456,12 @@ public class WFTULoadOrder extends FTULoadOrder
 		AD_Column_ID = MColumn.getColumn_ID(I_C_SalesRegion.Table_Name, I_C_SalesRegion.COLUMNNAME_C_SalesRegion_ID);	;	//	C_SalesRegion.C_SalesRegion_ID
 		MLookup lookupWar = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.TableDir);
 		salesRegionPick = new WTableDirEditor("C_SalesRegion_ID", false, false, true, lookupWar);
-		//salesRegion.setValue(Env.getAD_Org_ID(Env.getCtx()));
 		salesRegionPick.addValueChangeListener(this);
 		
 		//	Sales Representative
 		AD_Column_ID = MColumn.getColumn_ID(I_C_Order.Table_Name, I_C_Order.COLUMNNAME_SalesRep_ID);//	C_Order.SalesRep_ID
 		MLookup lookupSal = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.TableDir);
 		salesRepSearch = new WTableDirEditor("SalesRep_ID", false, false, true, lookupSal);
-		//salesRepSearch.setValue(Env.getAD_Org_ID(Env.getCtx()));
 		salesRepSearch.addValueChangeListener(this);
 						
 		//  Operation Type
@@ -563,13 +479,11 @@ public class WFTULoadOrder extends FTULoadOrder
 		AD_Column_ID = MColumn.getColumn_ID(I_FTU_LoadOrder.Table_Name, I_FTU_LoadOrder.COLUMNNAME_InvoiceRule);//  FTU_LoadOrder.InvoiceRule
 		MLookup lookupIR = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.List);
 		invoiceRulePick = new WTableDirEditor("InvoiceRule", false, false, true, lookupIR);
-		//invoiceRulePick.setValue(X_C_Order.INVOICERULE_Immediate);
 		invoiceRulePick.addValueChangeListener(this);
 		
 		AD_Column_ID = MColumn.getColumn_ID(I_FTU_LoadOrder.Table_Name, I_FTU_LoadOrder.COLUMNNAME_DeliveryRule);//  FTU_LoadOrder.DeliveryRule
 		MLookup lookupDR = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.List);
 		deliveryRulePick = new WTableDirEditor("DeliveryRule", false, false, true, lookupDR);
-		//deliveryRulePick.setValue(X_C_Order.DELIVERYRULE_Availability);
 		deliveryRulePick.addValueChangeListener(this);
 		
 		//	Entry Ticket
@@ -602,7 +516,7 @@ public class WFTULoadOrder extends FTULoadOrder
 		MLookup lookupBPartner = MLookupFactory.get(Env.getCtx(), m_WindowNo, 0, AD_Column_ID, DisplayType.Search);
 		bpartnerSearch = new WSearchEditor("C_BPartner_ID", true, false, true, lookupBPartner);
 		bpartnerSearch.addValueChangeListener(this);
-
+		
 		//	Visible
 		productLabel.setVisible(false);
 		productSearch.setVisible(false);
@@ -623,10 +537,253 @@ public class WFTULoadOrder extends FTULoadOrder
 		
 		//  Translation
 		statusBar.setStatusLine(Msg.translate(Env.getCtx(), "FTU_LoadOrder_ID"));
-		statusBar.setStatusDB("");
+		statusBar.setStatusDB("Algo");
+	}
+	
+	/***
+	 * Layout Parameter and Summary fields
+	 */
+	protected void layoutParameterAndSummary() {
+		Rows rows = null;
+		Row row = null;
 		
-	}   //  dynInit
- 
+		setupParameterColumns();
+		//	header layout
+		rows = parameterLayout.newRows();
+		row = rows.newRow();
+		
+		row.appendChild(organizationPick.getLabel().rightAlign());
+		ZKUpdateUtil.setHflex(organizationPick.getComponent(), "true");
+		row.appendCellChild(organizationPick.getComponent(),1);
+		organizationPick.showMenu();
+		row.appendChild(salesRegionPick.getLabel().rightAlign());
+		ZKUpdateUtil.setHflex(salesRegionPick.getComponent(), "true");
+		row.appendCellChild(salesRegionPick.getComponent(),1);
+		salesRegionPick.showMenu();
+		row.appendChild(salesRepLabel.rightAlign());
+		ZKUpdateUtil.setHflex(salesRepSearch.getComponent(), "true");
+		row.appendCellChild(salesRepSearch.getComponent(),1);
+		salesRepSearch.showMenu();
+		
+		row = rows.newRow();
+		
+		row.appendChild(warehouseLabel.rightAlign());
+		ZKUpdateUtil.setHflex(warehouseSearch, "true");
+		row.appendCellChild(warehouseSearch,1);
+		row.appendChild(operationTypePick.getLabel().rightAlign());
+		ZKUpdateUtil.setHflex(operationTypePick.getComponent(), "true");
+		row.appendCellChild(operationTypePick.getComponent(),1);
+		operationTypePick.showMenu();
+		row.appendChild(docTypeLabel.rightAlign());
+		ZKUpdateUtil.setHflex(docTypeSearch, "true");
+		row.appendCellChild(docTypeSearch,1);
+		
+		row = rows.newRow();
+		
+		row.appendChild(docTypeTargetPick.getLabel().rightAlign());
+		ZKUpdateUtil.setHflex(docTypeTargetPick.getComponent(), "true");
+		row.appendCellChild(docTypeTargetPick.getComponent(),1);
+		docTypeTargetPick.showMenu();
+		row.appendChild(invoiceRuleLabel.rightAlign());
+		ZKUpdateUtil.setHflex(invoiceRulePick.getComponent(), "true");
+		row.appendCellChild(invoiceRulePick.getComponent(),1);
+		invoiceRulePick.showMenu();
+		row.appendChild(deliveryRuleLabel.rightAlign());
+		ZKUpdateUtil.setHflex(deliveryRulePick.getComponent(), "true");
+		row.appendCellChild(deliveryRulePick.getComponent(),1);
+		deliveryRulePick.showMenu();
+		
+		row = rows.newRow();
+		
+		row.appendChild(vehicleTypePick.getLabel().rightAlign());
+		ZKUpdateUtil.setHflex(vehicleTypePick.getComponent(), "true");
+		row.appendCellChild(vehicleTypePick.getComponent(),1);
+		vehicleTypePick.showMenu();
+		row.appendChild(labelDateDoc.rightAlign());
+		ZKUpdateUtil.setHflex(dateDocField, "true");
+		row.appendCellChild(dateDocField,1);
+		row.appendChild(labelShipDate.rightAlign());
+		ZKUpdateUtil.setHflex(shipDateField, "true");
+		row.appendCellChild(shipDateField,1);
+		
+		row = rows.newRow();
+		
+		row.appendChild(entryTicketLabel.rightAlign());
+		ZKUpdateUtil.setHflex(entryTicketPick.getComponent(), "true");
+		row.appendCellChild(entryTicketPick.getComponent(),1);
+		entryTicketPick.showMenu();
+		row.appendChild(shipperLabel.rightAlign());
+		ZKUpdateUtil.setHflex(shipperPick.getComponent(), "true");
+		row.appendCellChild(shipperPick.getComponent(),1);
+		shipperPick.showMenu();
+		row.appendChild(driverLabel.rightAlign());
+		ZKUpdateUtil.setHflex(driverSearch, "true");
+		row.appendCellChild(driverSearch,1);
+		
+		row = rows.newRow();
+		
+		row.appendChild(vehicleLabel.rightAlign());
+		ZKUpdateUtil.setHflex(vehicleSearch, "true");
+		row.appendCellChild(vehicleSearch,1);
+		row.appendChild(loadCapacityLabel.rightAlign());
+		ZKUpdateUtil.setHflex(loadCapacityField, "true");
+		row.appendCellChild(loadCapacityField,1);
+		loadCapacityField.setReadonly(true);
+		row.appendChild(volumeCapacityLabel.rightAlign());
+		ZKUpdateUtil.setHflex(volumeCapacityField, "true");
+		row.appendCellChild(volumeCapacityField,1);
+		volumeCapacityField.setReadonly(true);
+		
+		row = rows.newRow();
+		//	Bulk
+		isBulkCheck.setSelected(false);
+		row.appendChild(productLabel.rightAlign());
+		ZKUpdateUtil.setHflex(productSearch.getComponent(), "true");
+		row.appendCellChild(productSearch.getComponent(),1);
+		productSearch.showMenu();
+		productLabel.setVisible(false);
+		productSearch.setVisible(false);
+		row.appendChild(bpartnerLabel.rightAlign());
+		ZKUpdateUtil.setHflex(bpartnerSearch.getComponent(), "true");
+		row.appendCellChild(bpartnerSearch.getComponent(),1);
+		bpartnerSearch.showMenu();
+		bpartnerLabel.setVisible(false);
+		bpartnerSearch.setVisible(false);
+		//	Search
+		row.appendCellChild(new Space());
+		row.appendCellChild(bSearch,1);
+		bSearch.addActionListener(this);
+		
+		if (noOfColumn < 6)		
+			LayoutUtils.compactTo(parameterLayout, noOfColumn);
+		else
+			LayoutUtils.expandTo(parameterLayout, noOfColumn, true);
+		
+		// footer/allocations layout
+		South south = new South();
+		south.setBorder("none");
+		mainLayout.appendChild(south);
+		south.appendChild(allocationPanel);
+		allocationPanel.appendChild(allocationLayout);
+		allocationPanel.appendChild(statusBar);
+		ZKUpdateUtil.setWidth(allocationLayout, "100%");
+		ZKUpdateUtil.setHflex(allocationPanel, "1");
+		ZKUpdateUtil.setVflex(allocationPanel, "min");
+		ZKUpdateUtil.setVflex(allocationLayout, "min");
+		ZKUpdateUtil.setVflex(statusBar, "min");
+		ZKUpdateUtil.setVflex(south, "min");
+		rows = allocationLayout.newRows();
+		row = rows.newRow();
+		row.appendChild(selectAllButton);
+		selectAllButton.setImage("/theme/default/images/Report24.png");
+		
+		if (maxWidth(SMALL_WIDTH-1))
+		{
+			Hbox box = new Hbox();
+			box.setWidth("100%");
+			box.setPack("end");
+			box.appendChild(weightDiffLabel.rightAlign());
+			row.appendCellChild(box);
+		}
+		else
+		{
+			Hlayout box = new Hlayout();
+			box.setStyle("float: right");
+			box.appendChild(weightDiffLabel.rightAlign());
+			row.appendCellChild(box);
+		}
+		ZKUpdateUtil.setHflex(weightDiffField, "true");
+		row.appendCellChild(weightDiffField);
+		weightDiffField.setEnabled(false);
+		if (maxWidth(SMALL_WIDTH-1))
+			row = rows.newRow();
+		row.appendCellChild(volumeDiffLabel.rightAlign());
+		ZKUpdateUtil.setHflex(volumeDiffField, "true");
+		row.appendCellChild(volumeDiffField);
+		volumeDiffField.setEnabled(false);
+		if (maxWidth(SMALL_WIDTH-1))
+		{
+			row = rows.newRow();
+			Hbox box = new Hbox();
+			box.setWidth("100%");
+			box.setPack("end");
+			box.appendChild(gLoadOrderButton);
+			row.appendCellChild(box, 2);
+		}
+		else
+		{
+			Hbox box = new Hbox();
+			box.setPack("end");
+			box.appendChild(gLoadOrderButton);
+			ZKUpdateUtil.setHflex(box, "1");
+			row.appendCellChild(box, 2);
+		}
+	}
+	
+	/***
+	 * Setup parameter columns to Medium or Small width
+	 */
+	protected void setupParameterColumns() {
+		noOfColumn = 6;
+		if (maxWidth(MEDIUM_WIDTH-1))
+		{
+			if (maxWidth(SMALL_WIDTH-1))
+				noOfColumn = 2;
+			else
+				noOfColumn = 4;
+		}
+		if (noOfColumn == 2)
+		{
+			Columns columns = new Columns();
+			Column column = new Column();
+			column.setWidth("35%");
+			columns.appendChild(column);
+			column = new Column();
+			column.setWidth("65%");
+			columns.appendChild(column);
+			parameterLayout.appendChild(columns);
+		}
+	}
+	
+	protected void onClientInfo()
+	{
+		if (ClientInfo.isMobile() && form.getPage() != null) 
+		{
+			if (noOfColumn > 0 && parameterLayout.getRows() != null)
+			{
+				int t = 6;
+				if (maxWidth(MEDIUM_WIDTH-1))
+				{
+					if (maxWidth(SMALL_WIDTH-1))
+						t = 2;
+					else
+						t = 4;
+				}
+				if (t != noOfColumn)
+				{
+					parameterLayout.getRows().detach();
+					if (parameterLayout.getColumns() != null)
+						parameterLayout.getColumns().detach();
+					if (mainLayout.getSouth() != null)
+						mainLayout.getSouth().detach();
+					if (allocationLayout.getRows() != null)
+						allocationLayout.getRows().detach();
+					layoutParameterAndSummary();
+					//form.invalidate();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Called by org.adempiere.webui.panel.ADForm.openForm(int)
+	 * @return
+	 */
+	public ADForm getForm()
+	{
+		return form;
+	}
+
 	/**
 	 * Set Capacity for Weight and Volume
 	 * @return void
@@ -697,8 +854,8 @@ public class WFTULoadOrder extends FTULoadOrder
 		else if(m_C_UOM_Weight_ID == 0)
 			msg = "@C_UOM_Weight_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Volume UOM
-//		else if(m_C_UOM_Volume_ID == 0)
-//			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
+		else if(m_C_UOM_Volume_ID == 0)
+			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Operation Type
 		else if(m_OperationType == null)
 			msg = "@OperationType@ @NotFound@";
@@ -799,10 +956,10 @@ public class WFTULoadOrder extends FTULoadOrder
 			m_FTU_Vehicle_ID =  Integer.parseInt(vehicleSearch.getName());
 		else
 			m_FTU_Vehicle_ID = 0;
-		/*if(docTypeSearch.getName() != null)
+		if(docTypeSearch.getName() != null)
 			m_C_DocType_ID = Integer.parseInt(docTypeSearch.getName());
 		else
-			m_C_DocType_ID = -1;*/
+			m_C_DocType_ID = -1;
 		//	Capacity
 		m_LoadCapacity = new BigDecimal((loadCapacityField.getValue() != null ? loadCapacityField.getValue() : 0));
 		m_VolumeCapacity = new BigDecimal((volumeCapacityField.getValue() != null ? volumeCapacityField.getValue() : 0));
@@ -819,11 +976,11 @@ public class WFTULoadOrder extends FTULoadOrder
 			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@Diferencia de Peso@ (" + m_UOM_Weight_Symbol + ")"));
 		}
 		//	Volume Symbol
-//		if(m_C_UOM_Volume_ID != 0) {
-//			MUOM uom = MUOM.get(Env.getCtx(), m_C_UOM_Volume_ID);
-//			m_UOM_Volume_Symbol = uom.getUOMSymbol();
-//			volumeDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffVolume@ (" + m_UOM_Volume_Symbol + ")"));
-//		}
+		if(m_C_UOM_Volume_ID != 0) {
+			MUOM uom = MUOM.get(Env.getCtx(), m_C_UOM_Volume_ID);
+			m_UOM_Volume_Symbol = uom.getUOMSymbol();
+			volumeDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffVolume@ (" + m_UOM_Volume_Symbol + ")"));
+		}
 	}
 	
 	/**
@@ -841,8 +998,8 @@ public class WFTULoadOrder extends FTULoadOrder
 		else if(m_C_UOM_Weight_ID == 0)
 			msg = "@C_UOM_Weight_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Volume UOM
-//		else if(m_C_UOM_Volume_ID == 0)
-//			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
+		else if(m_C_UOM_Volume_ID == 0)
+			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Operation Type
 		else if(m_OperationType == null)
 			msg = "@OperationType@ @NotFound@";
@@ -1064,7 +1221,13 @@ public class WFTULoadOrder extends FTULoadOrder
 			//	Set Capacity
 			m_M_Shipper_ID = getM_Shipper_ID(m_FTU_EntryTicket_ID);
 			shipperPick.setValue(m_M_Shipper_ID);
-						
+			//	Set Product and BPartner from EntryTicket
+			MFTUEntryTicket et = new MFTUEntryTicket(Env.getCtx(), m_FTU_EntryTicket_ID, null);
+			if(et.getM_Product_ID()>0)
+				productSearch.setValue(et.getM_Product_ID());
+			if(et.getC_BPartner_ID()>0)
+				bpartnerSearch.setValue(et.getC_BPartner_ID());
+
 			setFillCapacity();
 		}
 		calculate();
@@ -1080,14 +1243,13 @@ public class WFTULoadOrder extends FTULoadOrder
 			
 			for (int i = 0; i < rows; i++) {
 				if(!((Boolean)w_orderLineTable.getValueAt(i, SELECT))) {
-					//w_orderLineTable.setValueAt(true, i, SELECT);
+					w_orderLineTable.setValueAt(true, i, SELECT);
 				}else {
 					selected ++;
 				}
 			}
 		for (int x = 0; x < rows; x++) {
-			if (selected < rows) {				
-					
+			if (selected < rows) {
 						w_orderLineTable.setValueAt(true, x, SELECT);
 					}else {
 						w_orderLineTable.setValueAt(false, x, SELECT);
@@ -1136,12 +1298,6 @@ public class WFTULoadOrder extends FTULoadOrder
 	{
 		SessionManager.getAppDesktop().closeActiveWindow();
 	}	//	dispose
-
-
-	@Override
-	public ADForm getForm() {
-		return form;
-	}
 	
 	/**
 	 * Load the Combo Box from ArrayList (Web Version)
@@ -1247,18 +1403,18 @@ public class WFTULoadOrder extends FTULoadOrder
 				//	Valid Quantity onHand from Swing
 				if((dr.getID().equals(X_C_Order.DELIVERYRULE_Availability ) 
 						&& m_IsValidateQuantity)
-							&& qty.setScale(precision, BigDecimal.ROUND_HALF_UP).doubleValue()
+							&& qty.setScale(precision, RoundingMode.HALF_UP).doubleValue()
 							>
-							qtyOnHand.setScale(precision, BigDecimal.ROUND_HALF_UP).doubleValue()) {
+							qtyOnHand.setScale(precision, RoundingMode.HALF_UP).doubleValue()) {
 					//	
 					validError = "@Qty@ > @QtyOnHand@";
 					//	
-				} else if(qty.setScale(precision, BigDecimal.ROUND_HALF_UP).doubleValue() 
+				} else if(qty.setScale(precision, RoundingMode.HALF_UP).doubleValue() 
 						>
 						qtyOrdered
 						.subtract(qtyDelivered)
 						.subtract(qtyOrderLine)
-						.setScale(precision, BigDecimal.ROUND_HALF_UP)
+						.setScale(precision, RoundingMode.HALF_UP)
 						.doubleValue()) {
 					//	
 					validError = "@Qty@ > @QtyOrdered@";
@@ -1272,14 +1428,14 @@ public class WFTULoadOrder extends FTULoadOrder
 					qty = qtyOrdered
 							.subtract(qtyDelivered)
 							.subtract(qtyOrderLine)
-							.setScale(precision, BigDecimal.ROUND_HALF_UP);
+							.setScale(precision, RoundingMode.HALF_UP);
 					//	
-					BigDecimal diff = qtyOnHand.subtract(qty).setScale(precision, BigDecimal.ROUND_HALF_UP);
+					BigDecimal diff = qtyOnHand.subtract(qty).setScale(precision, RoundingMode.HALF_UP);
 					//	Set Quantity
 					if(diff.doubleValue() < 0)
 						qty = qty
 							.subtract(diff.abs())
-							.setScale(precision, BigDecimal.ROUND_HALF_UP);
+							.setScale(precision, RoundingMode.HALF_UP);
 					//	Remove listener
 					w_orderLineTable.getModel().removeTableModelListener(this);
 					//	Set quantity
@@ -1288,10 +1444,10 @@ public class WFTULoadOrder extends FTULoadOrder
 					w_orderLineTable.getModel().addTableModelListener(this);
 				}
 				//	Calculate Weight
-				weight = qty.multiply(unitWeight).setScale(m_WeightPrecision, BigDecimal.ROUND_HALF_UP);
+				weight = qty.multiply(unitWeight).setScale(m_WeightPrecision, RoundingMode.HALF_UP);
 				w_orderLineTable.setValueAt(weight, row, OL_WEIGHT);
 				//	Calculate Volume
-				volume = qty.multiply(unitVolume).setScale(m_VolumePrecision, BigDecimal.ROUND_HALF_UP);
+				volume = qty.multiply(unitVolume).setScale(m_VolumePrecision, RoundingMode.HALF_UP);
 				w_orderLineTable.setValueAt(volume, row, OL_VOLUME);
 				
 				//  Load Stock Product
@@ -1340,7 +1496,7 @@ public class WFTULoadOrder extends FTULoadOrder
 			}
 		}
 		stockTable.setData(stockModel,getStockColumnNames());
-		stockTable.autoSize();
+		//stockTable.autoSize();
 		setStockColumnClass(stockTable);
 	}
 	
@@ -1393,7 +1549,7 @@ public class WFTULoadOrder extends FTULoadOrder
 			stockModel.setValueAt(qtyOnHand
 					.subtract(qtyInTransitOld)
 					.subtract(qtySet)
-					.setScale(2, BigDecimal.ROUND_HALF_UP), pos, SW_QTY_AVAILABLE);
+					.setScale(2, RoundingMode.HALF_UP), pos, SW_QTY_AVAILABLE);
 		} else if(isSelected) {
 			//	Get Quantity in Transit
 			BigDecimal qtyInTransit = getQtyInTransit(product.getKey(), warehouse.getKey());
@@ -1407,7 +1563,7 @@ public class WFTULoadOrder extends FTULoadOrder
 			line.add(qtyOnHand
 					.subtract(qtyInTransit)
 					.subtract(qtySet)
-					.setScale(2, BigDecimal.ROUND_HALF_UP));
+					.setScale(2, RoundingMode.HALF_UP));
 			//	
 			stockModel.add(line);
 		}
@@ -1460,7 +1616,6 @@ public class WFTULoadOrder extends FTULoadOrder
 			public void run(String trxName) {
 				success[0] = generateLoadOrder(trxName, w_orderLineTable);
 				statusBar.setStatusLine(success[0]);
-				
 			}
 		};
 		try
@@ -1485,7 +1640,7 @@ public class WFTULoadOrder extends FTULoadOrder
 				{	//	Print?
 					printDocument();
 				}
-				
+				AEnv.zoom(MFTULoadOrder.Table_ID, m_FTU_LoadOrder.get_ID());
 			}
 		});	
 		
@@ -1499,6 +1654,5 @@ public class WFTULoadOrder extends FTULoadOrder
 		calculate();
 		
 	}   //  saveData
-	
-	
+
 }

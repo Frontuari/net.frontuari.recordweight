@@ -32,7 +32,7 @@ public interface I_FTU_FreightCostLine
     /** TableName=FTU_FreightCostLine */
     public static final String Table_Name = "FTU_FreightCostLine";
 
-    /** AD_Table_ID=1000087 */
+    /** AD_Table_ID=1000492 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -168,6 +168,15 @@ public interface I_FTU_FreightCostLine
 
 	public org.compiere.model.I_C_SalesRegion getC_SalesRegion() throws RuntimeException;
 
+    /** Column name DiscountWeight */
+    public static final String COLUMNNAME_DiscountWeight = "DiscountWeight";
+
+	/** Set Discount Weight	  */
+	public void setDiscountWeight (BigDecimal DiscountWeight);
+
+	/** Get Discount Weight	  */
+	public BigDecimal getDiscountWeight();
+
     /** Column name Factor */
     public static final String COLUMNNAME_Factor = "Factor";
 
@@ -193,10 +202,10 @@ public interface I_FTU_FreightCostLine
     /** Column name FTU_DeliveryRute_ID */
     public static final String COLUMNNAME_FTU_DeliveryRute_ID = "FTU_DeliveryRute_ID";
 
-	/** Set Delivery Rute	  */
+	/** Set FTU_DeliveryRute_ID	  */
 	public void setFTU_DeliveryRute_ID (int FTU_DeliveryRute_ID);
 
-	/** Get Delivery Rute	  */
+	/** Get FTU_DeliveryRute_ID	  */
 	public int getFTU_DeliveryRute_ID();
 
 	public net.frontuari.recordweight.model.I_FTU_DeliveryRute getFTU_DeliveryRute() throws RuntimeException;
@@ -220,6 +229,17 @@ public interface I_FTU_FreightCostLine
 
 	/** Get Bill of Lading Line	  */
 	public int getFTU_FreightCostLine_ID();
+
+    /** Column name FTU_RecordWeight_ID */
+    public static final String COLUMNNAME_FTU_RecordWeight_ID = "FTU_RecordWeight_ID";
+
+	/** Set Record Weight	  */
+	public void setFTU_RecordWeight_ID (int FTU_RecordWeight_ID);
+
+	/** Get Record Weight	  */
+	public int getFTU_RecordWeight_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_RecordWeight getFTU_RecordWeight() throws RuntimeException;
 
     /** Column name M_InOut_ID */
     public static final String COLUMNNAME_M_InOut_ID = "M_InOut_ID";
@@ -297,12 +317,12 @@ public interface I_FTU_FreightCostLine
 	/** Set Max. Value.
 	  * Maximum Value for a field
 	  */
-	public void setValueMax (String ValueMax);
+	public void setValueMax (BigDecimal ValueMax);
 
 	/** Get Max. Value.
 	  * Maximum Value for a field
 	  */
-	public String getValueMax();
+	public BigDecimal getValueMax();
 
     /** Column name ValueMin */
     public static final String COLUMNNAME_ValueMin = "ValueMin";
@@ -310,12 +330,12 @@ public interface I_FTU_FreightCostLine
 	/** Set Min. Value.
 	  * Minimum Value for a field
 	  */
-	public void setValueMin (String ValueMin);
+	public void setValueMin (BigDecimal ValueMin);
 
 	/** Get Min. Value.
 	  * Minimum Value for a field
 	  */
-	public String getValueMin();
+	public BigDecimal getValueMin();
 
     /** Column name Weight */
     public static final String COLUMNNAME_Weight = "Weight";

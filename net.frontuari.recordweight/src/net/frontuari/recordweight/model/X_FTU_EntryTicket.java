@@ -32,7 +32,7 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_EntryTicket (Properties ctx, int FTU_EntryTicket_ID, String trxName)
@@ -519,10 +519,25 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 		return (String)get_Value(COLUMNNAME_FTU_EntryTicket_UU);
 	}
 
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
+	/** Set Land.
+		@param FTU_Land_ID Land
+	*/
+	public void setFTU_Land_ID (int FTU_Land_ID)
 	{
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_ID)
-			.getPO(getFTU_LoadOrder_ID(), get_TrxName());
+		if (FTU_Land_ID < 1)
+			set_Value (COLUMNNAME_FTU_Land_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_Land_ID, Integer.valueOf(FTU_Land_ID));
+	}
+
+	/** Get Land.
+		@return Land	  */
+	public int getFTU_Land_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Land_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Load Order.
@@ -541,6 +556,27 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public int getFTU_LoadOrder_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_LoadOrder_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Lot.
+		@param FTU_Lot_ID Lot
+	*/
+	public void setFTU_Lot_ID (int FTU_Lot_ID)
+	{
+		if (FTU_Lot_ID < 1)
+			set_Value (COLUMNNAME_FTU_Lot_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_Lot_ID, Integer.valueOf(FTU_Lot_ID));
+	}
+
+	/** Get Lot.
+		@return Lot	  */
+	public int getFTU_Lot_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_Lot_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

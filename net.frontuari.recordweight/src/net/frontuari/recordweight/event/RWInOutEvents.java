@@ -1,4 +1,4 @@
-package net.frontuari.recordweight.events;
+package net.frontuari.recordweight.event;
 
 import org.adempiere.base.annotation.EventTopicDelegate;
 import org.adempiere.base.annotation.ModelEventTopic;

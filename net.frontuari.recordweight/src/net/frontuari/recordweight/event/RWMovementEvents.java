@@ -1,4 +1,4 @@
-package net.frontuari.recordweight.events;
+package net.frontuari.recordweight.event;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -11,8 +11,16 @@ import org.adempiere.base.event.annotations.doc.AfterComplete;
 import org.adempiere.base.event.annotations.doc.AfterReverseAccrual;
 import org.adempiere.base.event.annotations.doc.AfterReverseCorrect;
 import org.adempiere.base.event.annotations.doc.AfterVoid;
+import org.adempiere.base.event.annotations.doc.BeforeReverseAccrual;
+import org.adempiere.base.event.annotations.doc.BeforeReverseCorrect;
+import org.adempiere.base.event.annotations.doc.BeforeVoid;
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.I_M_Inventory;
+import org.compiere.model.MInventory;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.Query;
+import org.compiere.model.X_M_Inventory;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.eevolution.model.MDDOrderLine;
@@ -53,6 +61,22 @@ public class RWMovementEvents extends ModelEventDelegate<MMovement> {
 			MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
 			lo.setIsMoved(false);
 			lo.saveEx();
+		}
+	}
+	
+	@BeforeVoid
+	@BeforeReverseCorrect
+	@BeforeReverseAccrual
+	public void onBeforeVRCA() {
+		MMovement mMovement = getModel();
+		MInventory inv = new Query(mMovement.getCtx(), I_M_Inventory.Table_Name, " M_Movement_ID = ? ", mMovement.get_TrxName())
+				.setParameters(mMovement.get_ID())
+				.first();
+		//	Reverse Inventory
+		if(inv != null) {
+			if(!inv.processIt(X_M_Inventory.DOCACTION_Reverse_Correct))
+				throw new AdempiereException(inv.getProcessMsg());
+			inv.saveEx(mMovement.get_TrxName());
 		}
 	}
 	

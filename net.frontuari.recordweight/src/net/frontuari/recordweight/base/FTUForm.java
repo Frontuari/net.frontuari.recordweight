@@ -19,14 +19,13 @@
 package net.frontuari.recordweight.base;
 
 import org.adempiere.webui.panel.ADForm;
+import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.IFormController;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
 
 /**
  * Custom class for forms
  */
-public abstract class FTUForm extends ADForm implements IFormController, EventListener<Event> {
+public abstract class FTUForm extends CustomForm implements IFormController {
 
 	private static final long serialVersionUID = 1393259812994414770L;
 

@@ -34,7 +34,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230709L;
 
     /** Standard Constructor */
     public X_HRS_Analysis (Properties ctx, int HRS_Analysis_ID, String trxName)
@@ -450,6 +450,28 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return false;
 	}
 
+	/** Set Complete Percent.
+		@param IsCompletePercent Complete Percent
+	*/
+	public void setIsCompletePercent (boolean IsCompletePercent)
+	{
+		set_Value (COLUMNNAME_IsCompletePercent, Boolean.valueOf(IsCompletePercent));
+	}
+
+	/** Get Complete Percent.
+		@return Complete Percent	  */
+	public boolean isCompletePercent()
+	{
+		Object oo = get_Value(COLUMNNAME_IsCompletePercent);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Set Manufactured.
 		@param IsManufactured This product is manufactured
 	*/
@@ -493,62 +515,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 			return "Y".equals(oo);
 		}
 		return false;
-	}
-
-	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
-	{
-		return (org.compiere.model.I_M_InOut)MTable.get(getCtx(), org.compiere.model.I_M_InOut.Table_ID)
-			.getPO(getM_InOut_ID(), get_TrxName());
-	}
-
-	/** Set Shipment/Receipt.
-		@param M_InOut_ID Material Shipment Document
-	*/
-	public void setM_InOut_ID (int M_InOut_ID)
-	{
-		if (M_InOut_ID < 1)
-			set_Value (COLUMNNAME_M_InOut_ID, null);
-		else
-			set_Value (COLUMNNAME_M_InOut_ID, Integer.valueOf(M_InOut_ID));
-	}
-
-	/** Get Shipment/Receipt.
-		@return Material Shipment Document
-	  */
-	public int getM_InOut_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOut_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
-	{
-		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_ID)
-			.getPO(getM_InOutLine_ID(), get_TrxName());
-	}
-
-	/** Set Shipment/Receipt Line.
-		@param M_InOutLine_ID Line on Shipment or Receipt document
-	*/
-	public void setM_InOutLine_ID (int M_InOutLine_ID)
-	{
-		if (M_InOutLine_ID < 1)
-			set_Value (COLUMNNAME_M_InOutLine_ID, null);
-		else
-			set_Value (COLUMNNAME_M_InOutLine_ID, Integer.valueOf(M_InOutLine_ID));
-	}
-
-	/** Get Shipment/Receipt Line.
-		@return Line on Shipment or Receipt document
-	  */
-	public int getM_InOutLine_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOutLine_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
 	}
 
 	public I_M_Locator getM_Locator() throws RuntimeException
@@ -602,34 +568,6 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public int getM_Product_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Product_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
-	{
-		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_ID)
-			.getPO(getM_Warehouse_ID(), get_TrxName());
-	}
-
-	/** Set Warehouse.
-		@param M_Warehouse_ID Storage Warehouse and Service Point
-	*/
-	public void setM_Warehouse_ID (int M_Warehouse_ID)
-	{
-		if (M_Warehouse_ID < 1)
-			set_Value (COLUMNNAME_M_Warehouse_ID, null);
-		else
-			set_Value (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
-	}
-
-	/** Get Warehouse.
-		@return Storage Warehouse and Service Point
-	  */
-	public int getM_Warehouse_ID()
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

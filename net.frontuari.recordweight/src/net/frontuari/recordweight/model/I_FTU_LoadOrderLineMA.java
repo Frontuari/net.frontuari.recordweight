@@ -32,7 +32,7 @@ public interface I_FTU_LoadOrderLineMA
     /** TableName=FTU_LoadOrderLineMA */
     public static final String Table_Name = "FTU_LoadOrderLineMA";
 
-    /** AD_Table_ID=1000093 */
+    /** AD_Table_ID=1000486 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -101,8 +101,6 @@ public interface I_FTU_LoadOrderLineMA
 
 	/** Get Load Order Line	  */
 	public int getFTU_LoadOrderLine_ID();
-
-	public net.frontuari.recordweight.model.I_FTU_LoadOrderLine getFTU_LoadOrderLine() throws RuntimeException;
 
     /** Column name FTU_LoadOrderLineMA_UU */
     public static final String COLUMNNAME_FTU_LoadOrderLineMA_UU = "FTU_LoadOrderLineMA_UU";

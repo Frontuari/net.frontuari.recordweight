@@ -32,7 +32,7 @@ public interface I_HRS_AnalysisValuation
     /** TableName=HRS_AnalysisValuation */
     public static final String Table_Name = "HRS_AnalysisValuation";
 
-    /** AD_Table_ID=1000114 */
+    /** AD_Table_ID=1000506 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -100,8 +100,6 @@ public interface I_HRS_AnalysisValuation
 	/** Get Analysis	  */
 	public int getHRS_Analysis_ID();
 
-	public net.frontuari.recordweight.model.I_HRS_Analysis getHRS_Analysis() throws RuntimeException;
-
     /** Column name HRS_AnalysisValuation_ID */
     public static final String COLUMNNAME_HRS_AnalysisValuation_ID = "HRS_AnalysisValuation_ID";
 
@@ -120,6 +118,15 @@ public interface I_HRS_AnalysisValuation
 	/** Get HRS_AnalysisValuation_UU	  */
 	public String getHRS_AnalysisValuation_UU();
 
+    /** Column name HumanResult */
+    public static final String COLUMNNAME_HumanResult = "HumanResult";
+
+	/** Set Human Result	  */
+	public void setHumanResult (String HumanResult);
+
+	/** Get Human Result	  */
+	public String getHumanResult();
+
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
 
@@ -133,23 +140,36 @@ public interface I_HRS_AnalysisValuation
 	  */
 	public boolean isActive();
 
-    /** Column name Result_Human */
-    public static final String COLUMNNAME_Result_Human = "Result_Human";
+    /** Column name IsInvoiced */
+    public static final String COLUMNNAME_IsInvoiced = "IsInvoiced";
 
-	/** Set Result Human	  */
-	public void setResult_Human (String Result_Human);
+	/** Set Invoiced.
+	  * Is this invoiced?
+	  */
+	public void setIsInvoiced (boolean IsInvoiced);
 
-	/** Get Result Human	  */
-	public String getResult_Human();
+	/** Get Invoiced.
+	  * Is this invoiced?
+	  */
+	public boolean isInvoiced();
 
-    /** Column name Result_System */
-    public static final String COLUMNNAME_Result_System = "Result_System";
+    /** Column name QualitativeResult */
+    public static final String COLUMNNAME_QualitativeResult = "QualitativeResult";
 
-	/** Set Result System	  */
-	public void setResult_System (String Result_System);
+	/** Set QualitativeResult	  */
+	public void setQualitativeResult (String QualitativeResult);
 
-	/** Get Result System	  */
-	public String getResult_System();
+	/** Get QualitativeResult	  */
+	public String getQualitativeResult();
+
+    /** Column name SystemResult */
+    public static final String COLUMNNAME_SystemResult = "SystemResult";
+
+	/** Set System Result	  */
+	public void setSystemResult (String SystemResult);
+
+	/** Get System Result	  */
+	public String getSystemResult();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

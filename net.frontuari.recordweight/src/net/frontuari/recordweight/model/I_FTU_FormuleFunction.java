@@ -32,7 +32,7 @@ public interface I_FTU_FormuleFunction
     /** TableName=FTU_FormuleFunction */
     public static final String Table_Name = "FTU_FormuleFunction";
 
-    /** AD_Table_ID=1000110 */
+    /** AD_Table_ID=1000479 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);

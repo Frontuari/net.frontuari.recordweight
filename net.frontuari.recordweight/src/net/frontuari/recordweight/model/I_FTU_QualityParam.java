@@ -32,7 +32,7 @@ public interface I_FTU_QualityParam
     /** TableName=FTU_QualityParam */
     public static final String Table_Name = "FTU_QualityParam";
 
-    /** AD_Table_ID=1000111 */
+    /** AD_Table_ID=1000480 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -208,6 +208,33 @@ public interface I_FTU_QualityParam
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name isQualitativeAnalysis */
+    public static final String COLUMNNAME_isQualitativeAnalysis = "isQualitativeAnalysis";
+
+	/** Set isQualitativeAnalysis	  */
+	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis);
+
+	/** Get isQualitativeAnalysis	  */
+	public boolean isQualitativeAnalysis();
+
+    /** Column name IsQualityDiscount */
+    public static final String COLUMNNAME_IsQualityDiscount = "IsQualityDiscount";
+
+	/** Set Quality Discount	  */
+	public void setIsQualityDiscount (boolean IsQualityDiscount);
+
+	/** Get Quality Discount	  */
+	public boolean isQualityDiscount();
+
+    /** Column name IsUsedFor */
+    public static final String COLUMNNAME_IsUsedFor = "IsUsedFor";
+
+	/** Set Used for	  */
+	public void setIsUsedFor (String IsUsedFor);
+
+	/** Get Used for	  */
+	public String getIsUsedFor();
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";

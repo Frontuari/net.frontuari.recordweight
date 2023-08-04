@@ -34,7 +34,7 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230602L;
+	private static final long serialVersionUID = 20230725L;
 
     /** Standard Constructor */
     public X_FTU_MobilizationGuide (Properties ctx, int FTU_MobilizationGuide_ID, String trxName)
@@ -320,12 +320,6 @@ public class X_FTU_MobilizationGuide extends PO implements I_FTU_MobilizationGui
 	public String getDocumentNo()
 	{
 		return (String)get_Value(COLUMNNAME_DocumentNo);
-	}
-
-	public net.frontuari.recordweight.model.I_FTU_LoadOrder getFTU_LoadOrder() throws RuntimeException
-	{
-		return (net.frontuari.recordweight.model.I_FTU_LoadOrder)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LoadOrder.Table_ID)
-			.getPO(getFTU_LoadOrder_ID(), get_TrxName());
 	}
 
 	/** Set Load Order.
