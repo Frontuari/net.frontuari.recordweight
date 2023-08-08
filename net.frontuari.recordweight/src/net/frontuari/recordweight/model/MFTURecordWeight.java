@@ -1327,7 +1327,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					throw new AdempiereException(m_Current_Movement.getProcessMsg());
 				m_Current_Movement.saveEx();
 				if(getFTU_WeightApprovalMotive_ID()>0)
-					createLossInventory(m_Current_Movement, (X_FTU_WeightApprovalMotive)getFTU_WeightApprovalMotive());
+					if(getFTU_WeightApprovalMotive().isGenerateLoss())
+						createLossInventory(m_Current_Movement, (X_FTU_WeightApprovalMotive)getFTU_WeightApprovalMotive());
 			}
 		}
 	}
