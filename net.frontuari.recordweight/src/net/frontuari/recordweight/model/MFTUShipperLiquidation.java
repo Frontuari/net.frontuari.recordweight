@@ -202,13 +202,13 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			return DocAction.STATUS_Invalid;
 		}
 		//	Delete Deductions
-		deleteDeduction();
+		deleteDeduction(get_TrxName());
 		//	Get Deductions of CxP
-		createDeduction();
+		createDeduction(get_TrxName());
 		//	Get Inventory of CxC
-		createInventory();
+		createInventory(get_TrxName());
 		//	Get PrePayments
-		createPrepayments();
+		createPrepayments(get_TrxName());
 		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
@@ -323,7 +323,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			}
 			addDescription(Msg.getMsg(getCtx(), "Voided"));
 			//	Delete Deductions
-			deleteDeduction();
+			deleteDeduction(get_TrxName());
 		}
 		else
 		{
@@ -435,7 +435,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		MPeriod.testPeriodOpen(getCtx(), getDateTrx(), getC_DocType_ID(), getAD_Org_ID());
 
 		//	Delete Deductions
-		deleteDeduction();
+		deleteDeduction(get_TrxName());
 		
 		// After reActivate
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
@@ -606,19 +606,21 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	/****
 	 * Create Deduction of API
 	 */
-	private void createDeduction() {
+	private void createDeduction(String trxName) {
 		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'N' "
 				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'APC') "
 				+ "AND invoiceopen(C_Invoice_ID,0) < 0 "
 				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND DeductionType='01')";
-		List<MInvoice> list = new Query(getCtx(), MInvoice.Table_Name, whereClause, get_TrxName())
+		List<MInvoice> list = new Query(getCtx(), MInvoice.Table_Name, whereClause, trxName)
 				.setParameters(getM_Shipper_ID())
 				.setOrderBy("DateInvoiced,DocumentNo")
 				.list();
 		if(list.size()>0) {
 			MInvoice[] invoices = list.toArray(new MInvoice[list.size()]);
 			for(MInvoice i : invoices) {
-				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(this);
+				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(getCtx(),0,trxName);
+				d.setAD_Org_ID(getAD_Org_ID());
+				d.setFTU_ShipperLiquidation_ID(get_ID());
 				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_DeductionByAP);
 				d.setC_Invoice_ID(i.get_ID());
 				d.setDescription(i.getDocumentInfo());
@@ -628,7 +630,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 				if(grandTotal==null)
 					grandTotal = BigDecimal.ZERO;
 				d.setAmount(grandTotal);
-				d.saveEx();
+				d.saveEx(trxName);
 			}
 		}
 	}
@@ -636,23 +638,25 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	/****
 	 * Create Inventory of CxC
 	 */
-	private void createInventory() {
+	private void createInventory(String trxName) {
 		String whereClause = "M_Shipper_ID = ? AND DocStatus = 'CO' AND IsInternal = 'Y' "
 				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'MMI' AND DocSubTypeInv = 'IU') "
 				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.M_Inventory_ID = M_Inventory.M_Inventory_ID AND DeductionType = '02') ";
-		List<MInventory> list = new Query(getCtx(), MInventory.Table_Name, whereClause, get_TrxName())
+		List<MInventory> list = new Query(getCtx(), MInventory.Table_Name, whereClause, trxName)
 				.setParameters(getM_Shipper_ID())
 				.setOrderBy("MovementDate,DocumentNo")
 				.list();
 		if(list.size()>0) {
 			MInventory[] invoices = list.toArray(new MInventory[list.size()]);
 			for(MInventory i : invoices) {
-				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(this);
+				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(getCtx(),0,trxName);
+				d.setAD_Org_ID(getAD_Org_ID());
+				d.setFTU_ShipperLiquidation_ID(get_ID());
 				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_DeductionByAC);
 				d.setM_Inventory_ID(i.get_ID());
 				d.setDescription(i.getDocumentInfo());
 				d.setAmount(getInventoryCost(i.get_ID(),getC_Currency_ID(),get_TrxName()));
-				d.saveEx();
+				d.saveEx(trxName);
 			}
 		}
 	}
@@ -660,7 +664,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	/****
 	 * Create Prepayments
 	 */
-	private void createPrepayments() {
+	private void createPrepayments(String trxName) {
 		String sql = "SELECT C_Payment_ID,DocumentNo,DateTrx,paymentavailable(C_Payment_ID) * -1 AS Prepayment,C_Currency_ID "
 				+ "FROM C_Payment "
 				+ "WHERE C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsReceipt = 'N' "
@@ -671,11 +675,13 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			pstmt = DB.prepareStatement(sql, get_TrxName());
+			pstmt = DB.prepareStatement(sql, trxName);
 			pstmt.setInt(1, getM_Shipper_ID());
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
-				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(this);
+				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(getCtx(),0,trxName);
+				d.setAD_Org_ID(getAD_Org_ID());
+				d.setFTU_ShipperLiquidation_ID(get_ID());
 				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_PrePayments);
 				d.setC_Payment_ID(rs.getInt(1));
 				d.setDescription(rs.getString(2)+" - "+rs.getTimestamp(3));
@@ -685,7 +691,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 				if(grandTotal==null)
 					grandTotal = BigDecimal.ZERO;
 				d.setAmount(grandTotal);
-				d.saveEx();
+				d.saveEx(trxName);
 			}
 		}catch (Exception e) {
 			setProcessMessage("Error al crear los anticipos: "+e.getLocalizedMessage());
@@ -695,16 +701,16 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		}		
 	}
 	
-	public void deleteDeduction() {
+	public void deleteDeduction(String trxName) {
 		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NULL";
-		List<MFTUShipperLiquidationLine> list = new Query(getCtx(), MFTUShipperLiquidationLine.Table_Name, whereClauseFinal, get_TrxName())
+		List<MFTUShipperLiquidationLine> list = new Query(getCtx(), MFTUShipperLiquidationLine.Table_Name, whereClauseFinal, trxName)
 										.setParameters(getFTU_ShipperLiquidation_ID())
 										.setOrderBy("FTU_SLLine_ID")
 										.list();		
 		if(list.size()>0) {
 			MFTUShipperLiquidationLine[] deductions = list.toArray(new MFTUShipperLiquidationLine[list.size()]);
 			for(MFTUShipperLiquidationLine line : deductions)
-				line.deleteEx(true);
+				line.deleteEx(true,trxName);
 		}
 	}
 	
