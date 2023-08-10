@@ -724,13 +724,13 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	private BigDecimal getInventoryCost(int InventoryID, int CurrencyID, String trxName) {
 		BigDecimal costs = BigDecimal.ZERO;
 		
-		String sql = "SELECT SUM(CurrentCostPrice) FROM M_CostDetail cd "
+		String sql = "SELECT SUM(cd.CurrentCostPrice) FROM M_CostDetail cd "
 				+ "JOIN M_InventoryLine il ON (cd.M_InventoryLine_ID = il.M_InventoryLine_ID) "
 				+ "JOIN C_AcctSchema a ON (cd.C_AcctSchema_ID = a.C_AcctSchema_ID) "
 				+ "WHERE il.M_Inventory_ID = ? AND a.C_Currency_ID = ?";
 		
 		costs = DB.getSQLValueBD(trxName, sql, new Object[] {InventoryID,CurrencyID});
-		if(costs.compareTo(BigDecimal.ZERO) == 0)
+		if(costs ==null)
 			costs = BigDecimal.ZERO;
 		
 		return costs;
