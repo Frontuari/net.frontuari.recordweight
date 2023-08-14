@@ -410,7 +410,11 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	X_FTU_QualityParam qp = new X_FTU_QualityParam(getCtx(), idCampo, get_TrxName());
         	if(qp.get_ID()>0) {
         		contenidoFormula = qp.getCode().toLowerCase();
-            	code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
+        		contenidoFormula = replaceBasicCode(contenidoFormula,qp.isQualitativeAnalysis());
+        		if(qp.isQualitativeAnalysis())
+        			code=code.replaceAll("F"+idCampo,contenidoFormula);
+        		else
+        			code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
         	}
         }
 		
@@ -452,30 +456,31 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				//	Execute Code
 				String result ;
 				if (isQualitativeAnalysis) {
-				result = code;	
+					result = code;
 				}else {
-				String sqlCode = "SELECT ("+code+") AS result";
-				result = DB.getSQLValueString(get_TrxName(), sqlCode);
+					String sqlCode = "SELECT ("+code+") AS result";
+					result = DB.getSQLValueString(get_TrxName(), sqlCode);
 				}
 				if(result!=null) {
 					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
+					String SysResult = "";
 					if (!isQualitativeAnalysis) {
-					lcr.setHumanResult(result.toUpperCase());
+						lcr.setHumanResult(result.toUpperCase());
+						SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					}else {
 						lcr.setQualitativeResult(result.toUpperCase());
 						lcr.setHumanResult("0");
+						SysResult = "Aceptar";
 					}
-					String SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					lcr.setSystemResult(SysResult);
 					lcr.saveEx();
 				}
 			}
-		}catch(Exception e)
-		{
-			throw new AdempiereException(e.getLocalizedMessage());
+		}catch(Exception e){
+			throw new AdempiereException(e.getMessage());
 		}finally {
 			DB.close(rs, pst);
 			rs = null;
