@@ -169,6 +169,21 @@ public interface I_FTU_QualityParam
 
 	public net.frontuari.recordweight.model.I_FTU_QualityParam getFTU_Parent() throws RuntimeException;
 
+    /** Column name FTU_ProductAnalysis_ID */
+    public static final String COLUMNNAME_FTU_ProductAnalysis_ID = "FTU_ProductAnalysis_ID";
+
+	/** Set Product Analysis.
+	  * Product Analysis
+	  */
+	public void setFTU_ProductAnalysis_ID (int FTU_ProductAnalysis_ID);
+
+	/** Get Product Analysis.
+	  * Product Analysis
+	  */
+	public int getFTU_ProductAnalysis_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_ProductAnalysis getFTU_ProductAnalysis() throws RuntimeException;
+
     /** Column name FTU_QualityParam_ID */
     public static final String COLUMNNAME_FTU_QualityParam_ID = "FTU_QualityParam_ID";
 
@@ -227,6 +242,15 @@ public interface I_FTU_QualityParam
 	/** Get Quality Discount	  */
 	public boolean isQualityDiscount();
 
+    /** Column name IsShowReport */
+    public static final String COLUMNNAME_IsShowReport = "IsShowReport";
+
+	/** Set Show In Report	  */
+	public void setIsShowReport (boolean IsShowReport);
+
+	/** Get Show In Report	  */
+	public boolean isShowReport();
+
     /** Column name IsUsedFor */
     public static final String COLUMNNAME_IsUsedFor = "IsUsedFor";
 
@@ -264,6 +288,15 @@ public interface I_FTU_QualityParam
 	  */
 	public String getName();
 
+    /** Column name ReferenceValue */
+    public static final String COLUMNNAME_ReferenceValue = "ReferenceValue";
+
+	/** Set Reference Value	  */
+	public void setReferenceValue (String ReferenceValue);
+
+	/** Get Reference Value	  */
+	public String getReferenceValue();
+
     /** Column name Result */
     public static final String COLUMNNAME_Result = "Result";
 
@@ -276,6 +309,21 @@ public interface I_FTU_QualityParam
 	  * Result of the action taken
 	  */
 	public String getResult();
+
+    /** Column name SeqNo */
+    public static final String COLUMNNAME_SeqNo = "SeqNo";
+
+	/** Set Sequence.
+	  * Method of ordering records;
+ lowest number comes first
+	  */
+	public void setSeqNo (int SeqNo);
+
+	/** Get Sequence.
+	  * Method of ordering records;
+ lowest number comes first
+	  */
+	public int getSeqNo();
 
     /** Column name TranslateCode */
     public static final String COLUMNNAME_TranslateCode = "TranslateCode";

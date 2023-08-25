@@ -34,7 +34,7 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230709L;
+	private static final long serialVersionUID = 20230825L;
 
     /** Standard Constructor */
     public X_HRS_Analysis (Properties ctx, int HRS_Analysis_ID, String trxName)
@@ -360,6 +360,62 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return ii.intValue();
 	}
 
+	public net.frontuari.recordweight.model.I_FTU_LocationQuality getFTU_LocationQuality() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_LocationQuality)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_LocationQuality.Table_ID)
+			.getPO(getFTU_LocationQuality_ID(), get_TrxName());
+	}
+
+	/** Set Location Quality.
+		@param FTU_LocationQuality_ID Location Quality
+	*/
+	public void setFTU_LocationQuality_ID (int FTU_LocationQuality_ID)
+	{
+		if (FTU_LocationQuality_ID < 1)
+			set_Value (COLUMNNAME_FTU_LocationQuality_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_LocationQuality_ID, Integer.valueOf(FTU_LocationQuality_ID));
+	}
+
+	/** Get Location Quality.
+		@return Location Quality
+	  */
+	public int getFTU_LocationQuality_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_LocationQuality_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public net.frontuari.recordweight.model.I_FTU_ProductAnalysis getFTU_ProductAnalysis() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_ProductAnalysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_ProductAnalysis.Table_ID)
+			.getPO(getFTU_ProductAnalysis_ID(), get_TrxName());
+	}
+
+	/** Set Product Analysis.
+		@param FTU_ProductAnalysis_ID Product Analysis
+	*/
+	public void setFTU_ProductAnalysis_ID (int FTU_ProductAnalysis_ID)
+	{
+		if (FTU_ProductAnalysis_ID < 1)
+			set_Value (COLUMNNAME_FTU_ProductAnalysis_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_ProductAnalysis_ID, Integer.valueOf(FTU_ProductAnalysis_ID));
+	}
+
+	/** Get Product Analysis.
+		@return Product Analysis
+	  */
+	public int getFTU_ProductAnalysis_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_ProductAnalysis_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Generate Document.
 		@param GenerateDoc Process generate document
 	*/
@@ -517,6 +573,62 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 		return false;
 	}
 
+	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_InOut)MTable.get(getCtx(), org.compiere.model.I_M_InOut.Table_ID)
+			.getPO(getM_InOut_ID(), get_TrxName());
+	}
+
+	/** Set Shipment/Receipt.
+		@param M_InOut_ID Material Shipment Document
+	*/
+	public void setM_InOut_ID (int M_InOut_ID)
+	{
+		if (M_InOut_ID < 1)
+			set_Value (COLUMNNAME_M_InOut_ID, null);
+		else
+			set_Value (COLUMNNAME_M_InOut_ID, Integer.valueOf(M_InOut_ID));
+	}
+
+	/** Get Shipment/Receipt.
+		@return Material Shipment Document
+	  */
+	public int getM_InOut_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOut_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_InOutLine)MTable.get(getCtx(), org.compiere.model.I_M_InOutLine.Table_ID)
+			.getPO(getM_InOutLine_ID(), get_TrxName());
+	}
+
+	/** Set Shipment/Receipt Line.
+		@param M_InOutLine_ID Line on Shipment or Receipt document
+	*/
+	public void setM_InOutLine_ID (int M_InOutLine_ID)
+	{
+		if (M_InOutLine_ID < 1)
+			set_Value (COLUMNNAME_M_InOutLine_ID, null);
+		else
+			set_Value (COLUMNNAME_M_InOutLine_ID, Integer.valueOf(M_InOutLine_ID));
+	}
+
+	/** Get Shipment/Receipt Line.
+		@return Line on Shipment or Receipt document
+	  */
+	public int getM_InOutLine_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_InOutLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public I_M_Locator getM_Locator() throws RuntimeException
 	{
 		return (I_M_Locator)MTable.get(getCtx(), I_M_Locator.Table_ID)
@@ -568,6 +680,62 @@ public class X_HRS_Analysis extends PO implements I_HRS_Analysis, I_Persistent
 	public int getM_Product_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_M_Product_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Production getM_Production() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_Production)MTable.get(getCtx(), org.compiere.model.I_M_Production.Table_ID)
+			.getPO(getM_Production_ID(), get_TrxName());
+	}
+
+	/** Set Production.
+		@param M_Production_ID Plan for producing a product
+	*/
+	public void setM_Production_ID (int M_Production_ID)
+	{
+		if (M_Production_ID < 1)
+			set_Value (COLUMNNAME_M_Production_ID, null);
+		else
+			set_Value (COLUMNNAME_M_Production_ID, Integer.valueOf(M_Production_ID));
+	}
+
+	/** Get Production.
+		@return Plan for producing a product
+	  */
+	public int getM_Production_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Production_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_Warehouse)MTable.get(getCtx(), org.compiere.model.I_M_Warehouse.Table_ID)
+			.getPO(getM_Warehouse_ID(), get_TrxName());
+	}
+
+	/** Set Warehouse.
+		@param M_Warehouse_ID Storage Warehouse and Service Point
+	*/
+	public void setM_Warehouse_ID (int M_Warehouse_ID)
+	{
+		if (M_Warehouse_ID < 1)
+			set_Value (COLUMNNAME_M_Warehouse_ID, null);
+		else
+			set_Value (COLUMNNAME_M_Warehouse_ID, Integer.valueOf(M_Warehouse_ID));
+	}
+
+	/** Get Warehouse.
+		@return Storage Warehouse and Service Point
+	  */
+	public int getM_Warehouse_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Warehouse_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

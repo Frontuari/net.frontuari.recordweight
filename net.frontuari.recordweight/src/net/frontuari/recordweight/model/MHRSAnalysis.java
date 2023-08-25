@@ -431,15 +431,17 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
 		String sql="SELECT qp.FTU_QualityParam_ID,Name,Code "
-				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y' "
-				+ "AND qp.IsUsedFor IN (?,?) ";
+				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.FTU_ProductAnalysis_ID = ? AND qp.IsActive = 'Y' "
+				+ "AND qp.IsUsedFor IN (?,?) "
+				+ "ORDER BY qp.SeqNo ASC";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
 			pst = DB.prepareStatement(sql, get_TrxName());
 			pst.setInt(1, getM_Product_ID());
-			pst.setString(2, type);
-			pst.setString(3, X_FTU_QualityParam.ISUSEDFOR_Both);
+			pst.setInt(2, getFTU_ProductAnalysis_ID());
+			pst.setString(3, type);
+			pst.setString(4, X_FTU_QualityParam.ISUSEDFOR_Both);
 			rs = pst.executeQuery();
 			while(rs.next())
 			{

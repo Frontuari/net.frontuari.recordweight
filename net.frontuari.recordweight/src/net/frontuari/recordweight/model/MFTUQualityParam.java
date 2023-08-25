@@ -37,6 +37,7 @@ public class MFTUQualityParam extends X_FTU_QualityParam {
 		
 		List<MFTUQualityParam> list = new Query(Env.getCtx(), I_FTU_QualityParam.Table_Name, whereClauseFinal.toString(), null)
 				.setParameters(Product_ID)
+				.setOrderBy(I_FTU_QualityParam.COLUMNNAME_SeqNo)
 				.list();
 		lines = list.toArray(new MFTUQualityParam[list.size()]);
 		
