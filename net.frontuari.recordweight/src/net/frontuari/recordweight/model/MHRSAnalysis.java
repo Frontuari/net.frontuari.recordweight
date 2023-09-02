@@ -113,8 +113,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		if (referenceNo != null)
 		{
 			MFTUEntryTicket entryTicket = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
-			return "@SQLErrorReferenced@ @FTU_EntryTicket_ID@ " + entryTicket.getDocumentNo()
-					+ " @Generate@ @from@ @HRS_Analisys_ID@ " + referenceNo;
+			return Msg.getMsg(getCtx(), "SQLErrorReferenced")+" "+Msg.translate(getCtx(), "FTU_EntryTicket_ID")+" "+entryTicket.getDocumentNo()+" "
+					+ Msg.getMsg(getCtx(), "Generate")+" "+Msg.getMsg(getCtx(), "from")+" "+Msg.translate(getCtx(), "HRS_Analisys_ID")+" " + referenceNo;
 		}
 		
 		return null;
@@ -488,6 +488,21 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			rs = null;
 			pst = null;
 		}
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		boolean success = true;
+		if(newRecord || is_ValueChanged(COLUMNNAME_FTU_EntryTicket_ID)) {
+			if(getFTU_EntryTicket_ID()>0) {
+				m_processMsg = validateETReferenceDuplicated();
+				if(m_processMsg!=null) {
+					log.saveError("Error", m_processMsg);
+					success = false;
+				}
+			}
+		}
+		return success;
 	}
 
 	@Override

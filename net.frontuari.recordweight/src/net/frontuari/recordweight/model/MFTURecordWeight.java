@@ -845,7 +845,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				continue;
 			}
 			mInOut.setDocAction(X_M_InOut.DOCACTION_Reverse_Correct);
-			mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct);
+			if(!mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct))
+				return mInOut.getProcessMsg();
 			mInOut.saveEx();
 		}
 		//
@@ -1583,8 +1584,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				ioLine.setM_AttributeSetInstance_ID(line.getM_AttributeSetInstance_ID());
 			//added by david castillo 18/07/2023 
 			if (product.getM_AttributeSet_ID()>0 && !(ioLine.getM_AttributeSetInstance_ID()>0)) {
-			MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
-			ioLine.setM_AttributeSetInstance_ID(inst.getM_AttributeSetInstance_ID());
+				MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
+				inst.saveEx(get_TrxName());
+				ioLine.setM_AttributeSetInstance_ID(inst.getM_AttributeSetInstance_ID());
 			}
 			// Set Quantity
 			ioLine.setQty(m_MovementQty);
