@@ -125,8 +125,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				p_DocAction = (String) para.getParameter();
 			else if (name.equals("IsGenerateDocument"))
 				p_IsGenerateDocument = (String) para.getParameter();
-			else if (name.equals("IsGenerateDocument"))
-				p_IsGenerateDocument = (String) para.getParameter();
 			else if (name.equals("C_Currency_ID"))
 				p_C_Currency_ID = para.getParameterAsInt();
 			else if (name.equals("C_ConversionType_ID"))
@@ -678,7 +676,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 			
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
-			
+			p_C_DocTypeInv_ID = order.getC_DocTypeTarget().getC_DocTypeInvoice_ID();
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
 				addLog(" La orden " + order.getDocumentNo() + " Está Anulada/Reversada/Cerrada");
 				continue;
@@ -864,7 +862,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				//	End Jorge Colmenarez
 				if (priceActual != null) {
 					if (product.get_ValueAsBoolean("isBulk")) {
-						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
+						invoiceLine.setPriceActual(priceActual);	
 					}else {
 						invoiceLine.setPriceActual(priceActual);
 					}
