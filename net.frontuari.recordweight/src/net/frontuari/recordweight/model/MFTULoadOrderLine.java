@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.compiere.model.MProduct;
 import org.compiere.model.MStorageOnHand;
@@ -24,7 +25,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 	/** Parent					*/
 	protected MFTULoadOrder	m_parent = null;
 	
-	private CLogger log = CLogger.getCLogger(MFTULoadOrderLine.class);
+	private static CLogger log = CLogger.getCLogger(MFTULoadOrderLine.class);
 	
 	/**
 	 * 	Get Parent
@@ -353,11 +354,12 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 				pstmt.setInt(2, M_Product_ID);
 				if (M_AttributeSetInstance_ID > 0)
 				pstmt.setInt(3, M_AttributeSetInstance_ID);
+				log.log(Level.SEVERE, pstmt.toString());
 				rs = pstmt.executeQuery();
 				while (rs.next())
 				{
 					BigDecimal QtyOnHand = rs.getBigDecimal(2);
-					
+					log.log(Level.SEVERE,QtyOnHand.toString() );
 					QtyOnHand = QtyOnHand.subtract(getReservedforLoadOrder(rs.getInt(1),M_Warehouse_ID,M_Product_ID,M_AttributeSetInstance_ID,trxName,FTU_LoadOrder_ID));
 					if (QtyOnHand != null && Qty.compareTo(QtyOnHand) <= 0)
 					{
@@ -392,18 +394,21 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 				+ " AND lol.M_Product_ID = ? "
 				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
 				//	Support for filter by Warehouse and not the same loadOrder
-				+ " AND lo.M_Warehouse_ID = ?";
+				+ " AND lo.M_Warehouse_ID = ?"
+				//ssuport david castillo checking the same locator
+		        + " AND lol.M_Locator_ID = ? ";
 		if(M_AttributeSetInstance_ID==0)
 			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+FTU_LoadOrder_ID;
 		else 
 			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
 		
+		log.log(Level.SEVERE,sql+" - " + M_Product_ID+ " - " + M_Warehouse_ID + " - " + M_AttributeSetInstance_ID);
 		reservedForLoadOrder = DB.getSQLValueBD(trxName, sql, 
-				new Object[] {M_Product_ID,M_Warehouse_ID,M_AttributeSetInstance_ID});
+				new Object[] {M_Product_ID,M_Warehouse_ID,M_Locator_ID,M_AttributeSetInstance_ID});
 				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
-		
+		log.log(Level.SEVERE, reservedForLoadOrder.toString());
 		return reservedForLoadOrder;
 	}
 

@@ -1327,14 +1327,16 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ " AND lol.M_Product_ID = ? "
 				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
 				//	Support for filter by Warehouse and not the same loadOrder
-				+ " AND lo.M_Warehouse_ID = ?";
+				+ " AND lo.M_Warehouse_ID = ?"
+				//we add locator
+				+ " AND lol.M_Locator_ID = ?";
 		if(storage.getM_AttributeSetInstance_ID()==0)
 			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
 		else 
 			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
-				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_AttributeSetInstance_ID()});
+				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_Locator_ID(),storage.getM_AttributeSetInstance_ID()});
 				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;
