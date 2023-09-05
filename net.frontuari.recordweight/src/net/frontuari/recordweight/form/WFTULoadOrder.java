@@ -1028,7 +1028,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		if(msg == null) {
 			msg = validStock(stockTable);
 		}
-		//	
+		
 		if(msg != null) {
 			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
 			calculate();
