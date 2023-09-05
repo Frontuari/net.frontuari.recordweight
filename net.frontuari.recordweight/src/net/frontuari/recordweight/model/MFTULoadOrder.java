@@ -1257,6 +1257,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			BigDecimal qtyToDeliver = qty;
 			BigDecimal available = BigDecimal.ZERO;
 			BigDecimal reserved = BigDecimal.ZERO;
+			BigDecimal CumulatedReserved = BigDecimal.ZERO;
 			for (MStorageOnHand storage: storages)
 			{
 				boolean observacion = false;
@@ -1275,12 +1276,15 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				}
 				//	End Jorge Colmenarez
 				reserved = getReservedforLoadOrder(storage);
-				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved);
+				reserved = reserved.subtract(CumulatedReserved);
+				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved+" CANT. RESERVADA ACUMULADA: "+CumulatedReserved);
 				available = storage.getQtyOnHand().subtract(reserved);
-				log.log(Level.SEVERE, "iNVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
+				log.log(Level.SEVERE, "INVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
 				log.log(Level.SEVERE, "CANTIDAD DISPONIBLE = " + available);
-				if(available.compareTo(BigDecimal.ZERO) <= 0)
+				if(available.compareTo(BigDecimal.ZERO) <= 0) {
+					CumulatedReserved = CumulatedReserved.add(storage.getQtyOnHand());
 					continue;
+				}
 				if (available.compareTo(qtyToDeliver) >= 0)
 				{
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,

@@ -1173,10 +1173,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 								m_MovementLine.setScrappedQty(getDifferenceQty().abs());
 						}
 						else {
-							if(getOriginNetWeight().compareTo(getNetWeight())<0)
-								m_MovementLine.setMovementQty(getOriginNetWeight());
-							else
-								m_MovementLine.setMovementQty(getNetWeight());
+							m_MovementLine.setMovementQty(getOriginNetWeight());
+							BigDecimal diff = getOriginNetWeight().subtract(getNetWeight());
+							log.warning("Differencia Translado: "+diff);
+							if(diff.compareTo(BigDecimal.ZERO)>0){
+								m_MovementLine.setScrappedQty(diff.abs());
+							}
 						}
 					}
 					else {
