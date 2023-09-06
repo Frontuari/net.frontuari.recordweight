@@ -201,6 +201,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			m_processMsg = "No Document Type";
 			return DocAction.STATUS_Invalid;
 		}
+		
+		if (get_ValueAsBoolean("isPrepayment")) {
 		//	Delete Deductions
 		deleteDeduction(get_TrxName());
 		//	Get Deductions of CxP
@@ -209,7 +211,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		createInventory(get_TrxName());
 		//	Get PrePayments
 		createPrepayments(get_TrxName());
-		
+		}
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
