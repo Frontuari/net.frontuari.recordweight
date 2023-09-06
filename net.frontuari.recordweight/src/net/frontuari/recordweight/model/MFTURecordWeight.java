@@ -1168,9 +1168,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						if(getDifferenceQty().compareTo(BigDecimal.ZERO)<0) {
 							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
-							m_MovementLine.setMovementQty(getNetWeight());
-							if(realDiff.compareTo(BigDecimal.ZERO)<0)
-								m_MovementLine.setScrappedQty(getDifferenceQty().abs());
+							m_MovementLine.setMovementQty(getOriginNetWeight());
+							m_MovementLine.setScrappedQty(getDifferenceQty().abs());
 						}
 						else {
 							m_MovementLine.setMovementQty(getOriginNetWeight());
@@ -1329,9 +1328,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				if (!m_Current_Movement.processIt(X_M_Movement.DOCACTION_Complete))
 					throw new AdempiereException(m_Current_Movement.getProcessMsg());
 				m_Current_Movement.saveEx();
-				if(getFTU_WeightApprovalMotive_ID()>0)
+				if(getFTU_WeightApprovalMotive_ID()>0) {
 					if(getFTU_WeightApprovalMotive().isGenerateLoss())
 						createLossInventory(m_Current_Movement, (X_FTU_WeightApprovalMotive)getFTU_WeightApprovalMotive());
+				}else {
+					String sql = "SELECT FTU_WeightApprovalMotive_ID FROM FTU_WeightApprovalMotive WHERE IsDefault = 'Y' and IsActive = 'Y' AND "
+							+ "AD_Client_ID = " + getAD_Client_ID();
+					int ID = DB.getSQLValue(get_TrxName(), sql);
+					
+					if (ID>0){
+						X_FTU_WeightApprovalMotive motive = new X_FTU_WeightApprovalMotive(p_ctx, ID, get_TrxName());
+						if (motive.isGenerateLoss())
+							createLossInventory(m_Current_Movement, motive);
+					}
+					
+				}
 			}
 		}
 	}
