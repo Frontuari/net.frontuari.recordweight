@@ -875,6 +875,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			mMovement.setDocAction(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.processIt(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.saveEx();
+			return mMovement.getProcessMsg();
+			
 		}
 		//
 		return null;
@@ -908,7 +910,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			mMovement.setDocAction(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.processIt(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.saveEx();
-		}
+			
+			return mMovement.getProcessMsg();
+			}
 		//
 		return null;
 	}

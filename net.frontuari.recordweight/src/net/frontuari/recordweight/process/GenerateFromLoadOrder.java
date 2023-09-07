@@ -692,7 +692,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			String sql = "SELECT 1 "
 					+ "FROM C_Invoice "
 					+ "INNER JOIN C_InvoiceLine ON (C_Invoice.C_Invoice_ID = C_InvoiceLine.C_Invoice_ID) "
-					+ "WHERE C_InvoiceLine.C_OrderLine_ID = ? AND DocStatus IN('CO','CL') ";
+					+ "INNER JOIN C_OrderLine ON (C_InvoiceLine.C_OrderLine_ID = C_OrderLine.C_OrderLine_ID) "
+					+ "WHERE C_InvoiceLine.C_OrderLine_ID = ? AND DocStatus IN('CO','CL') AND C_OrderLine.QtyOrdered <= C_OrderLine.QtyInvoiced ";
 			boolean isInvoicedLine = DB.getSQLValue(get_TrxName(), sql, orderLine.getC_OrderLine_ID()) == 1;
 			if(isInvoicedLine) {
 				continue;
