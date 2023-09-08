@@ -1241,6 +1241,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		{
 			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
 			line.setM_Warehouse_ID(getM_Warehouse_ID());
+			log.log(Level.SEVERE, "almacen : " + line.getM_Warehouse_ID());
 			line.setM_Locator_ID(line.getQty());	//	default Locator
 			needSave = true;
 		}

@@ -329,6 +329,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 			String trxName, int FTU_LoadOrder_ID)
 		{
 		
+		log.log(Level.SEVERE, "almacen :" +M_Warehouse_ID + " - producto - " + M_Product_ID );
 			int M_Locator_ID = 0;
 			int firstM_Locator_ID = 0;
 			String sql = "SELECT s.M_Locator_ID, s.QtyOnHand "

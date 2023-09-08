@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MAttributeSet;
@@ -303,11 +304,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 			BigDecimal oNetWeight = getOriginNetWeight();
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
+			DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
 			if(difference.compareTo(maxtolerance.negate()) == -1)
 			{
 				//	Added by Jorge Colmenarez, 2021-11-04 14:53
 				//	Support for write QtyDifference
-				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
 				//	End Jorge Colmenarez
 				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = ["+maxtolerance+"] se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
@@ -733,6 +734,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (m_processMsg != null)
 				return false;
 		}
+		// Add support for reactivate Movement
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)) {
+			// Reverse Movement
+			m_processMsg = reverseInputMovement();
+			if (m_processMsg != null)
+				return false;
+		}
 		
 		//	Added by Jorge Colmenarez, 2021-06-07 15:37
 		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts))
@@ -845,8 +853,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				continue;
 			}
 			mInOut.setDocAction(X_M_InOut.DOCACTION_Reverse_Correct);
-			if(!mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct))
-				return mInOut.getProcessMsg();
+			if(!mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct)) {
+				return "ERROR REVERSANDO DOCUMENTO RELACIONADO : " +mInOut.getDocumentNo();
+			}
 			mInOut.saveEx();
 		}
 		//
@@ -861,6 +870,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	private String reverseInputMovement() {
 		// List
+		log.log(Level.SEVERE, "reverseInputMovement");
 		List<MMovement> lists = new Query(getCtx(), MMovement.Table_Name,
 				"FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')", get_TrxName())
 						.setParameters(getFTU_RecordWeight_ID()).setOrderBy("DocStatus").list();
@@ -874,6 +884,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			mMovement.set_ValueOfColumn("FTU_RecordWeight_ID", null);
 			mMovement.setDocAction(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.processIt(X_M_Movement.DOCACTION_Reverse_Correct);
+		    log.log(Level.SEVERE, "mensaje proceso:" + mMovement.getProcessMsg());
+			
+			
 			mMovement.saveEx();
 			return mMovement.getProcessMsg();
 			
@@ -890,6 +903,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	private String reverseMovement() {
 		// List
+		log.log(Level.SEVERE, m_processMsg);
 		MFTULoadOrder m_FTULoadOrder = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
 		List<MMovement> lists = new Query(getCtx(), MMovement.Table_Name,
 				"FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')", get_TrxName())
