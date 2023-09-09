@@ -1242,7 +1242,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
 			line.setM_Warehouse_ID(getM_Warehouse_ID());
 			log.log(Level.SEVERE, "almacen : " + line.getM_Warehouse_ID());
-			line.setM_Locator_ID(line.getQty());	//	default Locator
+			//line.setM_Locator_ID(line.getQty());	//	default Locator
 			needSave = true;
 		}
 
@@ -1254,7 +1254,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			// Create consume the Attribute Set Instance using policy FIFO/LIFO
 			String MMPolicy = product.getMMPolicy();
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
-					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
+					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, 0, get_TrxName(), false, 0);
 			BigDecimal qtyToDeliver = qty;
 			BigDecimal available = BigDecimal.ZERO;
 			BigDecimal reserved = BigDecimal.ZERO;
@@ -1291,6 +1291,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
 							qtyToDeliver,storage.getDateMaterialPolicy(),true);
+					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
 					ma.saveEx();
 					qtyToDeliver = Env.ZERO;
 				}
@@ -1299,6 +1300,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
 							available,storage.getDateMaterialPolicy(),true);
+					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
+				
 					ma.saveEx();
 					qtyToDeliver = qtyToDeliver.subtract(available);
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
