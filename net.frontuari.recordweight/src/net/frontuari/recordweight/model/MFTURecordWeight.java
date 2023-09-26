@@ -309,7 +309,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 			BigDecimal oNetWeight = getOriginNetWeight();
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
+			//	Modified by Jorge Colmenarez, 2023-09-26 16:21
+			//	Support for set DifferenceQty
+			setDifferenceQty(difference);
+			saveEx();
+			//DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
+			//	End Jorge Colmenarez
 			if(difference.compareTo(maxtolerance.negate()) == -1)
 			{
 				//	Added by Jorge Colmenarez, 2021-11-04 14:53
