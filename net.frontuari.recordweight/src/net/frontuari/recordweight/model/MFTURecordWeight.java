@@ -1387,17 +1387,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				continue;
 			//	Create Inventory Header
 			if(inv == null) {
-				inv = new MInventory((MWarehouse)line.getM_Locator().getM_Warehouse(), m_Current_Movement.get_TrxName());
+				inv = new MInventory((MWarehouse)line.getM_LocatorTo().getM_Warehouse(), m_Current_Movement.get_TrxName());
 				inv.setC_DocType_ID(wam.getC_DocTypeInventory_ID());
 				inv.setMovementDate(m_Current_Movement.getMovementDate());
-				inv.setDescription("Creado por ajuste de merma en traslado desde: "+line.getM_Locator().getValue()+" Documento Nro:"+m_Current_Movement.getDocumentNo());
+				inv.setDescription("Creado por ajuste de merma en traslado desde: "+line.getM_LocatorTo().getValue()+" Documento Nro:"+m_Current_Movement.getDocumentNo());
 				inv.set_ValueOfColumn("M_Movement_ID", m_Current_Movement.get_ID());
 				inv.setDocStatus(DOCSTATUS_Drafted);
 				inv.setDocAction(DOCACTION_Complete);
 				inv.saveEx(get_TrxName());
 			}
 			//	Create Lines
-			MInventoryLine il = new MInventoryLine(inv, line.getM_Locator_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), null, null, line.getScrappedQty());
+			MInventoryLine il = new MInventoryLine(inv, line.getM_LocatorTo_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), null, null, line.getScrappedQty());
 			il.setC_Charge_ID(wam.getC_Charge_ID());
 			il.saveEx(get_TrxName());
 		}
