@@ -201,6 +201,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			m_processMsg = "No Document Type";
 			return DocAction.STATUS_Invalid;
 		}
+		
+		if (get_ValueAsBoolean("isPrepayment")) {
 		//	Delete Deductions
 		deleteDeduction(get_TrxName());
 		//	Get Deductions of CxP
@@ -209,7 +211,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		createInventory(get_TrxName());
 		//	Get PrePayments
 		createPrepayments(get_TrxName());
-		
+		}
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
@@ -610,7 +612,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'N' "
 				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'APC') "
 				+ "AND invoiceopen(C_Invoice_ID,0) < 0 "
-				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND DeductionType='01')";
+				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
+				+ "WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND FTU_SLLine.DeductionType='01' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO'))";
 		List<MInvoice> list = new Query(getCtx(), MInvoice.Table_Name, whereClause, trxName)
 				.setParameters(getM_Shipper_ID())
 				.setOrderBy("DateInvoiced,DocumentNo")
@@ -641,7 +644,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	private void createInventory(String trxName) {
 		String whereClause = "M_Shipper_ID = ? AND DocStatus = 'CO' AND IsInternal = 'Y' "
 				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'MMI' AND DocSubTypeInv = 'IU') "
-				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.M_Inventory_ID = M_Inventory.M_Inventory_ID AND DeductionType = '02') ";
+				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
+				+ "WHERE FTU_SLLine.M_Inventory_ID = M_Inventory.M_Inventory_ID AND FTU_SLLine.DeductionType = '02' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO')) ";
 		List<MInventory> list = new Query(getCtx(), MInventory.Table_Name, whereClause, trxName)
 				.setParameters(getM_Shipper_ID())
 				.setOrderBy("MovementDate,DocumentNo")
@@ -669,7 +673,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 				+ "FROM C_Payment "
 				+ "WHERE C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsReceipt = 'N' "
 				+ "AND paymentavailable(C_Payment_ID) < 0 "
-				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine WHERE FTU_SLLine.C_Payment_ID = C_Payment.C_Payment_ID AND DeductionType = '03') "
+				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
+				+ "WHERE FTU_SLLine.C_Payment_ID = C_Payment.C_Payment_ID AND FTU_SLLine.DeductionType = '03' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO')) "
 				+ "ORDER BY DateTrx,DocumentNo ";
 		
 		PreparedStatement pstmt = null;
@@ -724,13 +729,13 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	private BigDecimal getInventoryCost(int InventoryID, int CurrencyID, String trxName) {
 		BigDecimal costs = BigDecimal.ZERO;
 		
-		String sql = "SELECT SUM(CurrentCostPrice) FROM M_CostDetail cd "
+		String sql = "SELECT SUM(cd.CurrentCostPrice) FROM M_CostDetail cd "
 				+ "JOIN M_InventoryLine il ON (cd.M_InventoryLine_ID = il.M_InventoryLine_ID) "
 				+ "JOIN C_AcctSchema a ON (cd.C_AcctSchema_ID = a.C_AcctSchema_ID) "
 				+ "WHERE il.M_Inventory_ID = ? AND a.C_Currency_ID = ?";
 		
 		costs = DB.getSQLValueBD(trxName, sql, new Object[] {InventoryID,CurrencyID});
-		if(costs.compareTo(BigDecimal.ZERO) == 0)
+		if(costs ==null)
 			costs = BigDecimal.ZERO;
 		
 		return costs;

@@ -366,7 +366,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ "LEFT JOIN DD_OrderLine dol ON(dol.DD_OrderLine_ID = lol.DD_OrderLine_ID) "
 				+ "LEFT JOIN (SELECT lc.FTU_LoadOrderLine_ID, COALESCE(lc.C_OrderLine_ID, lc.DD_OrderLine_ID) OrderLine_ID, "
 				+ "	st.M_Product_ID, (p.Value || '-' || p.Name) ProductName, l.M_Warehouse_ID, "
-				+ "	COALESCE(st.M_AttributeSetInstance_ID, 0) M_AttributeSetInstance_ID, SUM(st.QtyOnHand) as QtyOnHand,  "
+				+ "	SUM(st.QtyOnHand) as QtyOnHand,  "
 				+ "	AVG(COALESCE(CASE WHEN( (c.IsDelivered = 'N' AND c.OperationType IN('DBM', 'DFP', 'DMP')) "
 				+ "	OR (c.IsMoved = 'N' AND c.OperationType = 'MOM') ) AND c.DocStatus = 'CO' "
 				+ "		THEN lc.Qty ELSE 0 END, 0)) QtyLoc "
@@ -375,10 +375,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ "	INNER JOIN M_Locator l ON(l.M_Locator_ID = st.M_Locator_ID) "
 				+ "	LEFT JOIN FTU_LoadOrderLine lc ON(lc.M_Product_ID = st.M_Product_ID AND lc.M_warehouse_ID = l.M_Warehouse_ID) "
 				+ "	LEFT JOIN FTU_LoadOrder c ON(c.FTU_LoadOrder_ID = lc.FTU_LoadOrder_ID) "
-				+ "	group by 1,2,3,4,5,6 ) "
+				+ "	group by 1,2,3,4,5 ) "
 				+ "		s ON(s.M_Product_ID = lol.M_Product_ID "
 				+ "				AND s.M_Warehouse_ID = lol.M_Warehouse_ID "
-				+ "				AND COALESCE(ol.M_AttributeSetInstance_ID, dol.M_AttributeSetInstance_ID, 0) IN (s.M_AttributeSetInstance_ID, 0)"
 				+ "				AND s.OrderLine_ID = COALESCE(lol.C_OrderLine_ID,lol.DD_OrderLine_ID)) "
 				+ "WHERE lo.FTU_LoadOrder_ID = ? "
 				+ "GROUP BY lol.SeqNo, s.ProductName, lol.Qty, ol.QtyOrdered, dol.QtyOrdered, "
@@ -1241,7 +1240,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		{
 			//MWarehouse w = MWarehouse.get(getCtx(), getM_Warehouse_ID());
 			line.setM_Warehouse_ID(getM_Warehouse_ID());
-			line.setM_Locator_ID(line.getQty());	//	default Locator
+			log.log(Level.SEVERE, "almacen : " + line.getM_Warehouse_ID());
+			//line.setM_Locator_ID(line.getQty());	//	default Locator
 			needSave = true;
 		}
 
@@ -1253,10 +1253,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			// Create consume the Attribute Set Instance using policy FIFO/LIFO
 			String MMPolicy = product.getMMPolicy();
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
-					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, line.getM_Locator_ID(), get_TrxName(), false, 0);
+					null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, 0, get_TrxName(), false, 0);
 			BigDecimal qtyToDeliver = qty;
 			BigDecimal available = BigDecimal.ZERO;
 			BigDecimal reserved = BigDecimal.ZERO;
+			BigDecimal CumulatedReserved = BigDecimal.ZERO;
 			for (MStorageOnHand storage: storages)
 			{
 				boolean observacion = false;
@@ -1275,17 +1276,21 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				}
 				//	End Jorge Colmenarez
 				reserved = getReservedforLoadOrder(storage);
-				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved);
+				reserved = reserved.subtract(CumulatedReserved);
+				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved+" CANT. RESERVADA ACUMULADA: "+CumulatedReserved);
 				available = storage.getQtyOnHand().subtract(reserved);
-				log.log(Level.SEVERE, "iNVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
+				log.log(Level.SEVERE, "INVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
 				log.log(Level.SEVERE, "CANTIDAD DISPONIBLE = " + available);
-				if(available.compareTo(BigDecimal.ZERO) <= 0)
+				if(available.compareTo(BigDecimal.ZERO) <= 0) {
+					CumulatedReserved = CumulatedReserved.add(storage.getQtyOnHand());
 					continue;
+				}
 				if (available.compareTo(qtyToDeliver) >= 0)
 				{
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
 							qtyToDeliver,storage.getDateMaterialPolicy(),true);
+					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
 					ma.saveEx();
 					qtyToDeliver = Env.ZERO;
 				}
@@ -1294,6 +1299,8 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					MFTULoadOrderLineMA ma = new MFTULoadOrderLineMA (line,
 							storage.getM_AttributeSetInstance_ID(),
 							available,storage.getDateMaterialPolicy(),true);
+					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
+				
 					ma.saveEx();
 					qtyToDeliver = qtyToDeliver.subtract(available);
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
@@ -1323,14 +1330,16 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				+ " AND lol.M_Product_ID = ? "
 				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
 				//	Support for filter by Warehouse and not the same loadOrder
-				+ " AND lo.M_Warehouse_ID = ?";
+				+ " AND lo.M_Warehouse_ID = ?"
+				//we add locator
+				+ " AND lol.M_Locator_ID = ?";
 		if(storage.getM_AttributeSetInstance_ID()==0)
 			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
 		else 
 			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
-				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_AttributeSetInstance_ID()});
+				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_Locator_ID(),storage.getM_AttributeSetInstance_ID()});
 				//	End Jorge Colmenarez
 		if(reservedForLoadOrder == null)
 			reservedForLoadOrder = BigDecimal.ZERO;

@@ -125,8 +125,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				p_DocAction = (String) para.getParameter();
 			else if (name.equals("IsGenerateDocument"))
 				p_IsGenerateDocument = (String) para.getParameter();
-			else if (name.equals("IsGenerateDocument"))
-				p_IsGenerateDocument = (String) para.getParameter();
 			else if (name.equals("C_Currency_ID"))
 				p_C_Currency_ID = para.getParameterAsInt();
 			else if (name.equals("C_ConversionType_ID"))
@@ -678,7 +676,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 			
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
-			
+			p_C_DocTypeInv_ID = order.getC_DocTypeTarget().getC_DocTypeInvoice_ID();
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
 				addLog(" La orden " + order.getDocumentNo() + " Está Anulada/Reversada/Cerrada");
 				continue;
@@ -694,7 +692,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			String sql = "SELECT 1 "
 					+ "FROM C_Invoice "
 					+ "INNER JOIN C_InvoiceLine ON (C_Invoice.C_Invoice_ID = C_InvoiceLine.C_Invoice_ID) "
-					+ "WHERE C_InvoiceLine.C_OrderLine_ID = ? AND DocStatus IN('CO','CL') ";
+					+ "INNER JOIN C_OrderLine ON (C_InvoiceLine.C_OrderLine_ID = C_OrderLine.C_OrderLine_ID) "
+					+ "WHERE C_InvoiceLine.C_OrderLine_ID = ? AND DocStatus IN('CO','CL') AND C_OrderLine.QtyOrdered <= C_OrderLine.QtyInvoiced ";
 			boolean isInvoicedLine = DB.getSQLValue(get_TrxName(), sql, orderLine.getC_OrderLine_ID()) == 1;
 			if(isInvoicedLine) {
 				continue;
@@ -864,7 +863,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				//	End Jorge Colmenarez
 				if (priceActual != null) {
 					if (product.get_ValueAsBoolean("isBulk")) {
-						invoiceLine.setPriceActual(priceActual.divide(rateWeight,2, RoundingMode.HALF_UP));	
+						invoiceLine.setPriceActual(priceActual);	
 					}else {
 						invoiceLine.setPriceActual(priceActual);
 					}

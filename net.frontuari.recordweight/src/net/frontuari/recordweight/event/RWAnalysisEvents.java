@@ -32,7 +32,7 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 	public void onAfterNew() {
 		MHRSAnalysis a = getModel();
 		String AnalysisType = (a.isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
-		createAnalysisLine(AnalysisType,a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
+		createAnalysisLine(AnalysisType,a.get_ID(),a.getFTU_ProductAnalysis_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
 	}
 	
 	@AfterChange
@@ -46,7 +46,7 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 			//	Delete last analysis lines
 			DB.executeUpdate("DELETE FROM HRS_AnalysisLine WHERE HRS_Analysis_ID = ?", a.get_ID(), a.get_TrxName());
 			String AnalysisType = (a.isManufactured() ? X_FTU_QualityParam.ISUSEDFOR_LaboratoryAnalysis : X_FTU_QualityParam.ISUSEDFOR_QualityAnalysis);
-			createAnalysisLine(AnalysisType,a.get_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
+			createAnalysisLine(AnalysisType,a.get_ID(),a.getFTU_ProductAnalysis_ID(),a.getM_Product_ID(),a.getAnalysis_ID(),a.getCtx(),a.get_TrxName());
 		}
 	}
 	
@@ -57,8 +57,8 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 	 * @param LoteID
 	 * @param trxName
 	 */
-	private void createAnalysisLine(String AnalysisType,int AnalysisID, int ProductID, int LotID, Properties ctx, String trxName) {
-		MFTUQualityParam[] qparams = MFTUQualityParam.getLines(ProductID, " AND FTU_AnalysisType_ID IS NOT NULL AND IsUsedFor IN ('"+AnalysisType+"','BO') ");
+	private void createAnalysisLine(String AnalysisType,int AnalysisID, int ProductAnalysisID, int ProductID, int LotID, Properties ctx, String trxName) {
+		MFTUQualityParam[] qparams = MFTUQualityParam.getLines(ProductID, " AND FTU_ProductAnalysis_ID = "+ProductAnalysisID+" AND FTU_AnalysisType_ID IS NOT NULL AND IsUsedFor IN ('"+AnalysisType+"','BO') ");
 		if(qparams == null || qparams.length <= 0)
 			return;
 		//	Create Lines from Quality Params

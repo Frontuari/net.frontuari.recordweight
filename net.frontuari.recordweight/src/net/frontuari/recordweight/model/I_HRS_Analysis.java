@@ -210,6 +210,36 @@ public interface I_HRS_Analysis
 	/** Get Entry Ticket	  */
 	public int getFTU_EntryTicket_ID();
 
+    /** Column name FTU_LocationQuality_ID */
+    public static final String COLUMNNAME_FTU_LocationQuality_ID = "FTU_LocationQuality_ID";
+
+	/** Set Location Quality.
+	  * Location Quality
+	  */
+	public void setFTU_LocationQuality_ID (int FTU_LocationQuality_ID);
+
+	/** Get Location Quality.
+	  * Location Quality
+	  */
+	public int getFTU_LocationQuality_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_LocationQuality getFTU_LocationQuality() throws RuntimeException;
+
+    /** Column name FTU_ProductAnalysis_ID */
+    public static final String COLUMNNAME_FTU_ProductAnalysis_ID = "FTU_ProductAnalysis_ID";
+
+	/** Set Product Analysis.
+	  * Product Analysis
+	  */
+	public void setFTU_ProductAnalysis_ID (int FTU_ProductAnalysis_ID);
+
+	/** Get Product Analysis.
+	  * Product Analysis
+	  */
+	public int getFTU_ProductAnalysis_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_ProductAnalysis getFTU_ProductAnalysis() throws RuntimeException;
+
     /** Column name GenerateDoc */
     public static final String COLUMNNAME_GenerateDoc = "GenerateDoc";
 
@@ -307,6 +337,36 @@ public interface I_HRS_Analysis
 	/** Get IsValidAnalysis	  */
 	public boolean isValidAnalysis();
 
+    /** Column name M_InOut_ID */
+    public static final String COLUMNNAME_M_InOut_ID = "M_InOut_ID";
+
+	/** Set Shipment/Receipt.
+	  * Material Shipment Document
+	  */
+	public void setM_InOut_ID (int M_InOut_ID);
+
+	/** Get Shipment/Receipt.
+	  * Material Shipment Document
+	  */
+	public int getM_InOut_ID();
+
+	public org.compiere.model.I_M_InOut getM_InOut() throws RuntimeException;
+
+    /** Column name M_InOutLine_ID */
+    public static final String COLUMNNAME_M_InOutLine_ID = "M_InOutLine_ID";
+
+	/** Set Shipment/Receipt Line.
+	  * Line on Shipment or Receipt document
+	  */
+	public void setM_InOutLine_ID (int M_InOutLine_ID);
+
+	/** Get Shipment/Receipt Line.
+	  * Line on Shipment or Receipt document
+	  */
+	public int getM_InOutLine_ID();
+
+	public org.compiere.model.I_M_InOutLine getM_InOutLine() throws RuntimeException;
+
     /** Column name M_Locator_ID */
     public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
 
@@ -336,6 +396,36 @@ public interface I_HRS_Analysis
 	public int getM_Product_ID();
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
+
+    /** Column name M_Production_ID */
+    public static final String COLUMNNAME_M_Production_ID = "M_Production_ID";
+
+	/** Set Production.
+	  * Plan for producing a product
+	  */
+	public void setM_Production_ID (int M_Production_ID);
+
+	/** Get Production.
+	  * Plan for producing a product
+	  */
+	public int getM_Production_ID();
+
+	public org.compiere.model.I_M_Production getM_Production() throws RuntimeException;
+
+    /** Column name M_Warehouse_ID */
+    public static final String COLUMNNAME_M_Warehouse_ID = "M_Warehouse_ID";
+
+	/** Set Warehouse.
+	  * Storage Warehouse and Service Point
+	  */
+	public void setM_Warehouse_ID (int M_Warehouse_ID);
+
+	/** Get Warehouse.
+	  * Storage Warehouse and Service Point
+	  */
+	public int getM_Warehouse_ID();
+
+	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException;
 
     /** Column name OperationType */
     public static final String COLUMNNAME_OperationType = "OperationType";

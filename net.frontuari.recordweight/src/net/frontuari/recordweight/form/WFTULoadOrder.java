@@ -973,7 +973,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		if(m_C_UOM_Weight_ID != 0) {
 			MUOM uom = MUOM.get(Env.getCtx(), m_C_UOM_Weight_ID);
 			m_UOM_Weight_Symbol = uom.getUOMSymbol();
-			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@Diferencia de Peso@ (" + m_UOM_Weight_Symbol + ")"));
+			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffWeight@ (" + m_UOM_Weight_Symbol + ")"));
 		}
 		//	Volume Symbol
 		if(m_C_UOM_Volume_ID != 0) {
@@ -1025,10 +1025,10 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				msg = "@Volume@ > @VolumeCapacity@";
 		}
 		//	Valid Message
-		if(msg == null) {
+		/*if(msg == null) {
 			msg = validStock(stockTable);
-		}
-		//	
+		}*/
+		
 		if(msg != null) {
 			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
 			calculate();

@@ -6,14 +6,18 @@ package net.frontuari.recordweight.model;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MAttributeSetInstance;
+import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
@@ -25,6 +29,7 @@ import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
+import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
@@ -41,6 +46,7 @@ import org.compiere.process.DocumentEngine;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Msg;
+import org.compiere.util.Util;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
 /**
@@ -298,16 +304,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		//	End Jorge Colmenarez
 		//	Added By Jorge Colmenarez, 2023-07-15 13:57 Support to validate on MaterialInputMovement
-		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement) && !isApproved())
+		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement))
 		{
 			BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 			BigDecimal oNetWeight = getOriginNetWeight();
 			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(maxtolerance.negate()) == -1)
+			//	Modified by Jorge Colmenarez, 2023-09-26 16:21
+			//	Support for set DifferenceQty
+			setDifferenceQty(difference);
+			saveEx();
+			//DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
+			//	End Jorge Colmenarez
+			if(difference.compareTo(maxtolerance.negate()) == -1 && !isApproved())
 			{
 				//	Added by Jorge Colmenarez, 2021-11-04 14:53
 				//	Support for write QtyDifference
-				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
 				//	End Jorge Colmenarez
 				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la capacidad de carga ["+oNetWeight+"], diferencia= "+difference+", tolerancia = ["+maxtolerance+"] se requiere una autorizacion.";
 				return DocAction.STATUS_WaitingConfirmation;
@@ -733,6 +744,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			if (m_processMsg != null)
 				return false;
 		}
+		// Add support for reactivate Movement
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)) {
+			// Reverse Movement
+			m_processMsg = reverseInputMovement();
+			if (m_processMsg != null)
+				return false;
+		}
 		
 		//	Added by Jorge Colmenarez, 2021-06-07 15:37
 		if(getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts))
@@ -845,7 +863,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				continue;
 			}
 			mInOut.setDocAction(X_M_InOut.DOCACTION_Reverse_Correct);
-			mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct);
+			if(!mInOut.processIt(X_M_InOut.DOCACTION_Reverse_Correct)) {
+				return "ERROR REVERSANDO DOCUMENTO RELACIONADO : " +mInOut.getDocumentNo();
+			}
 			mInOut.saveEx();
 		}
 		//
@@ -860,6 +880,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	private String reverseInputMovement() {
 		// List
+		log.log(Level.SEVERE, "reverseInputMovement");
 		List<MMovement> lists = new Query(getCtx(), MMovement.Table_Name,
 				"FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')", get_TrxName())
 						.setParameters(getFTU_RecordWeight_ID()).setOrderBy("DocStatus").list();
@@ -873,7 +894,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			mMovement.set_ValueOfColumn("FTU_RecordWeight_ID", null);
 			mMovement.setDocAction(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.processIt(X_M_Movement.DOCACTION_Reverse_Correct);
+		    log.log(Level.SEVERE, "mensaje proceso:" + mMovement.getProcessMsg());
+			
+			
 			mMovement.saveEx();
+			return mMovement.getProcessMsg();
+			
 		}
 		//
 		return null;
@@ -887,6 +913,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 */
 	private String reverseMovement() {
 		// List
+		log.log(Level.SEVERE, m_processMsg);
 		MFTULoadOrder m_FTULoadOrder = new MFTULoadOrder(getCtx(), getFTU_LoadOrder_ID(), get_TrxName());
 		List<MMovement> lists = new Query(getCtx(), MMovement.Table_Name,
 				"FTU_RecordWeight_ID = ? AND DocStatus IN ('CO','CL')", get_TrxName())
@@ -907,7 +934,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			mMovement.setDocAction(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.processIt(X_M_Movement.DOCACTION_Reverse_Correct);
 			mMovement.saveEx();
-		}
+			
+			return mMovement.getProcessMsg();
+			}
 		//
 		return null;
 	}
@@ -1167,15 +1196,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 						if(getDifferenceQty().compareTo(BigDecimal.ZERO)<0) {
 							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
 							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
-							m_MovementLine.setMovementQty(getNetWeight());
-							if(realDiff.compareTo(BigDecimal.ZERO)<0)
-								m_MovementLine.setScrappedQty(getDifferenceQty().abs());
+							m_MovementLine.setMovementQty(getOriginNetWeight());
+							m_MovementLine.setScrappedQty(getDifferenceQty().abs());
 						}
 						else {
-							if(getOriginNetWeight().compareTo(getNetWeight())<0)
-								m_MovementLine.setMovementQty(getOriginNetWeight());
-							else
-								m_MovementLine.setMovementQty(getNetWeight());
+							m_MovementLine.setMovementQty(getOriginNetWeight());
+							BigDecimal diff = getOriginNetWeight().subtract(getNetWeight());
+							log.warning("Differencia Translado: "+diff);
+							if(diff.compareTo(BigDecimal.ZERO)>0){
+								m_MovementLine.setScrappedQty(diff.abs());
+							}
 						}
 					}
 					else {
@@ -1326,9 +1356,21 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				if (!m_Current_Movement.processIt(X_M_Movement.DOCACTION_Complete))
 					throw new AdempiereException(m_Current_Movement.getProcessMsg());
 				m_Current_Movement.saveEx();
-				if(getFTU_WeightApprovalMotive_ID()>0)
+				if(getFTU_WeightApprovalMotive_ID()>0) {
 					if(getFTU_WeightApprovalMotive().isGenerateLoss())
 						createLossInventory(m_Current_Movement, (X_FTU_WeightApprovalMotive)getFTU_WeightApprovalMotive());
+				}else {
+					String sql = "SELECT FTU_WeightApprovalMotive_ID FROM FTU_WeightApprovalMotive WHERE IsDefault = 'Y' and IsActive = 'Y' AND "
+							+ "AD_Client_ID = " + getAD_Client_ID();
+					int ID = DB.getSQLValue(get_TrxName(), sql);
+					
+					if (ID>0){
+						X_FTU_WeightApprovalMotive motive = new X_FTU_WeightApprovalMotive(p_ctx, ID, get_TrxName());
+						if (motive.isGenerateLoss())
+							createLossInventory(m_Current_Movement, motive);
+					}
+					
+				}
 			}
 		}
 	}
@@ -1345,17 +1387,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				continue;
 			//	Create Inventory Header
 			if(inv == null) {
-				inv = new MInventory((MWarehouse)line.getM_Locator().getM_Warehouse(), m_Current_Movement.get_TrxName());
+				inv = new MInventory((MWarehouse)line.getM_LocatorTo().getM_Warehouse(), m_Current_Movement.get_TrxName());
 				inv.setC_DocType_ID(wam.getC_DocTypeInventory_ID());
 				inv.setMovementDate(m_Current_Movement.getMovementDate());
-				inv.setDescription("Creado por ajuste de merma en traslado desde: "+line.getM_Locator().getValue()+" Documento Nro:"+m_Current_Movement.getDocumentNo());
+				inv.setDescription("Creado por ajuste de merma en traslado desde: "+line.getM_LocatorTo().getValue()+" Documento Nro:"+m_Current_Movement.getDocumentNo());
 				inv.set_ValueOfColumn("M_Movement_ID", m_Current_Movement.get_ID());
 				inv.setDocStatus(DOCSTATUS_Drafted);
 				inv.setDocAction(DOCACTION_Complete);
 				inv.saveEx(get_TrxName());
 			}
 			//	Create Lines
-			MInventoryLine il = new MInventoryLine(inv, line.getM_Locator_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), null, null, line.getScrappedQty());
+			MInventoryLine il = new MInventoryLine(inv, line.getM_LocatorTo_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(), null, null, line.getScrappedQty());
 			il.setC_Charge_ID(wam.getC_Charge_ID());
 			il.saveEx(get_TrxName());
 		}
@@ -1583,8 +1625,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				ioLine.setM_AttributeSetInstance_ID(line.getM_AttributeSetInstance_ID());
 			//added by david castillo 18/07/2023 
 			if (product.getM_AttributeSet_ID()>0 && !(ioLine.getM_AttributeSetInstance_ID()>0)) {
-			MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
-			ioLine.setM_AttributeSetInstance_ID(inst.getM_AttributeSetInstance_ID());
+				MAttributeSetInstance inst = MAttributeSetInstance.create(getCtx(), product, get_TrxName());
+				inst.saveEx(get_TrxName());
+				ioLine.setM_AttributeSetInstance_ID(inst.getM_AttributeSetInstance_ID());
 			}
 			// Set Quantity
 			ioLine.setQty(m_MovementQty);
@@ -1713,65 +1756,60 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					else if (m_AcumWeight.compareTo(getValidWeight(false).multiply(rate)) == -1)
 						m_MovementQty = m_MovementQty.add(getValidWeight(false).multiply(rate).subtract(m_AcumWeight));
 				}
+				
 				// Set Product
 				ioLine.setProduct(product);
-				boolean useAttribute = false;
-				if (lol[i].getM_AttributeSetInstance_ID()>0) {
-					ioLine.setM_AttributeSetInstance_ID(lol[i].getM_AttributeSetInstance_ID());
-				}else {
-					MFTULoadOrderLineMA[] mas = MFTULoadOrderLineMA.get(getCtx(), lol[i].getFTU_LoadOrder_ID(), get_TrxName());
-					if (mas.length>0) {
-						useAttribute = true;
-						BigDecimal qtyToDeliver = m_MovementQty;
-						for (MFTULoadOrderLineMA ma : mas) { 
-							
-							if (ma.getQty().compareTo(qtyToDeliver) >=0) {
+				
+				
+				String MMPolicy = product.getMMPolicy();
+				MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), getM_Product_ID(), 0,
+						null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, 0, get_TrxName(), false, 0);
+				BigDecimal qtyToDeliver = m_MovementQty;
+				BigDecimal available = BigDecimal.ZERO;
+				for (MStorageOnHand storage: storages)
+				{					
+					available = storage.getQtyOnHand();	
+					log.log(Level.SEVERE, "Cantidad disponible" + storage.toString()+ " - Cantidad a entregar: " +qtyToDeliver);
+							if (available.compareTo(qtyToDeliver) >=0) {
 
 								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
 								ioLine2.setProduct(product);
 								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
-								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
+								//ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
 								// Set Quantity
 								ioLine2.setC_UOM_ID(oLine.getC_UOM_ID());
 								ioLine2.setQty(qtyToDeliver);
-								ioLine2.setQtyEntered(m_Qty);
-								ioLine2.setM_Locator_ID(m_MovementQty);
+								ioLine2.setQtyEntered(qtyToDeliver);
+								ioLine2.setM_Locator_ID(storage.getM_Locator_ID());
 								//
 								ioLine2.saveEx(get_TrxName());
 								qtyToDeliver = Env.ZERO;
+								ioLine = ioLine2;
 							}else {
 								MInOutLine ioLine2 = new MInOutLine(m_Receipt);
 								ioLine2.setProduct(product);
 								ioLine2.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
-								ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
+								//ioLine2.setM_AttributeSetInstance_ID(ma.getM_AttributeSetInstance_ID());
 								// Set Quantity
 								ioLine2.setC_UOM_ID(oLine.getC_UOM_ID());
-								ioLine2.setQty(qtyToDeliver);
-								ioLine2.setQtyEntered(m_Qty);
-								ioLine2.setM_Locator_ID(m_MovementQty);
+								ioLine2.setQty(available);
+								ioLine2.setQtyEntered(available);
+								ioLine2.setM_Locator_ID(storage.getM_Locator_ID());
 								//
 								ioLine2.saveEx(get_TrxName());
-								qtyToDeliver = qtyToDeliver.subtract(ma.getQty());
+								qtyToDeliver = qtyToDeliver.subtract(available);
+								ioLine = ioLine2;
 							}							
 							
 							
 							if (qtyToDeliver.signum() == 0)
 								break;
-						}
-					}
 				}
 				
-				if(!useAttribute) {
-					ioLine.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
-
-					// Set Quantity
-					ioLine.setC_UOM_ID(oLine.getC_UOM_ID());
-					ioLine.setQty(m_MovementQty);
-					ioLine.setQtyEntered(m_Qty);
-					ioLine.setM_Locator_ID(m_MovementQty);
-					//
-					ioLine.saveEx(get_TrxName());
-				}
+				if (qtyToDeliver.compareTo(Env.ZERO) == 1)
+					throw new AdempiereException("No hay suficiente inventario disponible para despachar este producto");					
+				
+				
 				// Manually Process Shipment
 				//	Added By Jorge Colmenarez, 2021-07-22 11:59
 				//	Support for get DocAction from SysConfig Variable
@@ -2098,4 +2136,155 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		return null;
 	}
+
+
+		/**
+		 * 	Get Storage Info for Warehouse or locator
+		 *	@param ctx context
+		 *	@param M_Warehouse_ID ignore if M_Locator_ID > 0
+		 *	@param M_Product_ID product
+		 *	@param M_AttributeSetInstance_ID instance id, 0 to retrieve all instance
+		 *	@param minGuaranteeDate optional minimum guarantee date if all attribute instances
+		 *	@param FiFo first in-first-out
+		 *  @param positiveOnly if true, only return storage records with qtyOnHand > 0
+		 *  @param M_Locator_ID optional locator id
+		 *	@param trxName transaction
+		 *  @param forUpdate
+		 *	@return existing - ordered by location priority (desc) and/or guarantee date
+		 */
+		private MStorageOnHand[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
+			int M_Product_ID, int M_AttributeSetInstance_ID, Timestamp minGuaranteeDate,
+			boolean FiFo, boolean positiveOnly, int M_Locator_ID, String trxName, boolean forUpdate, int timeout)
+		{
+			if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
+				return new MStorageOnHand[0];
+			
+			boolean allAttributeInstances = false;
+			if (M_AttributeSetInstance_ID == 0)
+				allAttributeInstances = true;		
+			
+			ArrayList<MStorageOnHand> list = new ArrayList<MStorageOnHand>();
+			//	Specific Attribute Set Instance
+			String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
+				+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+				+ "s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
+				+ "FROM M_StorageOnHand s"
+				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) "
+				+ " INNER JOIN M_Warehouse w ON (l.M_Warehouse_ID = w.M_Warehouse_ID AND w.IsInTransit = 'N') "
+				+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) ";
+			if (M_Locator_ID > 0)
+				sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+			else
+				sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+			sql += " AND s.M_Product_ID=?";
+			if (M_AttributeSetInstance_ID > 0)
+				sql= sql + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
+			if (positiveOnly)
+			{
+				sql += " AND s.QtyOnHand > 0 ";
+			}
+			else
+			{
+				sql += " AND s.QtyOnHand <> 0 ";
+			}
+			sql += "ORDER BY l.PriorityNo DESC, DateMaterialPolicy ";
+			if (!FiFo)
+				sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+			else
+				sql += ", s.M_AttributeSetInstance_ID ";
+			//	All Attribute Set Instances
+			if (allAttributeInstances)
+			{
+				sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
+					+ " s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+					+ " s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
+					+ " FROM M_StorageOnHand s"
+					+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
+					+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) "
+					+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
+				if (M_Locator_ID > 0)
+					sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+				else
+					sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+				sql += " AND s.M_Product_ID=? ";
+				if (positiveOnly)
+				{
+					sql += " AND s.QtyOnHand > 0 ";
+				}
+				else
+				{
+					sql += " AND s.QtyOnHand <> 0 ";
+				}
+				
+				if (minGuaranteeDate != null)
+				{
+					sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
+				}
+				
+				MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
+				
+				if(product.isUseGuaranteeDateForMPolicy()){
+					sql += "ORDER BY l.PriorityNo DESC, COALESCE(asi.GuaranteeDate,s.DateMaterialPolicy)";
+					if (!FiFo)
+						sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+					else
+						sql += ", s.M_AttributeSetInstance_ID ";
+				}
+				else
+				{
+					sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.DateMaterialPolicy";
+					if (!FiFo)
+						sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+					else
+						sql += ", s.M_AttributeSetInstance_ID ";
+				}
+				
+				sql += ", s.QtyOnHand DESC";
+			} 
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			try
+			{
+				pstmt = DB.prepareStatement(sql, trxName);
+				pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
+				pstmt.setInt(2, M_Product_ID);
+				if (!allAttributeInstances)
+				{
+					if (M_AttributeSetInstance_ID > 0)
+					pstmt.setInt(3, M_AttributeSetInstance_ID);
+				}
+				else if (minGuaranteeDate != null)
+				{
+					pstmt.setTimestamp(3, minGuaranteeDate);
+				}
+				rs = pstmt.executeQuery();
+				while (rs.next())
+				{	
+					if(rs.getBigDecimal(11).signum() != 0)
+					{
+						MStorageOnHand storage = new MStorageOnHand (ctx, rs, trxName);
+						if (!Util.isEmpty(trxName) && forUpdate)
+						{
+							DB.getDatabase().forUpdate(storage, timeout);
+						}
+						list.add (storage);
+					}
+				}	
+			}
+			catch (Exception e)
+			{
+				log.log(Level.SEVERE, sql, e);
+			}
+			finally
+			{
+				DB.close(rs, pstmt);
+				rs = null; pstmt = null;
+			}
+			MStorageOnHand[] retValue = new MStorageOnHand[list.size()];
+			list.toArray(retValue);
+			return retValue;
+}	//	getWarehouse
+
+		
+		
 }

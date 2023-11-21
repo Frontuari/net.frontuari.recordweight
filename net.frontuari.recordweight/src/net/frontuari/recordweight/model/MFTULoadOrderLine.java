@@ -9,10 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.compiere.model.MProduct;
+import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
+import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
@@ -21,6 +24,8 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 
 	/** Parent					*/
 	protected MFTULoadOrder	m_parent = null;
+	
+	private static CLogger log = CLogger.getCLogger(MFTULoadOrderLine.class);
 	
 	/**
 	 * 	Get Parent
@@ -245,7 +250,7 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		//	Get existing Location
 		int M_Locator_ID = getM_Locator_ID (getM_Warehouse_ID(),
 				getM_Product_ID(), getM_AttributeSetInstance_ID(),
-				Qty, get_TrxName());
+				Qty, get_TrxName(),getFTU_LoadOrder_ID());
 		//	Get default Location
 		if (M_Locator_ID == 0)
 		{
@@ -318,5 +323,94 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 			return M_Locator_ID;
 		return firstM_Locator_ID;
 	}	//	getM_Locator_ID
+	
+	public static int getM_Locator_ID (int M_Warehouse_ID, 
+			int M_Product_ID, int M_AttributeSetInstance_ID, BigDecimal Qty,
+			String trxName, int FTU_LoadOrder_ID)
+		{
+		
+		log.log(Level.SEVERE, "almacen :" +M_Warehouse_ID + " - producto - " + M_Product_ID );
+			int M_Locator_ID = 0;
+			int firstM_Locator_ID = 0;
+			String sql = "SELECT s.M_Locator_ID, s.QtyOnHand "
+				+ "FROM M_StorageOnHand s"
+				+ " INNER JOIN M_Locator l ON (s.M_Locator_ID=l.M_Locator_ID)"
+				+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID=lt.M_LocatorType_ID)"
+				+ " INNER JOIN M_Product p ON (s.M_Product_ID=p.M_Product_ID)"
+				+ " LEFT OUTER JOIN M_AttributeSet mas ON (p.M_AttributeSet_ID=mas.M_AttributeSet_ID) "
+				+ "WHERE l.M_Warehouse_ID=?"
+				+ " AND s.M_Product_ID=?";
+				if (M_AttributeSetInstance_ID > 0)
+				sql = sql+ " AND (mas.IsInstanceAttribute IS NULL OR mas.IsInstanceAttribute='N' OR s.M_AttributeSetInstance_ID=?)";
+				
+				sql = sql+ " AND l.IsActive='Y' AND 'Y' = (CASE WHEN l.M_LocatorType_ID is not null THEN lt.IsAvailableForShipping ELSE 'N' END)  "
+				+ "ORDER BY l.PriorityNo DESC, s.QtyOnHand DESC";
+			
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			try
+			{
+				pstmt = DB.prepareStatement(sql, trxName);
+				pstmt.setInt(1, M_Warehouse_ID);
+				pstmt.setInt(2, M_Product_ID);
+				if (M_AttributeSetInstance_ID > 0)
+				pstmt.setInt(3, M_AttributeSetInstance_ID);
+				log.log(Level.SEVERE, pstmt.toString());
+				rs = pstmt.executeQuery();
+				while (rs.next())
+				{
+					BigDecimal QtyOnHand = rs.getBigDecimal(2);
+					log.log(Level.SEVERE,QtyOnHand.toString() );
+					QtyOnHand = QtyOnHand.subtract(getReservedforLoadOrder(rs.getInt(1),M_Warehouse_ID,M_Product_ID,M_AttributeSetInstance_ID,trxName,FTU_LoadOrder_ID));
+					if (QtyOnHand != null && Qty.compareTo(QtyOnHand) <= 0)
+					{
+						M_Locator_ID = rs.getInt(1);
+						break;
+					}
+					if (firstM_Locator_ID == 0)
+						firstM_Locator_ID = rs.getInt(1);
+				}
+			}
+			catch (SQLException ex)
+			{
+
+			}
+			finally
+			{
+				DB.close(rs, pstmt);
+				rs = null; pstmt = null;
+			}
+			if (M_Locator_ID != 0)
+				return M_Locator_ID;
+			return firstM_Locator_ID;
+		}	//	getM_Locator_ID
+	
+	private static BigDecimal getReservedforLoadOrder(int M_Locator_ID,int M_Warehouse_ID, 
+			int M_Product_ID, int M_AttributeSetInstance_ID, String trxName, int FTU_LoadOrder_ID) {
+		BigDecimal reservedForLoadOrder = BigDecimal.ZERO;
+		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
+				+ " JOIN FTU_LoadOrderLine lol ON (ma.FTU_LoadOrderLine_ID = lol.FTU_LoadOrderLine_ID) "
+				+ " JOIN FTU_LoadOrder lo ON (lol.FTU_LoadOrder_ID = lo.FTU_LoadOrder_ID) "
+				+ " WHERE lo.DocStatus NOT IN ('RE','VO','CL') AND ((lo.IsDelivered = 'N' AND lo.OperationType NOT IN ('MOM','MIM')) OR (lo.IsMoved = 'N' AND lo.OperationType IN ('MOM','MIM'))) "
+				+ " AND lol.M_Product_ID = ? "
+				//	Modified by Jorge Colmenarez, 2023-01-30 14:06
+				//	Support for filter by Warehouse and not the same loadOrder
+				+ " AND lo.M_Warehouse_ID = ?"
+				//ssuport david castillo checking the same locator
+		        + " AND lol.M_Locator_ID = ? ";
+		if(M_AttributeSetInstance_ID==0)
+			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+FTU_LoadOrder_ID;
+		else 
+			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
+		
+		log.log(Level.SEVERE,sql+" - " + M_Product_ID+ " - " + M_Warehouse_ID + " - " + M_AttributeSetInstance_ID);
+		reservedForLoadOrder = DB.getSQLValueBD(trxName, sql, 
+				new Object[] {M_Product_ID,M_Warehouse_ID,M_Locator_ID,M_AttributeSetInstance_ID});
+				//	End Jorge Colmenarez
+		if(reservedForLoadOrder == null)
+			reservedForLoadOrder = BigDecimal.ZERO;
+		log.log(Level.SEVERE, reservedForLoadOrder.toString());
+		return reservedForLoadOrder;
+	}
 
 }

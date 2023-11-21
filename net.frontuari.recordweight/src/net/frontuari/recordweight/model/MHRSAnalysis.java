@@ -113,8 +113,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		if (referenceNo != null)
 		{
 			MFTUEntryTicket entryTicket = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
-			return "@SQLErrorReferenced@ @FTU_EntryTicket_ID@ " + entryTicket.getDocumentNo()
-					+ " @Generate@ @from@ @HRS_Analisys_ID@ " + referenceNo;
+			return Msg.getMsg(getCtx(), "SQLErrorReferenced")+" "+Msg.translate(getCtx(), "FTU_EntryTicket_ID")+" "+entryTicket.getDocumentNo()+" "
+					+ Msg.getMsg(getCtx(), "Generate")+" "+Msg.getMsg(getCtx(), "from")+" "+Msg.translate(getCtx(), "HRS_Analisys_ID")+" " + referenceNo;
 		}
 		
 		return null;
@@ -410,7 +410,11 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	X_FTU_QualityParam qp = new X_FTU_QualityParam(getCtx(), idCampo, get_TrxName());
         	if(qp.get_ID()>0) {
         		contenidoFormula = qp.getCode().toLowerCase();
-            	code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
+        		contenidoFormula = replaceBasicCode(contenidoFormula,qp.isQualitativeAnalysis());
+        		if(qp.isQualitativeAnalysis())
+        			code=code.replaceAll("F"+idCampo,contenidoFormula);
+        		else
+        			code=code.replaceAll("F"+idCampo, "("+contenidoFormula+")");
         	}
         }
 		
@@ -427,15 +431,17 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		DB.executeUpdate(dSql, get_ID(), true, get_TrxName());
 		//	Create Cultive Result
 		String sql="SELECT qp.FTU_QualityParam_ID,Name,Code "
-				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.IsActive = 'Y' "
-				+ "AND qp.IsUsedFor IN (?,?) ";
+				+ "FROM FTU_QualityParam qp WHERE qp.M_Product_ID=? AND qp.FTU_ProductAnalysis_ID = ? AND qp.IsActive = 'Y' "
+				+ "AND qp.IsUsedFor IN (?,?) "
+				+ "ORDER BY qp.SeqNo ASC";
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		try {
 			pst = DB.prepareStatement(sql, get_TrxName());
 			pst.setInt(1, getM_Product_ID());
-			pst.setString(2, type);
-			pst.setString(3, X_FTU_QualityParam.ISUSEDFOR_Both);
+			pst.setInt(2, getFTU_ProductAnalysis_ID());
+			pst.setString(3, type);
+			pst.setString(4, X_FTU_QualityParam.ISUSEDFOR_Both);
 			rs = pst.executeQuery();
 			while(rs.next())
 			{
@@ -452,35 +458,51 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				//	Execute Code
 				String result ;
 				if (isQualitativeAnalysis) {
-				result = code;	
+					result = code;
 				}else {
-				String sqlCode = "SELECT ("+code+") AS result";
-				result = DB.getSQLValueString(get_TrxName(), sqlCode);
+					String sqlCode = "SELECT ("+code+") AS result";
+					result = DB.getSQLValueString(get_TrxName(), sqlCode);
 				}
 				if(result!=null) {
 					MHRSAnalysisValuation lcr = new MHRSAnalysisValuation(getCtx(), 0, get_TrxName());
 					lcr.setAD_Org_ID(getAD_Org_ID());
 					lcr.setHRS_Analysis_ID(get_ID());
 					lcr.setFTU_QualityParam_ID(FTU_QualityParam_id);
+					String SysResult = "";
 					if (!isQualitativeAnalysis) {
-					lcr.setHumanResult(result.toUpperCase());
+						lcr.setHumanResult(result.toUpperCase());
+						SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					}else {
 						lcr.setQualitativeResult(result.toUpperCase());
 						lcr.setHumanResult("0");
+						SysResult = "Aceptar";
 					}
-					String SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					lcr.setSystemResult(SysResult);
 					lcr.saveEx();
 				}
 			}
-		}catch(Exception e)
-		{
-			throw new AdempiereException(e.getLocalizedMessage());
+		}catch(Exception e){
+			throw new AdempiereException(e.getMessage());
 		}finally {
 			DB.close(rs, pst);
 			rs = null;
 			pst = null;
 		}
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		boolean success = true;
+		if(newRecord || is_ValueChanged(COLUMNNAME_FTU_EntryTicket_ID)) {
+			if(getFTU_EntryTicket_ID()>0) {
+				m_processMsg = validateETReferenceDuplicated();
+				if(m_processMsg!=null) {
+					log.saveError("Error", m_processMsg);
+					success = false;
+				}
+			}
+		}
+		return success;
 	}
 
 	@Override

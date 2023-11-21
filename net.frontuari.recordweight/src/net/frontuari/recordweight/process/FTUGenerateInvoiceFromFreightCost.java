@@ -130,12 +130,13 @@ public class FTUGenerateInvoiceFromFreightCost extends FTUProcess{
 			cn = new MInvoice(getCtx(),0,get_TrxName());
 			cn.setAD_Org_ID(fc.getAD_Org_ID());
 			cn.setC_DocTypeTarget_ID(p_C_DocTypeCreditNote_ID);
-			inv.setIsSOTrx(false);
+			cn.setIsSOTrx(false);
 			cn.setBPartner((MBPartner) fc.getM_Shipper().getC_BPartner());
 			cn.setSalesRep_ID(getAD_User_ID());
 			cn.setM_PriceList_ID(p_M_PriceList_ID);
 			cn.setDateInvoiced(now);
 			cn.setDateAcct(now);
+			if (inv != null)
 			cn.set_ValueOfColumn("LVE_invoiceAffected_ID", inv.getC_Invoice_ID());
 			cn.set_ValueOfColumn("FTU_FreightCost_ID", fc.getFTU_FreightCost_ID());
 			cn.saveEx();

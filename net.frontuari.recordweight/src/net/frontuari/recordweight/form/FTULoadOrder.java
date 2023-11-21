@@ -13,6 +13,8 @@ import org.adempiere.webui.component.Listbox;
 import org.adempiere.webui.component.WListbox;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.MDocType;
+import org.compiere.model.MOrder;
+import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
 import org.compiere.model.MRefList;
 import org.compiere.model.MRole;
@@ -857,6 +859,9 @@ public class FTULoadOrder extends FTUForm {
 		m_FTU_LoadOrder.setVolumeCapacity(m_VolumeCapacity);
 		m_FTU_LoadOrder.setC_UOM_Weight_ID(m_C_UOM_Weight_ID);
 		m_FTU_LoadOrder.setC_UOM_Volume_ID(m_C_UOM_Volume_ID);
+		
+		//we instanciate order to prevent stupid bug
+		
 		//	Set Is Handle Record Weight
 		m_FTU_LoadOrder.setIsHandleRecordWeight(MFTUWeightScale.isWeightScaleOrg(m_AD_Org_ID, trxName));
 		//	Set Warehouse
@@ -902,6 +907,17 @@ public class FTULoadOrder extends FTUForm {
 				Integer seqNo = (Integer) orderLineTable.getValueAt(i, OL_SEQNO);
 				//	New Line
 				m_FTU_LoadOrderLine = new MFTULoadOrderLine(Env.getCtx(), 0, trxName);
+				
+				if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryBulkMaterial) ||
+				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct) ||
+				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts)) {
+				MOrderLine line = new MOrderLine(Env.getCtx(), m_OrderLine_ID, trxName);
+				MOrder salesOrder = line.getParent();
+				log.log(Level.SEVERE, "almacen orden de venta" + salesOrder.getM_Warehouse_ID());
+				m_FTU_LoadOrder.setM_Warehouse_ID(salesOrder.getM_Warehouse_ID());
+				m_FTU_LoadOrder.saveEx();
+				}
+				
 				//	Set Values
 				m_FTU_LoadOrderLine.setAD_Org_ID(m_AD_Org_ID);
 				m_FTU_LoadOrderLine.setFTU_LoadOrder_ID(m_FTU_LoadOrder.getFTU_LoadOrder_ID());
@@ -914,6 +930,7 @@ public class FTULoadOrder extends FTUForm {
 				m_FTU_LoadOrderLine.setSeqNo(seqNo);
 				m_FTU_LoadOrderLine.setWeight(weight);
 				m_FTU_LoadOrderLine.setVolume(volume);
+				m_FTU_LoadOrderLine.setM_Warehouse_ID(m_M_Warehouse_ID);
 				//	Add Weight
 				totalWeight = totalWeight.add(weight);
 				//	Add Volume

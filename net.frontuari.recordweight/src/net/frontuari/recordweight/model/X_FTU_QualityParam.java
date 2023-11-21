@@ -32,7 +32,7 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230725L;
+	private static final long serialVersionUID = 20230825L;
 
     /** Standard Constructor */
     public X_FTU_QualityParam (Properties ctx, int FTU_QualityParam_ID, String trxName)
@@ -263,6 +263,34 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 		return ii.intValue();
 	}
 
+	public net.frontuari.recordweight.model.I_FTU_ProductAnalysis getFTU_ProductAnalysis() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_ProductAnalysis)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_ProductAnalysis.Table_ID)
+			.getPO(getFTU_ProductAnalysis_ID(), get_TrxName());
+	}
+
+	/** Set Product Analysis.
+		@param FTU_ProductAnalysis_ID Product Analysis
+	*/
+	public void setFTU_ProductAnalysis_ID (int FTU_ProductAnalysis_ID)
+	{
+		if (FTU_ProductAnalysis_ID < 1)
+			set_ValueNoCheck (COLUMNNAME_FTU_ProductAnalysis_ID, null);
+		else
+			set_ValueNoCheck (COLUMNNAME_FTU_ProductAnalysis_ID, Integer.valueOf(FTU_ProductAnalysis_ID));
+	}
+
+	/** Get Product Analysis.
+		@return Product Analysis
+	  */
+	public int getFTU_ProductAnalysis_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_ProductAnalysis_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Quality Param.
 		@param FTU_QualityParam_ID Quality Param
 	*/
@@ -358,6 +386,28 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 		return false;
 	}
 
+	/** Set Show In Report.
+		@param IsShowReport Show In Report
+	*/
+	public void setIsShowReport (boolean IsShowReport)
+	{
+		set_Value (COLUMNNAME_IsShowReport, Boolean.valueOf(IsShowReport));
+	}
+
+	/** Get Show In Report.
+		@return Show In Report	  */
+	public boolean isShowReport()
+	{
+		Object oo = get_Value(COLUMNNAME_IsShowReport);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	/** Both = BO */
 	public static final String ISUSEDFOR_Both = "BO";
 	/** Laboratory Analysis = LA */
@@ -424,6 +474,21 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 		return (String)get_Value(COLUMNNAME_Name);
 	}
 
+	/** Set Reference Value.
+		@param ReferenceValue Reference Value
+	*/
+	public void setReferenceValue (String ReferenceValue)
+	{
+		set_Value (COLUMNNAME_ReferenceValue, ReferenceValue);
+	}
+
+	/** Get Reference Value.
+		@return Reference Value	  */
+	public String getReferenceValue()
+	{
+		return (String)get_Value(COLUMNNAME_ReferenceValue);
+	}
+
 	/** Set Result.
 		@param Result Result of the action taken
 	*/
@@ -438,6 +503,25 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public String getResult()
 	{
 		return (String)get_Value(COLUMNNAME_Result);
+	}
+
+	/** Set Sequence.
+		@param SeqNo Method of ordering records; lowest number comes first
+	*/
+	public void setSeqNo (int SeqNo)
+	{
+		set_Value (COLUMNNAME_SeqNo, Integer.valueOf(SeqNo));
+	}
+
+	/** Get Sequence.
+		@return Method of ordering records; lowest number comes first
+	  */
+	public int getSeqNo()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_SeqNo);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set Translate Code for Human.
