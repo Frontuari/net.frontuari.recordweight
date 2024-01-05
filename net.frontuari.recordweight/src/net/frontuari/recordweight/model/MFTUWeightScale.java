@@ -55,7 +55,8 @@ public class MFTUWeightScale extends X_FTU_WeightScale {
 				"SELECT FTU_WeightScale_ID "
 				+ "FROM FTU_WeightScale "
 				+ "WHERE AD_Org_ID = ? "
-				+ "AND IsActive = 'Y'", 
+				+ "AND IsActive = 'Y' "
+				+ "AND IsRecordWeightUsed = 'Y' ", 
 				p_AD_Org_ID);
 		//	Verify
 		return (m_FTU_WeightScale_ID > 0);
