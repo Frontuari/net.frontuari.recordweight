@@ -250,6 +250,18 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 			return null;
 		}
 	}
+	
+	private String validAnalysisReference() {
+		String m_ReferenceNo = DB.getSQLValueString(get_TrxName(),
+				"SELECT MAX(rw.DocumentNo) FROM HRS_Analysis rw WHERE rw.DocStatus IN('CO', '"
+						+ "CL') AND rw.FTU_EntryTicket_ID = ?",
+				getFTU_EntryTicket_ID());
+		if (m_ReferenceNo != null) {
+			return (new StringBuilder("@SQLErrorReferenced@ Analisis: ")).append(m_ReferenceNo).toString();
+		} else {
+			return null;
+		}
+	}
 
 	@Override
 	public boolean closeIt() {
@@ -280,6 +292,16 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		if (m_processMsg != null)
 			return false;
 
+		m_processMsg = validRWReference();
+		if (m_processMsg != null)
+			return false;
+		m_processMsg = validLOReference();
+		if (m_processMsg != null)
+			return false;
+		m_processMsg = validAnalysisReference();
+		if (m_processMsg != null)
+			return false;
+
 		// After reverseCorrect
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_REVERSECORRECT);
 		if (m_processMsg != null)
@@ -299,8 +321,16 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		if (m_processMsg != null)
 			return false;
 
-		voidIt();
-
+		m_processMsg = validRWReference();
+		if (m_processMsg != null)
+			return false;
+		m_processMsg = validLOReference();
+		if (m_processMsg != null)
+			return false;
+		m_processMsg = validAnalysisReference();
+		if (m_processMsg != null)
+			return false;
+		
 		// After reverseAccrual
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_REVERSEACCRUAL);
 		if (m_processMsg != null)
