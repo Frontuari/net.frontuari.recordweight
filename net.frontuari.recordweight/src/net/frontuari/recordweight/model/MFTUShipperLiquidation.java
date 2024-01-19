@@ -180,7 +180,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 * 	@return new status (In Progress or Invalid)
 	 */
 	@Override
-	public String prepareIt() {
+	public String prepareIt() { 
 		if (log.isLoggable(Level.INFO)) log.info(toString());
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (m_processMsg != null)
@@ -571,7 +571,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 */
 	private MFTUShipperLiquidationLine[] getLines (String whereClause)
 	{
-		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NOT NULL ";
+		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NOT NULL OR C_ORDER_ID IS NOT NULL ";
 		if (whereClause != null)
 			whereClauseFinal += whereClause;
 		List<MFTUShipperLiquidationLine> list = new Query(getCtx(), I_FTU_SLLine.Table_Name, whereClauseFinal, get_TrxName())
