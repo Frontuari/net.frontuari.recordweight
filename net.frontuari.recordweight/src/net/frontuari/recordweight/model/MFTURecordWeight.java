@@ -49,6 +49,8 @@ import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+
+import net.frontuari.custom.model.FTUMInOut;
 /**
  *
  */
@@ -1194,8 +1196,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement))
 					{
 						if(getDifferenceQty().compareTo(BigDecimal.ZERO)<0) {
-							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
-							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
 							m_MovementLine.setMovementQty(getOriginNetWeight());
 							m_MovementLine.setScrappedQty(getDifferenceQty().abs());
 						}
@@ -1442,7 +1442,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return null;
 			}
 			// Create Receipt
-			MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+			FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 			m_Receipt.setDateAcct(getDateForDocument());
 			// Set New Organization and warehouse
 			m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1554,7 +1554,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return null;
 			}
 			// Create Receipt
-			MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+			FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 			m_Receipt.setDateAcct(getDateForDocument());
 			// Set New Organization and warehouse
 			m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1703,7 +1703,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 
 				// Create Receipt
-				MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+				FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 				m_Receipt.setDateAcct(getDateForDocument());
 				// Set New Organization and warehouse
 				m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1741,7 +1741,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				//
 				BigDecimal m_QtyWeight = getNetWeight();
 				BigDecimal m_MovementQty = m_QtyWeight.multiply(rate);
-				BigDecimal m_Qty = m_MovementQty.multiply(orderRate);
 
 				if (m_TotalWeight == Env.ZERO)
 					m_TotalWeight = getValidWeight(false).multiply(rate);
