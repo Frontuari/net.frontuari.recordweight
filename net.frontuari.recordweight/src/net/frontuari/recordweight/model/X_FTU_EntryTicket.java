@@ -32,7 +32,7 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230725L;
+	private static final long serialVersionUID = 20240206L;
 
     /** Standard Constructor */
     public X_FTU_EntryTicket (Properties ctx, int FTU_EntryTicket_ID, String trxName)
@@ -45,6 +45,8 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 // @#Date@
 			setFTU_EntryTicket_ID (0);
 			setIsApproved (false);
+// N
+			setIsGenLandedCost (false);
 // N
 			setOperationType (null);
         } */
@@ -61,6 +63,8 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 // @#Date@
 			setFTU_EntryTicket_ID (0);
 			setIsApproved (false);
+// N
+			setIsGenLandedCost (false);
 // N
 			setOperationType (null);
         } */
@@ -122,6 +126,34 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 		return ii.intValue();
 	}
 
+	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_Charge)MTable.get(getCtx(), org.compiere.model.I_C_Charge.Table_ID)
+			.getPO(getC_Charge_ID(), get_TrxName());
+	}
+
+	/** Set Charge.
+		@param C_Charge_ID Additional document charges
+	*/
+	public void setC_Charge_ID (int C_Charge_ID)
+	{
+		if (C_Charge_ID < 1)
+			set_Value (COLUMNNAME_C_Charge_ID, null);
+		else
+			set_Value (COLUMNNAME_C_Charge_ID, Integer.valueOf(C_Charge_ID));
+	}
+
+	/** Get Charge.
+		@return Additional document charges
+	  */
+	public int getC_Charge_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_Charge_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException
 	{
 		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_ID)
@@ -145,6 +177,34 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public int getC_DocType_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocType_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException
+	{
+		return (org.compiere.model.I_C_DocType)MTable.get(getCtx(), org.compiere.model.I_C_DocType.Table_ID)
+			.getPO(getC_DocTypeTarget_ID(), get_TrxName());
+	}
+
+	/** Set Target Document Type.
+		@param C_DocTypeTarget_ID Target document type for conversing documents
+	*/
+	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID)
+	{
+		if (C_DocTypeTarget_ID < 1)
+			set_Value (COLUMNNAME_C_DocTypeTarget_ID, null);
+		else
+			set_Value (COLUMNNAME_C_DocTypeTarget_ID, Integer.valueOf(C_DocTypeTarget_ID));
+	}
+
+	/** Get Target Document Type.
+		@return Target document type for conversing documents
+	  */
+	public int getC_DocTypeTarget_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_DocTypeTarget_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -609,6 +669,33 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 		return ii.intValue();
 	}
 
+	public net.frontuari.recordweight.model.I_FTU_PriceForTrip getFTU_PriceForTrip() throws RuntimeException
+	{
+		return (net.frontuari.recordweight.model.I_FTU_PriceForTrip)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_PriceForTrip.Table_ID)
+			.getPO(getFTU_PriceForTrip_ID(), get_TrxName());
+	}
+
+	/** Set Price For Trip.
+		@param FTU_PriceForTrip_ID Price For Trip
+	*/
+	public void setFTU_PriceForTrip_ID (int FTU_PriceForTrip_ID)
+	{
+		if (FTU_PriceForTrip_ID < 1)
+			set_Value (COLUMNNAME_FTU_PriceForTrip_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_PriceForTrip_ID, Integer.valueOf(FTU_PriceForTrip_ID));
+	}
+
+	/** Get Price For Trip.
+		@return Price For Trip	  */
+	public int getFTU_PriceForTrip_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_PriceForTrip_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	public net.frontuari.recordweight.model.I_FTU_Vehicle getFTU_Vehicle() throws RuntimeException
 	{
 		return (net.frontuari.recordweight.model.I_FTU_Vehicle)MTable.get(getCtx(), net.frontuari.recordweight.model.I_FTU_Vehicle.Table_ID)
@@ -673,6 +760,29 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 	public boolean isApproved()
 	{
 		Object oo = get_Value(COLUMNNAME_IsApproved);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Generate Landed Cost.
+		@param IsGenLandedCost Generate Landed Cost
+	*/
+	public void setIsGenLandedCost (boolean IsGenLandedCost)
+	{
+		set_Value (COLUMNNAME_IsGenLandedCost, Boolean.valueOf(IsGenLandedCost));
+	}
+
+	/** Get Generate Landed Cost.
+		@return Generate Landed Cost
+	  */
+	public boolean isGenLandedCost()
+	{
+		Object oo = get_Value(COLUMNNAME_IsGenLandedCost);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 
@@ -748,6 +858,62 @@ public class X_FTU_EntryTicket extends PO implements I_FTU_EntryTicket, I_Persis
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	public org.compiere.model.I_M_CostElement getM_CostElement() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_CostElement)MTable.get(getCtx(), org.compiere.model.I_M_CostElement.Table_ID)
+			.getPO(getM_CostElement_ID(), get_TrxName());
+	}
+
+	/** Set Cost Element.
+		@param M_CostElement_ID Product Cost Element
+	*/
+	public void setM_CostElement_ID (int M_CostElement_ID)
+	{
+		if (M_CostElement_ID < 1)
+			set_Value (COLUMNNAME_M_CostElement_ID, null);
+		else
+			set_Value (COLUMNNAME_M_CostElement_ID, Integer.valueOf(M_CostElement_ID));
+	}
+
+	/** Get Cost Element.
+		@return Product Cost Element
+	  */
+	public int getM_CostElement_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_CostElement_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException
+	{
+		return (org.compiere.model.I_M_PriceList)MTable.get(getCtx(), org.compiere.model.I_M_PriceList.Table_ID)
+			.getPO(getM_PriceList_ID(), get_TrxName());
+	}
+
+	/** Set Price List.
+		@param M_PriceList_ID Unique identifier of a Price List
+	*/
+	public void setM_PriceList_ID (int M_PriceList_ID)
+	{
+		if (M_PriceList_ID < 1)
+			set_Value (COLUMNNAME_M_PriceList_ID, null);
+		else
+			set_Value (COLUMNNAME_M_PriceList_ID, Integer.valueOf(M_PriceList_ID));
+	}
+
+	/** Get Price List.
+		@return Unique identifier of a Price List
+	  */
+	public int getM_PriceList_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_PriceList_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException

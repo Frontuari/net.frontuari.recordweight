@@ -111,7 +111,11 @@ public class FTUGenerateInvoiceFromFreightCost extends FTUProcess{
 			inv.saveEx();
 			
 			for (MFTUFreightCostLine fcline : fcLines) {
+				inv.setC_Order_ID(fcline.getC_Order_ID());
+				inv.saveEx();
 				MInvoiceLine line = new MInvoiceLine(inv);
+				int olineID = DB.executeUpdate("SELECT MAX(C_OrderLine_ID) FROM C_OrderLine WHERE C_Order_ID = ?", fcline.getC_Order_ID(), get_TrxName());
+				line.setC_OrderLine_ID(olineID);
 				line.setC_Charge_ID(fcline.getC_Charge_ID());
 				if (c_currency_id != fc.getC_Currency_ID()) {
 					BigDecimal amt = MConversionRate.convert(getCtx(), fcline.getCosts(), fc.getC_Currency_ID(), c_currency_id,now,fc.getC_ConversionType_ID() ,fc.getAD_Client_ID(), fc.getAD_Org_ID());

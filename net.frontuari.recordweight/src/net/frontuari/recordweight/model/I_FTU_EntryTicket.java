@@ -79,6 +79,21 @@ public interface I_FTU_EntryTicket
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
+    /** Column name C_Charge_ID */
+    public static final String COLUMNNAME_C_Charge_ID = "C_Charge_ID";
+
+	/** Set Charge.
+	  * Additional document charges
+	  */
+	public void setC_Charge_ID (int C_Charge_ID);
+
+	/** Get Charge.
+	  * Additional document charges
+	  */
+	public int getC_Charge_ID();
+
+	public org.compiere.model.I_C_Charge getC_Charge() throws RuntimeException;
+
     /** Column name C_DocType_ID */
     public static final String COLUMNNAME_C_DocType_ID = "C_DocType_ID";
 
@@ -93,6 +108,21 @@ public interface I_FTU_EntryTicket
 	public int getC_DocType_ID();
 
 	public org.compiere.model.I_C_DocType getC_DocType() throws RuntimeException;
+
+    /** Column name C_DocTypeTarget_ID */
+    public static final String COLUMNNAME_C_DocTypeTarget_ID = "C_DocTypeTarget_ID";
+
+	/** Set Target Document Type.
+	  * Target document type for conversing documents
+	  */
+	public void setC_DocTypeTarget_ID (int C_DocTypeTarget_ID);
+
+	/** Get Target Document Type.
+	  * Target document type for conversing documents
+	  */
+	public int getC_DocTypeTarget_ID();
+
+	public org.compiere.model.I_C_DocType getC_DocTypeTarget() throws RuntimeException;
 
     /** Column name Container_ID */
     public static final String COLUMNNAME_Container_ID = "Container_ID";
@@ -327,6 +357,17 @@ public interface I_FTU_EntryTicket
 
 	public net.frontuari.recordweight.model.I_FTU_MobilizationGuide getFTU_MobilizationGuide() throws RuntimeException;
 
+    /** Column name FTU_PriceForTrip_ID */
+    public static final String COLUMNNAME_FTU_PriceForTrip_ID = "FTU_PriceForTrip_ID";
+
+	/** Set Price For Trip	  */
+	public void setFTU_PriceForTrip_ID (int FTU_PriceForTrip_ID);
+
+	/** Get Price For Trip	  */
+	public int getFTU_PriceForTrip_ID();
+
+	public net.frontuari.recordweight.model.I_FTU_PriceForTrip getFTU_PriceForTrip() throws RuntimeException;
+
     /** Column name FTU_Vehicle_ID */
     public static final String COLUMNNAME_FTU_Vehicle_ID = "FTU_Vehicle_ID";
 
@@ -377,6 +418,19 @@ public interface I_FTU_EntryTicket
 	  */
 	public boolean isApproved();
 
+    /** Column name IsGenLandedCost */
+    public static final String COLUMNNAME_IsGenLandedCost = "IsGenLandedCost";
+
+	/** Set Generate Landed Cost.
+	  * Generate Landed Cost
+	  */
+	public void setIsGenLandedCost (boolean IsGenLandedCost);
+
+	/** Get Generate Landed Cost.
+	  * Generate Landed Cost
+	  */
+	public boolean isGenLandedCost();
+
     /** Column name IsPrinted */
     public static final String COLUMNNAME_IsPrinted = "IsPrinted";
 
@@ -411,6 +465,36 @@ public interface I_FTU_EntryTicket
 	  * This is a Sales Transaction
 	  */
 	public boolean isSOTrx();
+
+    /** Column name M_CostElement_ID */
+    public static final String COLUMNNAME_M_CostElement_ID = "M_CostElement_ID";
+
+	/** Set Cost Element.
+	  * Product Cost Element
+	  */
+	public void setM_CostElement_ID (int M_CostElement_ID);
+
+	/** Get Cost Element.
+	  * Product Cost Element
+	  */
+	public int getM_CostElement_ID();
+
+	public org.compiere.model.I_M_CostElement getM_CostElement() throws RuntimeException;
+
+    /** Column name M_PriceList_ID */
+    public static final String COLUMNNAME_M_PriceList_ID = "M_PriceList_ID";
+
+	/** Set Price List.
+	  * Unique identifier of a Price List
+	  */
+	public void setM_PriceList_ID (int M_PriceList_ID);
+
+	/** Get Price List.
+	  * Unique identifier of a Price List
+	  */
+	public int getM_PriceList_ID();
+
+	public org.compiere.model.I_M_PriceList getM_PriceList() throws RuntimeException;
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";
