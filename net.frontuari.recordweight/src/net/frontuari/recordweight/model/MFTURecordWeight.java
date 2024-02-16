@@ -15,9 +15,13 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAttributeSet;
 import org.compiere.model.MAttributeSetInstance;
+import org.compiere.model.MBPartner;
 import org.compiere.model.MClient;
+import org.compiere.model.MConversionRate;
+import org.compiere.model.MCost;
 import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
@@ -26,8 +30,11 @@ import org.compiere.model.MInventoryLine;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrder;
+import org.compiere.model.MOrderLandedCost;
+import org.compiere.model.MOrderLandedCostAllocation;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
+import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
 import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MSysConfig;
@@ -49,6 +56,8 @@ import org.compiere.util.Msg;
 import org.compiere.util.Util;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+
+import net.frontuari.custom.model.FTUMInOut;
 /**
  *
  */
@@ -387,8 +396,15 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
+			//	Added by Jorge Colmenarez, 2024-02-06 11:14
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			String msg = null;
+			if(et.isGenLandedCost()) {
+				msg = createFreightCost(et);
+			}
+			//	End Jorge Colmenarez
 			// Generate Material Receipt
-			String msg = createInOut();
+			msg += createInOut();
 			//
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
@@ -422,6 +438,83 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		// Add support for generating inventory movements inputs
 		else if (getOperationType().equals(OPERATIONTYPE_MaterialInputMovement) && isGenerateMovement) {
 			String msg = createMovementInput((MFTUEntryTicket) getFTU_EntryTicket());
+			//	Added by Jorge Colmenarez, 2024-02-06 11:14
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.isGenLandedCost()) {
+				msg += createFreightCost(et);
+				int ofcID = DB.getSQLValue(get_TrxName(), 
+						"SELECT MAX(fcl.C_Order_ID) FROM FTU_FreightCostLine fcl JOIN FTU_FreightCost fc ON fcl.FTU_FreightCost_ID = fc.FTU_FreightCost_ID WHERE fc.DocStatus = 'CO' AND fc.FTU_EntryTicket_ID = ? AND fcl.FTU_RecordWeight_ID = ? ", 
+						new Object[] {getFTU_EntryTicket_ID(), getFTU_RecordWeight_ID()});
+				if(ofcID>0) {
+					MOrder o = new MOrder(getCtx(), ofcID, get_TrxName());
+					MDocType dt = new MDocType(getCtx(), o.getC_DocType_ID(), get_TrxName());
+					if(dt.get_ValueAsInt("C_DocTypeCostAdjustment_ID")<=0) {
+						m_processMsg = "Ocurrio un error al crear el ajuste al costo: Tipo de documento no configurado en la orden de compra de flete: "+o.getDocumentInfo();
+						return DocAction.STATUS_Invalid;
+					}
+					MDocType dtac = new MDocType(getCtx(), dt.get_ValueAsInt("C_DocTypeCostAdjustment_ID"), get_TrxName());
+					//	Create Cost Adjustment
+					MInventory ac = new MInventory(getCtx(), 0, get_TrxName());
+					ac.setAD_Org_ID(getAD_Org_ID());
+					ac.setC_DocType_ID(dtac.get_ID());
+					if(dtac.get_ValueAsBoolean("IsCostAdjustmentToDate"))
+						ac.set_ValueOfColumn("IsCostAdjustmentToDate", true);
+					ac.setDescription("Creado desde: "+o.getDocumentInfo());
+					ac.setC_Currency_ID(o.getC_Currency_ID());
+					ac.setC_ConversionType_ID(o.getC_ConversionType_ID());
+					MProduct p = new MProduct(getCtx(), getM_Product_ID(), get_TrxName());
+					int asID = DB.getSQLValue(get_TrxName(), "SELECT C_AcctSchema_ID FROM C_AcctSchema WHERE C_Currency_ID = ? AND AD_Client_ID = ?", o.getC_Currency_ID(), getAD_Client_ID());
+					if(asID<=0) {
+						m_processMsg = "No existe esquema contable para la moneda: "+o.getC_Currency().getISO_Code();
+						return DocAction.STATUS_Invalid;
+					}
+					MAcctSchema as = new MAcctSchema(getCtx(), asID,get_TrxName());
+					String costingMethod = p.getCostingMethod(as);
+					ac.setCostingMethod(costingMethod);
+					ac.setMovementDate(o.getDateOrdered());
+					ac.set_ValueOfColumn("C_Order_ID", o.get_ID());
+					ac.setDocStatus(MInventory.STATUS_Drafted);
+					ac.setDocAction(MInventory.ACTION_Complete);
+					ac.saveEx();
+					//	Create Cost Adjustment Line
+					MInventoryLine acl = new MInventoryLine(getCtx(),0,get_TrxName());
+					acl.setM_Inventory_ID(ac.get_ID());
+					acl.setAD_Org_ID(ac.getAD_Org_ID());
+					acl.setLine(10);
+					acl.setM_Product_ID(p.get_ID());
+					acl.setM_Locator_ID(0);
+					acl.setC_Charge_ID(et.getC_Charge_ID());
+					MCost cost = p.getCostingRecord(as, getAD_Org_ID(), 0, costingMethod);
+					acl.setCurrentCostPrice(cost.getCurrentCostPrice());
+					String costingLevel = p.getCostingLevel(as);
+					String whereClause = "";
+					if (MAcctSchema.COSTINGLEVEL_Client.equals(costingLevel))
+						whereClause="";
+					else if (MAcctSchema.COSTINGLEVEL_Organization.equals(costingLevel))
+						whereClause=" AND AD_Org_ID = "+getAD_Org_ID();
+					else if (MAcctSchema.COSTINGLEVEL_BatchLot.equals(costingLevel))
+						whereClause=" AND M_AttributeSetInstance_ID = "+acl.getM_AttributeSetInstance_ID();
+					//	Get Storage
+					BigDecimal storage = DB.getSQLValueBD(get_TrxName(), "SELECT SUM(QtyOnHand) FROM M_StorageOnHand WHERE M_Product_ID = ?"+whereClause, p.get_ID());
+					if(dtac.get_ValueAsBoolean("IsCostAdjustmentToDate"))
+						acl.set_ValueOfColumn("QtyAvailable",storage);
+					log.warning("Storage= "+storage+ " Current Cost Price="+cost.getCurrentCostPrice());
+					log.warning("Total Freight Cost = "+o.getGrandTotal());
+					BigDecimal addCost = o.getGrandTotal().divide(storage,10,RoundingMode.HALF_UP);
+					log.warning("Cost Adjustment= "+addCost);
+					BigDecimal newCostPrice = cost.getCurrentCostPrice().add(addCost);
+					log.warning("New Cost Price="+newCostPrice);
+					acl.setNewCostPrice(newCostPrice);
+					acl.saveEx();
+					//	Complete Adjustment
+					if(!ac.processIt(MInventory.ACTION_Complete)) {
+						m_processMsg = ac.getProcessMsg();
+					}
+					ac.saveEx();
+					msg += " [Ajuste de Costo por Transferencia: "+ac.getDocumentInfo()+"]";
+				}
+			}
+			//	End Jorge Colmenarez
 			if (m_processMsg != null)
 				return DocAction.STATUS_Invalid;
 			else
@@ -591,6 +684,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
 				&& !getOperationType().equals("IRM")) {
+			//	Added by Jorge Colmenarez, 2024-02-06 15:29
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.isGenLandedCost()) {
+				try {
+					reverseFreightCost();
+				} catch (Exception e) {
+					m_processMsg = e.getLocalizedMessage();
+				}
+			}
+			//	End Jorge Colmenarez
 			// Reverse In/Out
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
@@ -605,6 +708,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		// Add support for reactivate Input Movement
 		else if (getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)) {
+			//	Added by Jorge Colmenarez, 2024-02-06 15:29
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.isGenLandedCost()) {
+				try {
+					reverseFreightCost();
+				} catch (Exception e) {
+					m_processMsg = e.getLocalizedMessage();
+				}
+			}
+			//	End Jorge Colmenarez
 			// Reverse Movement
 			m_processMsg = reverseInputMovement();
 			if (m_processMsg != null)
@@ -732,6 +845,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)) {
+			//	Added by Jorge Colmenarez, 2024-02-06 15:29
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.isGenLandedCost()) {
+				try {
+					reverseFreightCost();
+				} catch (Exception e) {
+					m_processMsg = e.getLocalizedMessage();
+				}
+			}
+			//	End Jorge Colmenarez
 			m_processMsg = reverseInOut();
 			if (m_processMsg != null)
 				return false;
@@ -748,6 +871,16 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		else if (getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)) {
 			// Reverse Movement
 			m_processMsg = reverseInputMovement();
+			//	Added by Jorge Colmenarez, 2024-02-06 15:29
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			if(et.isGenLandedCost()) {
+				try {
+					reverseFreightCost();
+				} catch (Exception e) {
+					m_processMsg = e.getLocalizedMessage();
+				}
+			}
+			//	End Jorge Colmenarez
 			if (m_processMsg != null)
 				return false;
 		}
@@ -1194,8 +1327,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 					if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_MaterialInputMovement))
 					{
 						if(getDifferenceQty().compareTo(BigDecimal.ZERO)<0) {
-							BigDecimal maxtolerance = MSysConfig.getBigDecimalValue("RECORDWEIGHT_TOLERANCE_DOWNMAX", BigDecimal.ZERO, getAD_Client_ID(), getAD_Org_ID());
-							BigDecimal realDiff = getDifferenceQty().add(maxtolerance);
 							m_MovementLine.setMovementQty(getOriginNetWeight());
 							m_MovementLine.setScrappedQty(getDifferenceQty().abs());
 						}
@@ -1223,7 +1354,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			// Complete Movement
 		completeMovement(m_Current_Movement);
 		//
-		return "@M_Movement_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "]";
+		return "@M_Movement_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "] ";
 	}
 
 	/**
@@ -1442,7 +1573,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return null;
 			}
 			// Create Receipt
-			MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+			FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 			m_Receipt.setDateAcct(getDateForDocument());
 			// Set New Organization and warehouse
 			m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1524,7 +1655,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_Receipt.processIt(docAction);
 			//	End Jorge Colmenarez
 			m_Receipt.saveEx(get_TrxName());
-
+			//	Added by Jorge Colmenarez, 2024-02-06 15:54
+			if(getFTU_EntryTicket().isGenLandedCost()) {
+				updateFreightCostLine(m_Receipt);
+			}
+			//	End Jorge Colmenarez
 			l_DocumentNo = "@M_InOut_ID@: " + m_Receipt.getDocumentNo();
 		}
 		// Product Bulk Receipt
@@ -1554,7 +1689,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				return null;
 			}
 			// Create Receipt
-			MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+			FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 			m_Receipt.setDateAcct(getDateForDocument());
 			// Set New Organization and warehouse
 			m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1639,6 +1774,11 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			m_Receipt.processIt(docAction);
 			//	End Jorge Colmenarez
 			m_Receipt.saveEx(get_TrxName());
+			//	Added by Jorge Colmenarez, 2024-02-06 15:54
+			if(getFTU_EntryTicket().isGenLandedCost()) {
+				updateFreightCostLine(m_Receipt);
+			}
+			//	End Jorge Colmenarez
 			l_DocumentNo = "@M_InOut_ID@: " + m_Receipt.getDocumentNo();
 		}
 		// Delivery Bulk Material
@@ -1703,7 +1843,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 
 				// Create Receipt
-				MInOut m_Receipt = new MInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
+				FTUMInOut m_Receipt = new FTUMInOut(order, m_DocType.getC_DocTypeShipment_ID(), getDateForDocument());
 				m_Receipt.setDateAcct(getDateForDocument());
 				// Set New Organization and warehouse
 				m_Receipt.setAD_Org_ID(getAD_Org_ID());
@@ -1741,7 +1881,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				//
 				BigDecimal m_QtyWeight = getNetWeight();
 				BigDecimal m_MovementQty = m_QtyWeight.multiply(rate);
-				BigDecimal m_Qty = m_MovementQty.multiply(orderRate);
 
 				if (m_TotalWeight == Env.ZERO)
 					m_TotalWeight = getValidWeight(false).multiply(rate);
@@ -2138,47 +2277,75 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	}
 
 
-		/**
-		 * 	Get Storage Info for Warehouse or locator
-		 *	@param ctx context
-		 *	@param M_Warehouse_ID ignore if M_Locator_ID > 0
-		 *	@param M_Product_ID product
-		 *	@param M_AttributeSetInstance_ID instance id, 0 to retrieve all instance
-		 *	@param minGuaranteeDate optional minimum guarantee date if all attribute instances
-		 *	@param FiFo first in-first-out
-		 *  @param positiveOnly if true, only return storage records with qtyOnHand > 0
-		 *  @param M_Locator_ID optional locator id
-		 *	@param trxName transaction
-		 *  @param forUpdate
-		 *	@return existing - ordered by location priority (desc) and/or guarantee date
-		 */
-		private MStorageOnHand[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
-			int M_Product_ID, int M_AttributeSetInstance_ID, Timestamp minGuaranteeDate,
-			boolean FiFo, boolean positiveOnly, int M_Locator_ID, String trxName, boolean forUpdate, int timeout)
+	/**
+	 * 	Get Storage Info for Warehouse or locator
+	 *	@param ctx context
+	 *	@param M_Warehouse_ID ignore if M_Locator_ID > 0
+	 *	@param M_Product_ID product
+	 *	@param M_AttributeSetInstance_ID instance id, 0 to retrieve all instance
+	 *	@param minGuaranteeDate optional minimum guarantee date if all attribute instances
+	 *	@param FiFo first in-first-out
+	 *  @param positiveOnly if true, only return storage records with qtyOnHand > 0
+	 *  @param M_Locator_ID optional locator id
+	 *	@param trxName transaction
+	 *  @param forUpdate
+	 *	@return existing - ordered by location priority (desc) and/or guarantee date
+	 */
+	private MStorageOnHand[] getWarehouse (Properties ctx, int M_Warehouse_ID, 
+		int M_Product_ID, int M_AttributeSetInstance_ID, Timestamp minGuaranteeDate,
+		boolean FiFo, boolean positiveOnly, int M_Locator_ID, String trxName, boolean forUpdate, int timeout)
+	{
+		if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
+			return new MStorageOnHand[0];
+		
+		boolean allAttributeInstances = false;
+		if (M_AttributeSetInstance_ID == 0)
+			allAttributeInstances = true;		
+		
+		ArrayList<MStorageOnHand> list = new ArrayList<MStorageOnHand>();
+		//	Specific Attribute Set Instance
+		String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
+			+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+			+ "s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
+			+ "FROM M_StorageOnHand s"
+			+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) "
+			+ " INNER JOIN M_Warehouse w ON (l.M_Warehouse_ID = w.M_Warehouse_ID AND w.IsInTransit = 'N') "
+			+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) ";
+		if (M_Locator_ID > 0)
+			sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+		else
+			sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+		sql += " AND s.M_Product_ID=?";
+		if (M_AttributeSetInstance_ID > 0)
+			sql= sql + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
+		if (positiveOnly)
 		{
-			if ((M_Warehouse_ID == 0 && M_Locator_ID == 0) || M_Product_ID == 0)
-				return new MStorageOnHand[0];
-			
-			boolean allAttributeInstances = false;
-			if (M_AttributeSetInstance_ID == 0)
-				allAttributeInstances = true;		
-			
-			ArrayList<MStorageOnHand> list = new ArrayList<MStorageOnHand>();
-			//	Specific Attribute Set Instance
-			String sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
-				+ "s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
-				+ "s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
-				+ "FROM M_StorageOnHand s"
-				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID) "
-				+ " INNER JOIN M_Warehouse w ON (l.M_Warehouse_ID = w.M_Warehouse_ID AND w.IsInTransit = 'N') "
-				+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) ";
+			sql += " AND s.QtyOnHand > 0 ";
+		}
+		else
+		{
+			sql += " AND s.QtyOnHand <> 0 ";
+		}
+		sql += "ORDER BY l.PriorityNo DESC, DateMaterialPolicy ";
+		if (!FiFo)
+			sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+		else
+			sql += ", s.M_AttributeSetInstance_ID ";
+		//	All Attribute Set Instances
+		if (allAttributeInstances)
+		{
+			sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
+				+ " s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
+				+ " s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
+				+ " FROM M_StorageOnHand s"
+				+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
+				+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) "
+				+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
 			if (M_Locator_ID > 0)
 				sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
 			else
 				sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-			sql += " AND s.M_Product_ID=?";
-			if (M_AttributeSetInstance_ID > 0)
-				sql= sql + " AND COALESCE(s.M_AttributeSetInstance_ID,0)=? ";
+			sql += " AND s.M_Product_ID=? ";
 			if (positiveOnly)
 			{
 				sql += " AND s.QtyOnHand > 0 ";
@@ -2187,104 +2354,279 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			{
 				sql += " AND s.QtyOnHand <> 0 ";
 			}
-			sql += "ORDER BY l.PriorityNo DESC, DateMaterialPolicy ";
-			if (!FiFo)
-				sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+			
+			if (minGuaranteeDate != null)
+			{
+				sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
+			}
+			
+			MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
+			
+			if(product.isUseGuaranteeDateForMPolicy()){
+				sql += "ORDER BY l.PriorityNo DESC, COALESCE(asi.GuaranteeDate,s.DateMaterialPolicy)";
+				if (!FiFo)
+					sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
+				else
+					sql += ", s.M_AttributeSetInstance_ID ";
+			}
 			else
-				sql += ", s.M_AttributeSetInstance_ID ";
-			//	All Attribute Set Instances
-			if (allAttributeInstances)
 			{
-				sql = "SELECT s.M_Product_ID,s.M_Locator_ID,s.M_AttributeSetInstance_ID,"
-					+ " s.AD_Client_ID,s.AD_Org_ID,s.IsActive,s.Created,s.CreatedBy,s.Updated,s.UpdatedBy,"
-					+ " s.QtyOnHand,s.DateLastInventory,s.M_StorageOnHand_UU,s.DateMaterialPolicy "
-					+ " FROM M_StorageOnHand s"
-					+ " INNER JOIN M_Locator l ON (l.M_Locator_ID=s.M_Locator_ID)"
-					+ " LEFT JOIN M_LocatorType lt ON (l.M_LocatorType_ID = lt.M_LocatorType_ID) "
-					+ " LEFT OUTER JOIN M_AttributeSetInstance asi ON (s.M_AttributeSetInstance_ID=asi.M_AttributeSetInstance_ID) ";
-				if (M_Locator_ID > 0)
-					sql += "WHERE l.M_Locator_ID = ? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
+				sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.DateMaterialPolicy";
+				if (!FiFo)
+					sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
 				else
-					sql += "WHERE l.M_Warehouse_ID=? AND (CASE WHEN l.M_LocatorType_ID IS NOT NULL THEN lt.IsAvailableForShipping = 'Y' ELSE TRUE END) ";
-				sql += " AND s.M_Product_ID=? ";
-				if (positiveOnly)
-				{
-					sql += " AND s.QtyOnHand > 0 ";
-				}
-				else
-				{
-					sql += " AND s.QtyOnHand <> 0 ";
-				}
-				
-				if (minGuaranteeDate != null)
-				{
-					sql += "AND (asi.GuaranteeDate IS NULL OR asi.GuaranteeDate>?) ";
-				}
-				
-				MProduct product = MProduct.get(Env.getCtx(), M_Product_ID);
-				
-				if(product.isUseGuaranteeDateForMPolicy()){
-					sql += "ORDER BY l.PriorityNo DESC, COALESCE(asi.GuaranteeDate,s.DateMaterialPolicy)";
-					if (!FiFo)
-						sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
-					else
-						sql += ", s.M_AttributeSetInstance_ID ";
-				}
-				else
-				{
-					sql += "ORDER BY l.PriorityNo DESC, l.M_Locator_ID, s.DateMaterialPolicy";
-					if (!FiFo)
-						sql += " DESC, s.M_AttributeSetInstance_ID DESC ";
-					else
-						sql += ", s.M_AttributeSetInstance_ID ";
-				}
-				
-				sql += ", s.QtyOnHand DESC";
-			} 
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			try
+					sql += ", s.M_AttributeSetInstance_ID ";
+			}
+			
+			sql += ", s.QtyOnHand DESC";
+		} 
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try
+		{
+			pstmt = DB.prepareStatement(sql, trxName);
+			pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
+			pstmt.setInt(2, M_Product_ID);
+			if (!allAttributeInstances)
 			{
-				pstmt = DB.prepareStatement(sql, trxName);
-				pstmt.setInt(1, M_Locator_ID > 0 ? M_Locator_ID : M_Warehouse_ID);
-				pstmt.setInt(2, M_Product_ID);
-				if (!allAttributeInstances)
+				if (M_AttributeSetInstance_ID > 0)
+				pstmt.setInt(3, M_AttributeSetInstance_ID);
+			}
+			else if (minGuaranteeDate != null)
+			{
+				pstmt.setTimestamp(3, minGuaranteeDate);
+			}
+			rs = pstmt.executeQuery();
+			while (rs.next())
+			{	
+				if(rs.getBigDecimal(11).signum() != 0)
 				{
-					if (M_AttributeSetInstance_ID > 0)
-					pstmt.setInt(3, M_AttributeSetInstance_ID);
-				}
-				else if (minGuaranteeDate != null)
-				{
-					pstmt.setTimestamp(3, minGuaranteeDate);
-				}
-				rs = pstmt.executeQuery();
-				while (rs.next())
-				{	
-					if(rs.getBigDecimal(11).signum() != 0)
+					MStorageOnHand storage = new MStorageOnHand (ctx, rs, trxName);
+					if (!Util.isEmpty(trxName) && forUpdate)
 					{
-						MStorageOnHand storage = new MStorageOnHand (ctx, rs, trxName);
-						if (!Util.isEmpty(trxName) && forUpdate)
-						{
-							DB.getDatabase().forUpdate(storage, timeout);
-						}
-						list.add (storage);
+						DB.getDatabase().forUpdate(storage, timeout);
 					}
-				}	
-			}
-			catch (Exception e)
-			{
-				log.log(Level.SEVERE, sql, e);
-			}
-			finally
-			{
-				DB.close(rs, pstmt);
-				rs = null; pstmt = null;
-			}
-			MStorageOnHand[] retValue = new MStorageOnHand[list.size()];
-			list.toArray(retValue);
-			return retValue;
-}	//	getWarehouse
+					list.add (storage);
+				}
+			}	
+		}
+		catch (Exception e)
+		{
+			log.log(Level.SEVERE, sql, e);
+		}
+		finally
+		{
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		MStorageOnHand[] retValue = new MStorageOnHand[list.size()];
+		list.toArray(retValue);
+		return retValue;
+	}	//	getWarehouse
 
+	/***
+	 * Create Freight Cost Document
+	 * @author Jorge Colmenarez, 2024-02-06 11:33
+	 * @param et
+	 * @return msg or null
+	 */
+	private String createFreightCost(MFTUEntryTicket et) {
+		StringBuffer msg = new StringBuffer();
+		int m_Created = 0;
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		if(et.getFTU_PriceForTrip_ID()<=0) {
+			m_processMsg = "@FTU_PriceForTrip_ID@ @Mandatory@";
+			return null; 
+		}
+		X_FTU_PriceForTrip pft = new X_FTU_PriceForTrip(getCtx(), et.getFTU_PriceForTrip_ID(), get_TrxName());
+		try {
+			//	Create Cost Freight
+			MFTUFreightCost cost = new MFTUFreightCost(getCtx(), 0, get_TrxName());
+			cost.setAD_Org_ID(getAD_Org_ID());
+			cost.setC_DocType_ID(et.getC_DocTypeTarget_ID());
+			cost.setDateDoc(now);
+			cost.setAD_User_ID(Env.getContextAsInt(getCtx(), "#AD_User_ID"));
+			cost.setFTU_PriceForTrip_ID(pft.get_ID());
+			cost.setC_Currency_ID(pft.getC_Currency_ID());
+			cost.setC_ConversionType_ID(pft.getC_ConversionType_ID());
+			cost.setM_Shipper_ID(et.getM_Shipper_ID());
+			cost.setFTU_EntryTicket_ID(et.getFTU_EntryTicket_ID());
+			cost.setFTU_LoadOrder_ID(getFTU_LoadOrder_ID());
+			cost.setFTU_Driver_ID(getFTU_Driver_ID());
+			cost.setFTU_Vehicle_ID(getFTU_Vehicle_ID());
+			cost.setDocStatus(MFTUFreightCost.DOCSTATUS_Drafted);
+			cost.setDocAction(MFTUFreightCost.ACTION_Prepare);
+			cost.saveEx();
+			
+			//	Create Line
+			MFTUFreightCostLine line = new MFTUFreightCostLine(getCtx(), 0, get_TrxName());
+			line.setFTU_FreightCost_ID(cost.getFTU_FreightCost_ID());
+			line.setFTU_DeliveryRute_ID(pft.getFTU_DeliveryRute_ID());
+			line.setC_Charge_ID(et.getC_Charge_ID());
+			line.setFTU_RecordWeight_ID(getFTU_RecordWeight_ID());
+			int invID = DB.getSQLValue(get_TrxName(), "SELECT MAX(C_Invoice_ID) FROM C_Invoice WHERE DocStatus IN ('CO','CL') AND C_Order_ID = ? ", et.getC_Order_ID());
+			if(invID > 0)
+				line.setC_Invoice_ID(invID);
+			line.setWeight(getNetWeight());
+			line.setDiscountWeight(getDifferenceQty());
+			line.setValueMin(pft.getValueMin());
+			line.setValueMax(pft.getValueMax());
+			line.setPrice(pft.getPrice());
+			line.setPriceActual(pft.getPriceActual());
+			line.setC_ConversionType_ID(pft.getC_ConversionType_ID());
+			line.setC_Currency_ID(pft.getC_Currency_ID());
+			BigDecimal rate = MConversionRate.getRate(pft.getC_Currency_ID(), cost.getC_Currency_ID(), cost.getDateDoc(), pft.getC_ConversionType_ID(), cost.getAD_Client_ID(), cost.getAD_Org_ID());
+			line.setFinalPrice(pft.getPriceActual());
+			line.setRate(rate);
+			line.setCosts(getNetWeight().multiply(pft.getPriceActual()).setScale(4, RoundingMode.HALF_UP));
+			line.saveEx();
+			
+			if(!cost.processIt(MFTUFreightCost.ACTION_Complete)) {
+				m_processMsg = cost.getProcessMsg();
+			}
+			cost.saveEx();
+			msg.append(cost.getDocumentInfo());
+			//	Create Order Purchase
+			if (!(cost.getM_Shipper().getC_BPartner_ID()>0))
+				throw new AdempiereException(" la transportista no tiene un tercero asociado");
+			
+			MPriceList pl = new MPriceList(getCtx(), et.get_ValueAsInt("M_PriceList_ID"), get_TrxName());
+			int c_currency_id = pl.getC_Currency_ID();
+			
+			MFTUFreightCostLine[] fcLines = cost.getLines("");
+			MDocType dt = new MDocType(getCtx(), cost.getC_DocType_ID(), get_TrxName());
+			if (fcLines.length>0) {
+				//	Create Order from Freight Cost
+				MOrder ord = new MOrder(getCtx(), 0, get_TrxName());
+				ord.setAD_Org_ID(cost.getAD_Org_ID());
+				ord.setC_DocTypeTarget_ID(dt.get_ValueAsInt("C_DocTypeOrder_ID"));
+				ord.setIsSOTrx(false);
+				ord.setBPartner((MBPartner) cost.getM_Shipper().getC_BPartner());
+				ord.setM_PriceList_ID(pl.getM_PriceList_ID());
+				ord.setC_ConversionType_ID(cost.getC_ConversionType_ID());
+				ord.setSalesRep_ID(cost.getAD_User_ID());
+				ord.setDateOrdered(now);
+				ord.setDateAcct(now);
+				ord.setDescription("Costo de Flete generado desde pesada: "+getDocumentInfo());
+				ord.set_ValueOfColumn("FTU_FreightCost_ID", cost.getFTU_FreightCost_ID());
+				ord.setDocStatus(MOrder.STATUS_Drafted);
+				ord.setDocAction(MOrder.ACTION_Complete);
+				ord.saveEx();
+				//	Create Order Line from Freight Cost
+				for (MFTUFreightCostLine fcline : fcLines) {
+					MOrderLine oline = new MOrderLine(ord);
+					oline.setC_Charge_ID(fcline.getC_Charge_ID());
+					if (c_currency_id != cost.getC_Currency_ID()) {
+						BigDecimal amt = MConversionRate.convert(getCtx(), fcline.getCosts(), cost.getC_Currency_ID(), c_currency_id,now,cost.getC_ConversionType_ID() ,cost.getAD_Client_ID(), cost.getAD_Org_ID());
+						oline.setPrice(amt);
+					}else {
+						oline.setPrice(fcline.getCosts());
+					}
+					oline.setQty(Env.ONE);
+					oline.saveEx();
+					fcline.setC_Order_ID(ord.get_ID());
+					fcline.saveEx();
+				}
+				
+				if(!ord.processIt(MOrder.ACTION_Complete)) {
+					m_processMsg = cost.getProcessMsg();
+				}
+				ord.saveEx();
+				msg.append(" - Orden de Compra: "+ord.getDocumentInfo());
+				if(et.getC_Order_ID()>0) {
+					//	Create Landed Cost from Order Freight Cost
+					MOrderLandedCost lcost = new MOrderLandedCost(getCtx(), 0, get_TrxName());
+					lcost.setC_Order_ID(et.getC_Order_ID());
+					lcost.setAD_Org_ID(getAD_Org_ID());
+					lcost.set_ValueOfColumn("C_OrderSource_ID", ord.get_ID());
+					lcost.setM_CostElement_ID(et.getM_CostElement_ID());
+					lcost.setDescription(ord.getDescription());
+					lcost.setLandedCostDistribution(MOrderLandedCost.LANDEDCOSTDISTRIBUTION_Quantity);
+					lcost.setAmt(ord.getGrandTotal());
+					lcost.saveEx();
+					//	Create Landed Cost Allocation
+					MOrderLandedCostAllocation olca = new MOrderLandedCostAllocation(getCtx(), 0, get_TrxName());
+					olca.setAD_Org_ID(getAD_Org_ID());
+					olca.setC_OrderLandedCost_ID(lcost.get_ID());
+					olca.setC_OrderLine_ID(et.getC_OrderLine_ID());
+					olca.setBase(getNetWeight());
+					olca.setQty(getNetWeight());
+					olca.setAmt(lcost.getAmt());
+					olca.setProcessed(false);
+					olca.saveEx();
+				}
+			}
+			m_Created++;
+		}catch(Exception ex) {
+			m_processMsg = ex.getLocalizedMessage();
+			return null;
+		}
 		
-		
+		return "@FTU_FreightCost_ID@ @Created@ = " + m_Created + " [" + msg.toString() + "] ";
+	}
+	
+	/***
+	 * Update reference Receipt on Freight Cost Lines
+	 * @param io
+	 */
+	private void updateFreightCostLine(MInOut io) {
+		List<MFTUFreightCostLine> list = new Query(getCtx(), I_FTU_FreightCostLine.Table_Name, " FTU_RecordWeight_ID = ? AND EXISTS(SELECT 1 FROM FTU_FreightCost fc WHERE fc.DocStatus = 'CO' AND fc.FTU_FreightCost_ID = FTU_FreightCostLine.FTU_FreightCost_ID)", get_TrxName())
+				.setParameters(io.get_ValueAsInt("FTU_RecordWeigth_ID"))
+				.list();
+		MFTUFreightCostLine[] fclines = list.toArray(new MFTUFreightCostLine[list.size()]);
+		for(MFTUFreightCostLine line : fclines) {
+			line.setM_InOut_ID(io.get_ID());
+			line.saveEx();
+		}
+	}
+	
+	/****
+	 * Reverse Freight Cost Allocated
+	 * @throws Exception 
+	 */
+	private void reverseFreightCost() throws Exception {
+		List<MFTUFreightCostLine> list = new Query(getCtx(), I_FTU_FreightCostLine.Table_Name, " FTU_RecordWeight_ID = ?  AND EXISTS(SELECT 1 FROM FTU_FreightCost fc WHERE fc.DocStatus = 'CO' AND fc.FTU_FreightCost_ID = FTU_FreightCostLine.FTU_FreightCost_ID)", get_TrxName())
+				.setParameters(getFTU_RecordWeight_ID())
+				.list();
+		MFTUFreightCostLine[] fclines = list.toArray(new MFTUFreightCostLine[list.size()]);
+		MFTUFreightCost fc = null;
+		for(MFTUFreightCostLine line : fclines) {
+			if(line.getC_Order_ID()>0) {
+				MOrder o = new MOrder(getCtx(), line.getC_Order_ID(), get_TrxName());
+				//	Drop Landed Cost if Exists
+				int olcID = DB.getSQLValue(get_TrxName(), "SELECT C_OrderLandedCost_ID FROM C_OrderLandedCost WHERE C_OrderSource_ID = ?", o.get_ID());
+				if(olcID>0) {
+					MOrderLandedCost olc = new MOrderLandedCost(getCtx(), olcID, get_TrxName());
+					for(MOrderLandedCostAllocation olca : olc.getLines(""))
+						olca.deleteEx(true);
+					olc.deleteEx(true);
+				}
+				//	Reverse Cost Adjustment if Exists
+				int caID = DB.getSQLValue(get_TrxName(), "SELECT M_Inventory_ID FROM M_Inventory WHERE DocStatus = 'CO' AND C_Order_ID = ?", o.get_ID());
+				if(caID > 0) {
+					MInventory i = new MInventory(getCtx(), caID, get_TrxName());
+					if(!i.processIt(MInventory.ACTION_Reverse_Correct)) {
+						m_processMsg = i.getProcessMsg();
+					}
+					i.saveEx();
+				}
+				if(!o.processIt(MOrder.ACTION_Void)) {
+					m_processMsg = o.getProcessMsg();
+				}
+				o.saveEx();
+				if(fc==null)
+					fc = new MFTUFreightCost(getCtx(), line.getFTU_FreightCost_ID(), get_TrxName());
+				if(fc.get_ID() != line.getFTU_FreightCost_ID()) {
+					if(!fc.processIt(MFTUFreightCost.ACTION_Void))
+						m_processMsg = fc.getProcessMsg();
+					fc.saveEx();
+					fc = new MFTUFreightCost(getCtx(), line.getFTU_FreightCost_ID(), get_TrxName());
+				}
+			}
+		}
+		if(fc!=null)
+			if(!fc.processIt(MFTUFreightCost.ACTION_Void))
+				m_processMsg = fc.getProcessMsg();
+		fc.saveEx();
+	}
 }
