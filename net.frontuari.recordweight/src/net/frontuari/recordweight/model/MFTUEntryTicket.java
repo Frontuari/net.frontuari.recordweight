@@ -74,7 +74,6 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 
-
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_AFTER_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
@@ -438,9 +437,19 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
-		super.beforeSave(newRecord);
-		if (newRecord)
+		if (newRecord) {
 			setIsPrinted(false);
+			if(getDocumentNo() == null || getDocumentNo().isBlank() || getDocumentNo().isEmpty()) {
+				String value = null;
+				int index = p_info.getColumnIndex("C_DocType_ID");
+				if (index != -1) {
+					value = DB.getDocumentNo(get_ValueAsInt(index), get_TrxName(), true);
+				}
+				if (value != null) {
+					setDocumentNo(value);
+				}
+			}
+		}
 
 		String msg = null;
 
