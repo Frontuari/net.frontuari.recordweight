@@ -51,6 +51,7 @@ import org.compiere.model.MLookupFactory;
 import org.compiere.model.MPaySelection;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.PrintInfo;
 import org.compiere.model.X_C_Order;
@@ -209,6 +210,8 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 	private Doublebox 		volumeCapacityField = new Doublebox();
 	/**	Bulk				*/
 	private Checkbox 		isBulkCheck = new Checkbox();
+	/** Validate Volumen UM */
+	private boolean		checkClientUMVolumen = true;
 	
 	/**
 	 * 
@@ -218,6 +221,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "Y");   //  defaults to no
 		try
 		{
+			checkClientUMVolumen = MSysConfig.getBooleanValue("LoadOrderCheckClientVolumenUOM", true,Env.getAD_Client_ID(Env.getCtx()), Env.getAD_Org_ID(Env.getCtx()));
 			dynInit();
 			zkInit();
 			//	Load Default Values
@@ -854,7 +858,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		else if(m_C_UOM_Weight_ID == 0)
 			msg = "@C_UOM_Weight_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Volume UOM
-		else if(m_C_UOM_Volume_ID == 0)
+		else if(m_C_UOM_Volume_ID == 0 && checkClientUMVolumen)
 			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Operation Type
 		else if(m_OperationType == null)
@@ -976,7 +980,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			weightDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffWeight@ (" + m_UOM_Weight_Symbol + ")"));
 		}
 		//	Volume Symbol
-		if(m_C_UOM_Volume_ID != 0) {
+		if(m_C_UOM_Volume_ID != 0 && checkClientUMVolumen) {
 			MUOM uom = MUOM.get(Env.getCtx(), m_C_UOM_Volume_ID);
 			m_UOM_Volume_Symbol = uom.getUOMSymbol();
 			volumeDiffLabel.setText(Msg.parseTranslation(Env.getCtx(), "@DiffVolume@ (" + m_UOM_Volume_Symbol + ")"));
@@ -998,7 +1002,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		else if(m_C_UOM_Weight_ID == 0)
 			msg = "@C_UOM_Weight_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Volume UOM
-		else if(m_C_UOM_Volume_ID == 0)
+		else if(m_C_UOM_Volume_ID == 0 && checkClientUMVolumen)
 			msg = "@C_UOM_Volume_ID@ @of@ @AD_Client_ID@ @NotFound@";
 		//	Valid Operation Type
 		else if(m_OperationType == null)
@@ -1021,7 +1025,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			BigDecimal difference = (BigDecimal) (volumeDiffField.getValue() != null
 														? volumeDiffField.getValue()
 																: Env.ZERO);
-			if(difference.compareTo(Env.ZERO) < 0)
+			if(difference.compareTo(Env.ZERO) < 0 && checkClientUMVolumen)
 				msg = "@Volume@ > @VolumeCapacity@";
 		}
 		//	Valid Message
@@ -1123,7 +1127,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				diffWeight = m_LoadCapacity.subtract(totalWeight);
 			}
 			//	Volume
-			if(totalVolume.compareTo(Env.ZERO) > 0) {
+			if(totalVolume.compareTo(Env.ZERO) > 0 && checkClientUMVolumen) {
 				if(volumeCapacityField.getValue()!=null)
 					m_VolumeCapacity = new BigDecimal(volumeCapacityField.getValue());
 				else
