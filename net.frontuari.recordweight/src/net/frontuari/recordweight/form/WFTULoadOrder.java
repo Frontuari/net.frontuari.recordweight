@@ -4,11 +4,15 @@ import static org.adempiere.webui.ClientInfo.MEDIUM_WIDTH;
 import static org.adempiere.webui.ClientInfo.SMALL_WIDTH;
 import static org.adempiere.webui.ClientInfo.maxWidth;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -28,6 +32,7 @@ import org.adempiere.webui.component.Panel;
 import org.adempiere.webui.component.Row;
 import org.adempiere.webui.component.Rows;
 import org.adempiere.webui.component.WListbox;
+import org.adempiere.webui.component.Window;
 import org.adempiere.webui.editor.WSearchEditor;
 import org.adempiere.webui.editor.WTableDirEditor;
 import org.adempiere.webui.event.ValueChangeEvent;
@@ -41,6 +46,7 @@ import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
 import org.adempiere.webui.window.Dialog;
 import org.adempiere.webui.window.FDialog;
+import org.adempiere.webui.window.SimplePDFViewer;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_SalesRegion;
@@ -53,6 +59,7 @@ import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
+import org.compiere.model.MWindow;
 import org.compiere.model.PrintInfo;
 import org.compiere.model.X_C_Order;
 import org.compiere.print.MPrintFormat;
@@ -1596,16 +1603,37 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				m_DocType.getAD_PrintFormat_ID(), false);
 		//	
 		if(f != null) {
-			MQuery q = new MQuery(I_FTU_LoadOrder.Table_Name);
-			q.addRestriction(I_FTU_LoadOrder.Table_Name + "_ID", "=", m_FTU_LoadOrder.getFTU_LoadOrder_ID());
-			PrintInfo i = new PrintInfo(Msg.translate(Env.getCtx(), 
-					I_FTU_LoadOrder.Table_Name + "_ID"), I_FTU_LoadOrder.Table_ID, m_FTU_LoadOrder.getFTU_LoadOrder_ID());
-			//	
-			ReportEngine re = new ReportEngine(Env.getCtx(), f, q, i, null);
-			//	Print
-			//	Direct Print
-			re.print();
-			ReportCtl.preview(re);
+			List<File> pdfList = new ArrayList<File>();
+			try
+			{
+				MFTULoadOrder lo = new MFTULoadOrder(Env.getCtx(), m_FTU_LoadOrder.get_ID(), null);
+				pdfList.add(lo.createPDF());
+			}
+			catch (Exception e)
+			{
+				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				return;
+			}
+			SimplePDFViewer loadOrderViewer = null;
+			try
+			{
+				File outFile = File.createTempFile("WFTULoadOrder", null);
+				AEnv.mergePdf(pdfList, outFile);
+				loadOrderViewer = new SimplePDFViewer(form.getFormName(), new FileInputStream(outFile));
+				loadOrderViewer.setAttribute(Window.MODE_KEY, Window.MODE_EMBEDDED);
+				ZKUpdateUtil.setWidth(loadOrderViewer, "100%");
+			}
+			catch (Exception e)
+			{
+				log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				return;
+			}
+			final SimplePDFViewer loadOrderViewerRef = loadOrderViewer;
+			MQuery query = MQuery.getEqualQuery("FTU_LoadOrder_ID", m_FTU_LoadOrder.get_ID());
+			SessionManager.getAppDesktop().openWindow(MWindow.get(Env.getCtx(),"9fc64d28-913e-4e3c-87fa-0e0a3d611b29").get_ID(), query, null);
+			if(loadOrderViewerRef!=null) {
+				SessionManager.getAppDesktop().showWindow(loadOrderViewerRef);
+			}
 		}
 	}
 	/**
@@ -1644,7 +1672,6 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				{	//	Print?
 					printDocument();
 				}
-				AEnv.zoom(MFTULoadOrder.Table_ID, m_FTU_LoadOrder.get_ID());
 			}
 		});	
 		
