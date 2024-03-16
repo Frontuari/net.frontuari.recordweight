@@ -395,6 +395,10 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		log.info(toString());
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
+				//	Modified by Jorge Colmenarez, 2024-03-16 11:07
+				//	Support for generate InOut when Operation Type it's Delivery Multiple Products
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts)
+				//	End Jorge Colmenarez
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
 			//	Added by Jorge Colmenarez, 2024-02-06 11:14
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
@@ -531,7 +535,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		
 		InOutsPending = DB.getSQLValue(get_TrxName(), sql);
 		if (InOutsPending > 0) {
-			m_processMsg = m_processMsg + " Este registro de peso posee una entrega no completada";
+			m_processMsg = m_processMsg + " No puede ser completado debido a que no se dispone de inventario suficiente";
 			return DocAction.STATUS_Invalid;
 		}
 		
@@ -2019,7 +2023,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				// Complete Previous Shipment
 				completeShipment(m_Current_Shipment);
 				// Initialize Order and
-				m_Current_Warehouse_ID = oLine.getM_Warehouse_ID();
+				//	Modified by Jorge Colmenarez, 2022-11-19 18:02
+				//	Get Warehouse from RecordWeight
+				//m_Current_Warehouse_ID = oLine.getM_Warehouse_ID();
+				boolean setWarehouseByHeader = MSysConfig.getBooleanValue("CheckWarehouseByLoadOrderHeader", false, getAD_Client_ID(), getAD_Org_ID());
+				m_Current_Warehouse_ID = (getM_Warehouse_ID()>0 && setWarehouseByHeader ? getM_Warehouse_ID() : oLine.getM_Warehouse_ID());
+				//	End Jorge Colmenarez
 				m_Current_BPartner_ID = oLine.getC_BPartner_ID();
 				// Get Warehouse
 				MWarehouse warehouse = MWarehouse.get(getCtx(), m_Current_Warehouse_ID, get_TrxName());
