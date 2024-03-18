@@ -74,7 +74,6 @@ public class CalloutRecordWeight extends FTUCallout {
 					" AND FTU_LoadOrder.DocStatus IN ('CO')";
 			
 			int m_FTU_LoadOrder_ID = DB.getSQLValue(null, sql, m_FTU_EntryTicket_ID);
-			
 			//Set Product From Entry Ticket
 			//	Set Trailer Plate, Vehicle and driver of Entry Ticket
 			if (et.getM_Product_ID()!= 0 ) {
@@ -99,16 +98,19 @@ public class CalloutRecordWeight extends FTUCallout {
 			if(et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_RawMaterialReceipt)
 					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_DeliveryBulkMaterial)
 					|| et.getOperationType().equals(X_FTU_EntryTicket.OPERATIONTYPE_MaterialInputMovement)) {
+				int warehouseID = et.getC_Order().getM_Warehouse_ID();
+				setValue(I_FTU_RecordWeight.COLUMNNAME_M_Warehouse_ID, warehouseID);
+				
 				int p_HRS_Analysis_ID = MHRSAnalysis.getByEntryTicket(et.getFTU_EntryTicket_ID());
 				if(p_HRS_Analysis_ID > 0)
 					setValue(I_FTU_RecordWeight.COLUMNNAME_HRS_Analysis_ID, p_HRS_Analysis_ID);
 			}
-//			Set Value Load Order into Record Weight
+			//	Set Value Load Order into Record Weight
+			if(m_FTU_LoadOrder_ID > 0)
+				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, m_FTU_LoadOrder_ID);
+			else if(et.getFTU_LoadOrder_ID()>0)
+				setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, et.getFTU_LoadOrder_ID());
 			
-					if(m_FTU_LoadOrder_ID > 0)
-						setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, m_FTU_LoadOrder_ID);
-					else if(et.getFTU_LoadOrder_ID()>0)
-						setValue(I_FTU_RecordWeight.COLUMNNAME_FTU_LoadOrder_ID, et.getFTU_LoadOrder_ID());
 			fillLoadOrderData();
 			fillOperationType();
 		}
