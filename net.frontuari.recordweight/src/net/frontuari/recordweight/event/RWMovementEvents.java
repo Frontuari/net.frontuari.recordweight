@@ -52,8 +52,7 @@ public class RWMovementEvents extends ModelEventDelegate<MMovement> {
 			if(p_FTU_LoadOrderLine_ID <= 0)
 				continue;
 			
-			MFTULoadOrderLine lin = 
-					new MFTULoadOrderLine(m_MovementLine.getCtx(), p_FTU_LoadOrderLine_ID, m_MovementLine.get_TrxName());
+			MFTULoadOrderLine lin = new MFTULoadOrderLine(m_MovementLine.getCtx(), p_FTU_LoadOrderLine_ID, m_MovementLine.get_TrxName());
 			lin.setM_MovementLine_ID(0);
 			lin.setConfirmedQty(lin.getConfirmedQty().subtract(m_MovementLine.getMovementQty()));
 			lin.saveEx();

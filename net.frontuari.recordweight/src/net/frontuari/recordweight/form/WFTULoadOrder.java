@@ -967,10 +967,12 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			m_FTU_Vehicle_ID =  Integer.parseInt(vehicleSearch.getName());
 		else
 			m_FTU_Vehicle_ID = 0;
-		if(docTypeSearch.getName() != null)
-			m_C_DocType_ID = Integer.parseInt(docTypeSearch.getName());
-		else
-			m_C_DocType_ID = -1;
+		if(MSysConfig.getBooleanValue("SETDEFAULTDOCTYPE_ONWLOADORDER", true, Env.getAD_Client_ID(Env.getCtx()), Env.getAD_Org_ID(Env.getCtx()))) {
+			if(docTypeSearch.getName() != null)
+				m_C_DocType_ID = Integer.parseInt(docTypeSearch.getName());
+			else
+				m_C_DocType_ID = -1;
+		}
 		//	Capacity
 		m_LoadCapacity = new BigDecimal((loadCapacityField.getValue() != null ? loadCapacityField.getValue() : 0));
 		m_VolumeCapacity = new BigDecimal((volumeCapacityField.getValue() != null ? volumeCapacityField.getValue() : 0));
@@ -1040,7 +1042,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			msg = validStock(stockTable);
 		}*/
 		
-		if(msg != null) {
+		if(msg != null && MSysConfig.getBooleanValue("CALCULATE_WHEN_VALIDATIONFAIL_WLOADORDER", true, Env.getAD_Client_ID(Env.getCtx()), Env.getAD_Org_ID(Env.getCtx()))) {
 			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
 			calculate();
 			return false;

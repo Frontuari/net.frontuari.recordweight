@@ -39,8 +39,7 @@ public class RWInvoiceEvents extends ModelEventDelegate<MInvoice> {
 				if(p_FTU_LoadOrderLine_ID <= 0)
 					continue;
 				
-				MFTULoadOrderLine lin = 
-						new MFTULoadOrderLine(mInvoiceLine.getCtx(), p_FTU_LoadOrderLine_ID, mInvoiceLine.get_TrxName());
+				MFTULoadOrderLine lin = new MFTULoadOrderLine(mInvoiceLine.getCtx(), p_FTU_LoadOrderLine_ID, mInvoiceLine.get_TrxName());
 				lin.setC_InvoiceLine_ID(0);
 				lin.saveEx();
 				
