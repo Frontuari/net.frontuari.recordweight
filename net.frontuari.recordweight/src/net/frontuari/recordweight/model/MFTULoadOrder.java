@@ -19,6 +19,7 @@ import org.compiere.model.MPeriod;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MStorageOnHand;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOMConversion;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -210,7 +211,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 						m_processMsg = "@Over_Qty_On_Attribute_Tab@ " + line.getLine();
 						return DOCSTATUS_Invalid;
 					}
-					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType())) {
+					//	Added by Jorge Colmenarez, 2024-03-22 10:37
+					//	Support for Validate Stock on LoadOrder
+					boolean validateStock = MSysConfig.getBooleanValue("LOADORDER_VALIDATE_STOCK", true, getAD_Client_ID(), getAD_Org_ID());
+					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType()) && validateStock) {
+						//	End Jorge Colmenarez
 						if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
 						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
 							if (line.getM_AttributeSetInstance_ID() == 0) {

@@ -174,7 +174,7 @@ public class FTULoadOrder extends FTUForm {
 		//	
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		StringBuffer sql = null;
-		if (p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement)) {
+		if (p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement)  || p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MovementMultipleProduct)) {
 			//Query for Material Movement
 			sql = new StringBuffer("SELECT " +
 					"wr.Name Warehouse, ord.DD_Order_ID, ord.DocumentNo, " +	//	1..3
@@ -194,7 +194,7 @@ public class FTULoadOrder extends FTUForm {
 					"LEFT JOIN (SELECT lord.DD_OrderLine_ID, " +
 					"	(COALESCE(lord.QtyOrdered, 0) - " +
 					"		SUM(" +
-					"				CASE WHEN (c.IsMoved = 'N' AND c.OperationType = 'MOM' AND c.DocStatus IN ('DR','IP','CO')) " +
+					"				CASE WHEN (c.IsMoved = 'N' AND (c.OperationType = 'MOM' OR c.OperationType = 'MMP') AND c.DocStatus IN ('DR','IP','CO')) " +
 					"						THEN COALESCE(lc.ConfirmedQty, lc.Qty, 0) " +
 					"						ELSE 0 " +
 					"				END" +
@@ -389,7 +389,7 @@ public class FTULoadOrder extends FTUForm {
 				
 		log.config("getQueryLine");
 		
-		if (p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement)) {
+		if (p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement) || p_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MovementMultipleProduct)) {
 			int rows = orderTable.getRowCount();
 			m_RowsSelected = 0;
 			StringBuffer sqlWhere = new StringBuffer("ord.DD_Order_ID IN(0"); 
@@ -921,7 +921,7 @@ public class FTULoadOrder extends FTUForm {
 				//	Set Values
 				m_FTU_LoadOrderLine.setAD_Org_ID(m_AD_Org_ID);
 				m_FTU_LoadOrderLine.setFTU_LoadOrder_ID(m_FTU_LoadOrder.getFTU_LoadOrder_ID());
-				if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement))
+				if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MaterialOutputMovement) || m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_MovementMultipleProduct))
 					m_FTU_LoadOrderLine.setDD_OrderLine_ID(m_OrderLine_ID);
 				else
 					m_FTU_LoadOrderLine.setC_OrderLine_ID(m_OrderLine_ID);
