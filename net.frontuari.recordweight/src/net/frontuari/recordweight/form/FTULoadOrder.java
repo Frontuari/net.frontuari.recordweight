@@ -911,11 +911,11 @@ public class FTULoadOrder extends FTUForm {
 				if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryBulkMaterial) ||
 				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct) ||
 				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts)) {
-				MOrderLine line = new MOrderLine(Env.getCtx(), m_OrderLine_ID, trxName);
-				MOrder salesOrder = line.getParent();
-				log.log(Level.SEVERE, "almacen orden de venta" + salesOrder.getM_Warehouse_ID());
-				m_FTU_LoadOrder.setM_Warehouse_ID(salesOrder.getM_Warehouse_ID());
-				m_FTU_LoadOrder.saveEx();
+					MOrderLine line = new MOrderLine(Env.getCtx(), m_OrderLine_ID, trxName);
+					MOrder salesOrder = line.getParent();
+					log.log(Level.SEVERE, "almacen orden de venta" + salesOrder.getM_Warehouse_ID());
+					m_FTU_LoadOrder.setM_Warehouse_ID(salesOrder.getM_Warehouse_ID());
+					m_FTU_LoadOrder.saveEx();
 				}
 				
 				//	Set Values
