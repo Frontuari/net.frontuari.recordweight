@@ -955,8 +955,11 @@ public class FTULoadOrder extends FTUForm {
 						throw new AdempiereException("@Over_Qty_On_Attribute_Tab@ " + m_FTU_LoadOrderLine.getLine());
 						
 					}
-					
-					m_FTU_LoadOrder.checkMaterialPolicy(m_FTU_LoadOrderLine, movementQty.subtract(qtyOnLineMA));	
+					//	Added by Jorge Colmenarez, 2024-03-22 10:37
+					//	Support for Validate Stock on LoadOrder
+					boolean validateStock = MSysConfig.getBooleanValue("LOADORDER_VALIDATE_STOCK", true, m_FTU_LoadOrderLine.getAD_Client_ID(), m_FTU_LoadOrderLine.getAD_Org_ID());
+					if(validateStock)
+						m_FTU_LoadOrder.checkMaterialPolicy(m_FTU_LoadOrderLine, movementQty.subtract(qtyOnLineMA));	
 				}
 			}
 		}

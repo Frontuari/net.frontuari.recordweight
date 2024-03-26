@@ -306,10 +306,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		log.info(toString());
 		//	Very Lines
 		MFTULoadOrderLine[] lines = getLines(false);
+		boolean validateStock = MSysConfig.getBooleanValue("LOADORDER_VALIDATE_STOCK", true, getAD_Client_ID(), getAD_Org_ID());
 		if (lines.length == 0){
 			m_processMsg = "@NoLines@";
 			return DocAction.STATUS_Invalid;
-		} else {
+		} else if(validateStock) {
 			//	Verify Error
 			m_processMsg = validStock();
 			if(m_processMsg != null) {
