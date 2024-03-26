@@ -897,6 +897,8 @@ public class X_FTU_LoadOrder extends PO implements I_FTU_LoadOrder, I_Persistent
 	public static final String OPERATIONTYPE_ImportRawMaterial = "IRM";
 	/** Material Input Movement = MIM */
 	public static final String OPERATIONTYPE_MaterialInputMovement = "MIM";
+	/** Movement Multiple Product = MMP */
+	public static final String OPERATIONTYPE_MovementMultipleProduct = "MMP";
 	/** Material Output Movement = MOM */
 	public static final String OPERATIONTYPE_MaterialOutputMovement = "MOM";
 	/** Other Record Weight = ORW */

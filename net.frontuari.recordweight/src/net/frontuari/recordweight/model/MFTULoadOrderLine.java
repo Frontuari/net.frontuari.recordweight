@@ -13,6 +13,7 @@ import java.util.logging.Level;
 
 import org.compiere.model.MProduct;
 import org.compiere.model.MStorageOnHand;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
 import org.compiere.util.CLogger;
@@ -83,6 +84,19 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 		setLoadOrder(loadorder);
 	}	//	MARILoadOrderLine
 	
+	/***
+	 * Check IsBulk attribute on Product
+	 * @return
+	 */
+	public boolean isBulk() {
+		MProduct m_Product = MProduct.get(getCtx(), getM_Product_ID());
+		boolean isBulk = true;
+		
+		if(m_Product.get_Attribute("isbulk").equals("N") ) isBulk = false; 
+		
+		return isBulk; 
+	}
+	
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
 		MProduct m_Product = MProduct.get(getCtx(), getM_Product_ID());
@@ -116,12 +130,14 @@ public class MFTULoadOrderLine extends X_FTU_LoadOrderLine {
 				if (m_ConfirmedWeight.compareTo(Env.ZERO) == 0)
 					setConfirmedWeight(m_ConfirmedQty.multiply(m_Weight));
 				else {
-					BigDecimal oldConfirmedQty = (BigDecimal)get_ValueOld("ConfirmedQty");
-					if(oldConfirmedQty==null) 
-						oldConfirmedQty = BigDecimal.ZERO;
-					m_ConfirmedQty = m_ConfirmedQty.subtract(oldConfirmedQty);
-					m_ConfirmedWeight = m_ConfirmedWeight.add(m_ConfirmedQty.multiply(m_Weight));
-					setConfirmedWeight(m_ConfirmedWeight);
+					if(MSysConfig.getBooleanValue("LOADORDER_SETCONFIRMEDQTY_ON_ALL_TRX", true,getAD_Client_ID(),getAD_Org_ID())) {
+						BigDecimal oldConfirmedQty = (BigDecimal)get_ValueOld("ConfirmedQty");
+						if(oldConfirmedQty==null) 
+							oldConfirmedQty = BigDecimal.ZERO;
+						m_ConfirmedQty = m_ConfirmedQty.subtract(oldConfirmedQty);
+						m_ConfirmedWeight = m_ConfirmedWeight.add(m_ConfirmedQty.multiply(m_Weight));
+						setConfirmedWeight(m_ConfirmedWeight);
+					}
 				}
 			}	
 		}

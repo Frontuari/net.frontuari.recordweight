@@ -228,7 +228,7 @@ public class LoadOrderGuideGenerate extends FTUProcess {
 		MDocType dt = new MDocType(getCtx(), p_C_DocTypeTarget_ID, get_TrxName());
 		//check issotrx by docTypeBase 
 		
-		isSOTrx = dt.getDocBaseType().equalsIgnoreCase("DGD") ? true : false;
+		isSOTrx = dt.getDocBaseType().equalsIgnoreCase("FMG") ? true : false;
 		//
 		MFTUMobilizationGuide m_MobilizationGuide = new MFTUMobilizationGuide(getCtx(), 0, get_TrxName());
 		m_MobilizationGuide.setAD_Org_ID(p_AD_Org_ID);
