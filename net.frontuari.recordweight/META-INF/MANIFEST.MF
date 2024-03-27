@@ -5,6 +5,7 @@ Bundle-Name: Record Weight
 Bundle-SymbolicName: net.frontuari.recordweight
 Automatic-Module-Name: net.frontuari.recordweight
 Bundle-Version: 11.0.0.qualifier
+Export-Package: net.frontuari.recordweight.model
 Bundle-Vendor: Frontuari, C.A. <https://frontuari.net>
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.apache.commons.lang3,
