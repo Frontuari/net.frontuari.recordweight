@@ -220,8 +220,8 @@ public class FTULoadOrder extends FTUForm {
 				sql.append("AND bploc.C_SalesRegion_ID=? ");
 			if (m_SalesRep_ID > 0 )
 				sql.append("AND ord.SalesRep_ID=? ");
-			if (m_C_DocType_ID > 0 )
-				sql.append("AND ord.C_DocType_ID=? ");
+			/*if (m_C_DocType_ID > 0 )
+				sql.append("AND ord.C_DocType_ID=? ");*/
 			if(m_IsBulk) {
 				sql.append("AND lord.M_Product_ID=? ");
 				sql.append("AND ord.C_BPartner_ID=? ");
