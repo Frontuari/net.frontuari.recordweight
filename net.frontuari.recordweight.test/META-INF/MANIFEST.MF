@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Record Weight Test
 Bundle-SymbolicName: net.frontuari.recordweight.test
-Bundle-Version: 10.0.0.qualifier
+Automatic-Module-Name: net.frontuari.recordweight
+Bundle-Version: 11.0.0.qualifier
 Bundle-Vendor: Frontuari, C.A. <https://frontuari.net>
 Fragment-Host: net.frontuari.recordweight
 Bundle-ClassPath: .,

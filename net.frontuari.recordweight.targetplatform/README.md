@@ -1,10 +1,10 @@
 # Record Weight - Target Platform
 
-A target platform is necessary to build a iDempiere plugin. This is a smart target platform. Current iDempiere Version `10.0.0`.
+A target platform is necessary to build a iDempiere plugin. This is a smart target platform. Current iDempiere Version `11.0.0`.
 
 ## Prerequisites
 
-- Java 11, commands `java` and `javac`.
+- Java 17, commands `java` and `javac`.
 - Maven 3.6.0
 - Set `IDEMPIERE_REPOSITORY` env variable.
 
