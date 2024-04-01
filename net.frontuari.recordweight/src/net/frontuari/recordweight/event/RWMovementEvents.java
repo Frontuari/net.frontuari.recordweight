@@ -19,10 +19,12 @@ import org.compiere.model.I_M_Inventory;
 import org.compiere.model.MInventory;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.Query;
 import org.compiere.model.X_M_Inventory;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 import org.eevolution.model.MDDOrderLine;
 import org.osgi.service.event.Event;
 
@@ -54,7 +56,10 @@ public class RWMovementEvents extends ModelEventDelegate<MMovement> {
 			
 			MFTULoadOrderLine lin = new MFTULoadOrderLine(m_MovementLine.getCtx(), p_FTU_LoadOrderLine_ID, m_MovementLine.get_TrxName());
 			lin.setM_MovementLine_ID(0);
-			lin.setConfirmedQty(lin.getConfirmedQty().subtract(m_MovementLine.getMovementQty()));
+			if(!MSysConfig.getBooleanValue("LOADORDER_SETCONFIRMEDQTY_ZERO_AFTER_REVERSEMOVEMENT", false,mMovement.getAD_Client_ID(),mMovement.getAD_Org_ID()))
+				lin.setConfirmedQty(lin.getConfirmedQty().subtract(m_MovementLine.getMovementQty()));
+			else
+				lin.setConfirmedQty(Env.ZERO);
 			lin.saveEx();
 			
 			MFTULoadOrder lo = new MFTULoadOrder(lin.getCtx(),lin.getFTU_LoadOrder_ID(), lin.get_TrxName());
