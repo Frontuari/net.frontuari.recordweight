@@ -16,9 +16,8 @@ import net.frontuari.recordweight.model.MFTUAnalysisType;
 import net.frontuari.recordweight.model.X_FTU_FormuleFunction;
 import net.frontuari.recordweight.model.X_FTU_QualityParam;
 
-@Callout(tableName = X_FTU_QualityParam.Table_Name, columnName = {X_FTU_QualityParam.COLUMNNAME_TranslateCode,
-		X_FTU_QualityParam.COLUMNNAME_AD_Column_ID,X_FTU_QualityParam.COLUMNNAME_FTU_Parent_ID,
-		X_FTU_QualityParam.COLUMNNAME_FTU_FormuleFunction_ID,X_FTU_QualityParam.COLUMNNAME_FTU_AnalysisType_ID})
+@Callout(tableName = "FTU_QualityParam", columnName = {"TranslateCode",
+		"AD_Column_ID","FTU_Parent_ID","FTU_FormuleFunction_ID","FTU_AnalysisType_ID"})
 public class CalloutQualityParam extends FTUCallout {
 	String campoCodigo;
 	@Override
