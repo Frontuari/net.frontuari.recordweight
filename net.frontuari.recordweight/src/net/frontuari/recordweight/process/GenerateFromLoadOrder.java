@@ -4,7 +4,6 @@
 package net.frontuari.recordweight.process;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -211,8 +210,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					}
 				}
 			}else {
-			MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
-			if (lineAttr.length > 0 ) {//if has attribute line
+				MFTULoadOrderLineMA[] lineAttr = MFTULoadOrderLineMA.get(getCtx(), m_FTU_LoadOrderLine.getFTU_LoadOrderLine_ID(), get_TrxName());
+				if (lineAttr.length > 0 ) {//if has attribute line
 			
 				for (MFTULoadOrderLineMA lineMA : lineAttr) {//for each maLIne
 					MAttributeSetInstance i = new MAttributeSetInstance(lineMA.getCtx(), lineMA.getM_AttributeSetInstance_ID(), lineMA.get_TrxName());
@@ -236,7 +235,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 			}
 			
-
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
 				addLog(" La orden " + order.getDocumentNo() + " Está Anulada/Reversada/Cerrada");
@@ -478,8 +476,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				if (rate == null) {
 					MUOM productUOM = MUOM.get(getCtx(), product.getC_UOM_ID());
 					MUOM oLineUOM = MUOM.get(getCtx(), oLine.getC_UOM_ID());
-					throw new AdempiereException(
+					if (product.getC_UOM_ID() == oLine.getC_UOM_ID()) {
+						rate = Env.ONE;
+					}else {
+						throw new AdempiereException(
 							"@NoUOMConversion@ @from@ " + oLineUOM.getName() + " @to@ " + productUOM.getName());
+					}
 				}
 				//
 				if (m_BreakValue > 0 && m_FTU_LoadOrder.isImmediateDelivery()) {
@@ -544,10 +546,13 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				}
 				//	End Jorge Colmenarez
 				//	Added By Jorge Colmenarez, 2021-07-20 16:11
-				//	Support for get Default Locator by Warehouse 
-				MWarehouse w = new MWarehouse(getCtx(), oLine.getM_Warehouse_ID(), get_TrxName());
-				MLocator l = w.getDefaultLocator();
-				shipmentLine.setM_Locator_ID(l.getM_Locator_ID());
+				//	Support for get Default Locator by Warehouse
+				if(MSysConfig.getBooleanValue("LOADORDERGENERATE_GETDEFAULTLOCATOR", true, m_FTU_LoadOrder.getAD_Client_ID(), m_FTU_LoadOrder.getAD_Org_ID())) {
+					MWarehouse w = new MWarehouse(getCtx(), oLine.getM_Warehouse_ID(), get_TrxName());
+					MLocator l = w.getDefaultLocator();
+					shipmentLine.setM_Locator_ID(l.getM_Locator_ID());
+				}else
+					shipmentLine.setM_Locator_ID(m_Qty);
 				//	End Jorge Colmenarez
 				shipmentLine.setM_AttributeSetInstance_ID(m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID());
 				// Save Line
@@ -676,7 +681,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			//added by david castillo 20/12/2021 check if confirmedQty = 0
 			if (m_FTU_LoadOrderLine.getConfirmedQty().compareTo(Env.ZERO) <= 0)
 				continue;
-			p_C_DocTypeInv_ID = order.getC_DocTypeTarget().getC_DocTypeInvoice_ID();
+			if(p_C_DocTypeInv_ID<=0)
+				p_C_DocTypeInv_ID = order.getC_DocTypeTarget().getC_DocTypeInvoice_ID();
 			if (order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Reversed) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Voided) || order.getDocStatus().contentEquals(MOrder.DOCSTATUS_Closed)) {
 				addLog(" La orden " + order.getDocumentNo() + " Está Anulada/Reversada/Cerrada");
 				continue;

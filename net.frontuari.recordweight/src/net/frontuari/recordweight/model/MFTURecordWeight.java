@@ -280,17 +280,19 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		int tolerancePercentage = MSysConfig.getIntValue("FTU_RW_TOLERANCE_PRC", 0,getAD_Client_ID());
 		if((getOperationType().equalsIgnoreCase(OPERATIONTYPE_RawMaterialReceipt) || getOperationType().equalsIgnoreCase("IRM")) && !isApproved())
 		{
-			BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
-			BigDecimal difference = getNetWeight().subtract(oNetWeight);
-			if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
-					|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
-			{
-				//	Added by Jorge Colmenarez, 2021-11-04 14:53
-				//	Support for write QtyDifference
-				DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
-				//	End Jorge Colmenarez
-				m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la carga origen ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
-				return DocAction.STATUS_WaitingConfirmation;
+			if(MSysConfig.getBooleanValue("RWValidateToleranceOnRMROrIRM", true, getAD_Client_ID() ,getAD_Org_ID())) {
+				BigDecimal oNetWeight = (BigDecimal) get_Value("OriginNetWeight");
+				BigDecimal difference = getNetWeight().subtract(oNetWeight);
+				if(difference.compareTo(BigDecimal.valueOf(tolerance).negate()) == -1 
+						|| difference.compareTo(BigDecimal.valueOf(tolerance)) == 1)
+				{
+					//	Added by Jorge Colmenarez, 2021-11-04 14:53
+					//	Support for write QtyDifference
+					DB.executeUpdate("UPDATE FTU_RecordWeight SET DifferenceQty="+difference+" WHERE FTU_RecordWeight_ID = ?", get_ID(), get_TrxName());
+					//	End Jorge Colmenarez
+					m_processMsg = "El peso neto ["+getNetWeight()+"] no puede exceder la carga origen ["+oNetWeight+"], diferencia= "+difference+", tolerancia = "+tolerance+" se requiere una autorizacion.";
+					return DocAction.STATUS_WaitingConfirmation;
+				}
 			}
 		}
 		if(getOperationType().equalsIgnoreCase(OPERATIONTYPE_DeliveryFinishedProduct) && !isApproved())
@@ -399,7 +401,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts)
 				//	End Jorge Colmenarez
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
-			log.warning("Ingrese en la condicion");
 			//	Added by Jorge Colmenarez, 2024-02-06 11:14
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
 			String msg = null;
@@ -1214,7 +1215,7 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (getOperationType() == null)
 			msg = "@FTU_EntryTicket_ID@ @NotFound@";
 		// Valid Entry ticket
-		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts)) {
+		if (getFTU_EntryTicket() != null && !getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts) && !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement) ) {
 			msg = validETReferenceDuplicated();
 		}
 		// Operation Type
@@ -2274,16 +2275,13 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			return m_Valideight;
 
 		if (MSysConfig.getBooleanValue("FTU_IS_PAY_WEIGHT_RECEIPT_QTY", false, getAD_Client_ID())) {
-			return getPayWeight();}
+			return getPayWeight();
+		}
 		else {
-			if (getOriginNetWeight().compareTo(getNetWeight())>0) {
-				
+			if (getOriginNetWeight().compareTo(getNetWeight())>0 && MSysConfig.getBooleanValue("RW_LoadWeightFromOriginNetWeight", true, getAD_Client_ID(), getAD_Org_ID())) {
 				return getOriginNetWeight();
-
 			}else {
-				
 				return getNetWeight();
-	
 			}
 		}
 	}
