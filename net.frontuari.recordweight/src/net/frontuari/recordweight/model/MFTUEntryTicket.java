@@ -443,7 +443,7 @@ public class MFTUEntryTicket extends X_FTU_EntryTicket implements DocAction, Doc
 				String value = null;
 				int index = p_info.getColumnIndex("C_DocType_ID");
 				if (index != -1) {
-					value = DB.getDocumentNo(get_ValueAsInt(index), get_TrxName(), true);
+					value = DB.getDocumentNo(get_ValueAsInt(index), get_TrxName(), false);
 				}
 				if (value != null) {
 					setDocumentNo(value);
