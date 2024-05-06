@@ -55,7 +55,7 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 		MFTUShipperLiquidation liq = new MFTUShipperLiquidation(getCtx(), p_FTU_ShipperLiquidation_ID, get_TrxName());
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT t.T_Selection_ID, t.ViewID, v.FTU_FreightCost_ID, v.GrandTotal, ");
-		sql.append("v.Description, v.C_Invoice_ID, v.C_Currency_ID, v.DateInvoiced ");
+		sql.append("v.Description, v.C_Invoice_ID, v.C_Currency_ID, v.DateInvoiced, v.C_Order_ID ");
 		sql.append("FROM T_Selection t, FTU_RV_FCToLiquidate v ");
 		sql.append("WHERE (t.T_Selection_ID)=(v.FTU_RV_FCToLiquidate_ID) ");
 		sql.append("AND t.AD_PInstance_ID=? AND v.M_Shipper_ID = ? ");
@@ -75,6 +75,7 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 				line.setFTU_FreightCost_ID(rs.getInt("FTU_FreightCost_ID"));
 				line.setDescription(rs.getString("Description"));
 				line.setC_Invoice_ID(rs.getInt("C_Invoice_ID"));
+				line.setC_Order_ID(rs.getInt("C_Order_ID"));
 				BigDecimal amt = MConversionRate.convert(getCtx(), rs.getBigDecimal("GrandTotal"), rs.getInt("C_Currency_ID")
 						, liq.getC_Currency_ID(), rs.getTimestamp("DateInvoiced"),	liq.getC_ConversionType_ID()
 						, getAD_Client_ID(), liq.getAD_Org_ID());
