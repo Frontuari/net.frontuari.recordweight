@@ -18,14 +18,65 @@
 
 package net.frontuari.recordweight.base;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
-
+import org.compiere.util.DB;
 /**
  * Custom Process
  */
 public abstract class FTUProcess extends SvrProcess {
 
+	private List<String> selection = null;
+	
+	private List<List<Object>> getRows() {
+		
+		List<List<Object>> rows = null;
+		
+		StringBuffer sql = new StringBuffer("SELECT ViewID FROM T_Selection")
+				.append(" WHERE AD_PInstance_ID=?");
+		
+		rows = DB.getSQLArrayObjectsEx(get_TrxName(), sql.toString(), getAD_PInstance_ID());
+		
+		return rows;
+	}
+	
+	private List<String> getSelectionFromDB() {
+		
+		return getRows()
+			.stream()
+			.filter(row -> row.size() > 0)
+			.map(row -> (String) row.get(0))
+			.collect(Collectors.toList());
+	}
+	
+	/*
+	 * Obtains the selection by An Integer
+	 */
+	public List<String> getSelection() {
+		
+		if (selection == null || selection.isEmpty())
+			selection = getSelectionFromDB();
+		
+		return selection;
+	}
+	
+	public List<Integer> getSelectionAsInt() {
+		
+		return getSelection()
+				.stream()
+				.filter(select -> select != null && !select.isEmpty())
+				.map(select -> Integer.parseInt(select))
+				.collect(Collectors.toList());
+	}
+	
+	public boolean isSelection() {
+		
+		selection = getSelection();
+		return selection != null && !selection.isEmpty();
+	}
+	
 	/**
 	 * Get parameter
 	 * 
