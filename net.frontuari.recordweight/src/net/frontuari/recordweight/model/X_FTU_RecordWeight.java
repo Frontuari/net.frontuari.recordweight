@@ -1008,6 +1008,10 @@ public class X_FTU_RecordWeight extends PO implements I_FTU_RecordWeight, I_Pers
 	public static final String OPERATIONTYPE_MaterialInputMovement = "MIM";
 	/** Material Output Movement = MOM */
 	public static final String OPERATIONTYPE_MaterialOutputMovement = "MOM";
+	/** Production Input Movement = PIM */
+	public static final String OPERATIONTYPE_ProductionInMovement = "PIM";
+	/** Production Output Movement = POM */
+	public static final String OPERATIONTYPE_ProductionOutMovement = "POM";
 	/** Other Record Weight = ORW */
 	public static final String OPERATIONTYPE_OtherRecordWeight = "ORW";
 	/** Product Bulk Receipt = PBR */

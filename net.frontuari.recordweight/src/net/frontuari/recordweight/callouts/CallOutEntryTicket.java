@@ -7,10 +7,12 @@ import java.util.Optional;
 
 import org.adempiere.base.annotation.Callout;
 import org.compiere.model.MOrder;
+import org.compiere.model.MProduction;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.eevolution.model.MDDOrder;
 import org.eevolution.model.MDDOrderLine;
+import org.eevolution.model.MPPProductBOM;
 
 import net.frontuari.recordweight.base.FTUCallout;
 import net.frontuari.recordweight.model.I_FTU_EntryTicket;
@@ -23,7 +25,8 @@ import net.frontuari.recordweight.model.X_FTU_EntryTicket;
 @Callout(tableName = I_FTU_EntryTicket.Table_Name, columnName = {I_FTU_EntryTicket.COLUMNNAME_M_Shipper_ID,
 		I_FTU_EntryTicket.COLUMNNAME_C_Order_ID,I_FTU_EntryTicket.COLUMNNAME_C_OrderLine_ID,
 		I_FTU_EntryTicket.COLUMNNAME_OperationType,I_FTU_EntryTicket.COLUMNNAME_DD_Order_ID,
-		I_FTU_EntryTicket.COLUMNNAME_DD_OrderLine_ID,I_FTU_EntryTicket.COLUMNNAME_FTU_LoadOrder_ID})
+		I_FTU_EntryTicket.COLUMNNAME_DD_OrderLine_ID,I_FTU_EntryTicket.COLUMNNAME_FTU_LoadOrder_ID,
+		"PP_Order_ID"})
 public class CallOutEntryTicket extends FTUCallout {
 
 	@Override
@@ -108,6 +111,34 @@ public class CallOutEntryTicket extends FTUCallout {
 			setValue(I_FTU_EntryTicket.COLUMNNAME_FTU_Vehicle_ID, LoadOrder.getFTU_Vehicle_ID());
 			setValue(I_FTU_EntryTicket.COLUMNNAME_M_Shipper_ID, LoadOrder.getM_Shipper_ID());
 		}
+		//	Added by Jorge Colmenarez, 2024-05-21 17:34
+		//	Set Production and EndProduct from PPOrder
+		else if(getColumnName().equals("PP_Order_ID")) {
+			int PP_Order_ID = Optional.ofNullable((Integer) getValue())
+					.orElse(0);
+			
+			if (PP_Order_ID == 0)
+				return "";
+			
+			int ProductionID = DB.getSQLValue(null, "SELECT MAX(M_Production_ID) FROM M_Production WHERE PP_Order_ID = ? AND DocStatus IN ('DR','IP','IN')", PP_Order_ID);
+            if (ProductionID > 0) {
+               setValue("M_Production_ID", ProductionID);
+               MProduction p = new MProduction(this.getCtx(), ProductionID, null);
+               String operationType = getTab().get_ValueAsString("OperationType");
+               if (operationType.equals("PIM")) {
+                  MPPProductBOM pbom = new MPPProductBOM(getCtx(), p.getPP_Product_BOM_ID(), null);
+                  if (pbom.get_ValueAsBoolean("IsRequireWeighing")) {
+                     setValue("M_Product_ID", p.getM_Product_ID());
+                  } else {
+                     int productID = DB.getSQLValue(null, "SELECT pl.M_Product_ID FROM M_ProductionLine pl JOIN M_Production p ON pl.M_Production_ID = p.M_Production_ID JOIN PP_Product_BOMLine pbom ON p.PP_Product_BOM_ID=pbom.PP_Product_BOM_ID AND pl.M_Product_ID = pbom.M_Product_ID AND pbom.ComponentType = 'VA' AND pl.M_Production_ID = ?", ProductionID);
+                     if (productID > 0) {
+                        setValue("M_Product_ID", productID);
+                     }
+                  }
+               }
+            }
+		}
+		//	End Jorge Colmenarez
 		
 		return "";
 	}

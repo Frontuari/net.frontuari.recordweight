@@ -36,6 +36,8 @@ import org.compiere.model.MOrderLine;
 import org.compiere.model.MPeriod;
 import org.compiere.model.MPriceList;
 import org.compiere.model.MProduct;
+import org.compiere.model.MProduction;
+import org.compiere.model.MProductionLine;
 import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
@@ -388,6 +390,27 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 			}
 		}
+		//	Added by Jorge Colmenarez, 2024-05-21 17:28
+		//	Support for update ProductionQty by Product
+		if(getOperationType().equals(OPERATIONTYPE_ProductionInMovement)) {
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+			int productID = getM_Product_ID() > 0 ? getM_Product_ID() : et.getM_Product_ID();
+			if (et.get_ValueAsInt("M_Production_ID") > 0) {
+				MProduction p = new MProduction(getCtx(), et.get_ValueAsInt("M_Production_ID"), get_TrxName());
+				for(MProductionLine line : p.getLines()) {
+					if (line.getM_Product_ID() == productID) {
+                        MWarehouse w = (MWarehouse)getM_Warehouse();
+                        int locatorID = w.getDefaultLocator() != null ? w.getDefaultLocator().get_ID() : line.getM_Locator_ID();
+                        line.setIsEndProduct(true);
+                        line.setM_Locator_ID(locatorID);
+                        line.setQtyUsed(getNetWeight());
+                        line.set_ValueOfColumn("FTU_RecordWeight_ID", get_ID());
+                        line.saveEx();
+                     }
+				}
+			}
+		}
+		//	End Jorge Colmenarez
 		
 		boolean isGenerateInOut = MSysConfig.getBooleanValue("FTU_GENERATE_INOUT", false, getAD_Client_ID());
 		boolean isGenerateMovement = MSysConfig.getBooleanValue("FTU_GENERATE_MOVEMENT", false, getAD_Client_ID());
@@ -399,7 +422,6 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				|| getOperationType().equals(OPERATIONTYPE_DeliveryMultipleProducts)
 				//	End Jorge Colmenarez
 				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) && isValidWeight && isGenerateInOut && !withDDOrder) {
-			log.warning("Ingrese en la condicion");
 			//	Added by Jorge Colmenarez, 2024-02-06 11:14
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
 			String msg = null;
@@ -433,7 +455,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 		// Add support for generating inventory movements
 		else if ((getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
-				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) 
+				|| getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
+				|| getOperationType().equals(OPERATIONTYPE_ProductionOutMovement)) 
 				&& isGenerateMovement) {
 			String msg = createMovement();
 			if (m_processMsg != null)
@@ -862,7 +885,9 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		if (!getOperationType().equals(OPERATIONTYPE_MaterialInputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
 				&& !getOperationType().equals(OPERATIONTYPE_OtherRecordWeight)
-				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) {
+				&& !getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)
+				&& !getOperationType().equals(OPERATIONTYPE_ProductionInMovement)
+				&& !getOperationType().equals(OPERATIONTYPE_ProductionOutMovement)) {
 			//	Added by Jorge Colmenarez, 2024-02-06 15:29
 			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
 			if(et.isGenLandedCost()) {
@@ -879,7 +904,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 		}
 
 		// Add support for reactivate Movement
-		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)) {
+		else if (getOperationType().equals(OPERATIONTYPE_MaterialOutputMovement)
+				|| getOperationType().equals(OPERATIONTYPE_ProductionOutMovement)) {
 			// Reverse Movement
 			m_processMsg = reverseMovement();
 			if (m_processMsg != null)
@@ -1531,6 +1557,17 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				}
 			}
 		} // Create
+		
+		if(getOperationType().equals(OPERATIONTYPE_ProductionOutMovement)) {
+			MFTUEntryTicket et = new MFTUEntryTicket(getCtx(), getFTU_EntryTicket_ID(), get_TrxName());
+	         if (m_Current_Movement.get_ValueAsInt("FTU_RecordWeight_ID") <= 0) {
+	            m_Current_Movement.set_ValueOfColumn("FTU_RecordWeight_ID", get_ID());
+	         }
+
+	         m_Current_Movement.set_ValueOfColumn("PP_Order_ID", et.get_ValueAsInt("PP_Order_ID"));
+	         m_Current_Movement.saveEx();
+		}
+		
 		if (!getOperationType().equals(OPERATIONTYPE_MultipleProductMovement)) {
 			// Complete Movement
 			if(MSysConfig.getBooleanValue("COMPLETE_MOVEMENT_RECORDWEIGTH", true, getAD_Client_ID(),getAD_Org_ID()))
