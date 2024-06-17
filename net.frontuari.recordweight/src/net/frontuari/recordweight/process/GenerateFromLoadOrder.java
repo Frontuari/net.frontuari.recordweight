@@ -602,6 +602,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Shipment.setDocAction(p_DocAction);
 			m_Current_Shipment.processIt(p_DocAction);
 			m_Current_Shipment.saveEx();
+			log.warning("Entrega: "+m_Current_Shipment.getDocumentInfo()+" Estado = "+m_Current_Shipment.getDocStatus());
 			if (m_Current_Shipment.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
 				throw new AdempiereException(m_Current_Shipment.getProcessMsg());
 			}
@@ -1064,6 +1065,11 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					m_Current_Movement.setC_BPartner_Location_ID(order.getC_BPartner_Location_ID());
 					m_Current_Movement.saveEx();
 				}
+				m_Current_Movement.set_ValueOfColumn("IsManual", false);
+				m_Current_Movement.setM_Warehouse_ID(order.get_ValueAsInt("M_WarehouseSource_ID"));
+				m_Current_Movement.setM_WarehouseTo_ID(order.getM_Warehouse_ID());
+				int orgID = (order.getAD_OrgTrx_ID() > 0 ? order.getAD_OrgTrx_ID() : order.getM_Warehouse().getAD_Org_ID());
+				m_Current_Movement.set_ValueOfColumn("AD_OrgTarget_ID", orgID);
 				m_Current_Movement.saveEx();
 				//
 				m_Created++;

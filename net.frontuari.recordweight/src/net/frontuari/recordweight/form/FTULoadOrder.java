@@ -1,6 +1,7 @@
 package net.frontuari.recordweight.form;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -700,12 +701,16 @@ public class FTULoadOrder extends FTUForm {
 					if(diff.doubleValue() < 0) {
 						m_Qty = m_Qty
 							.subtract(diff.abs())
-							.setScale(precision, BigDecimal.ROUND_HALF_UP);
+							.setScale(precision, RoundingMode.HALF_UP);
 					}
 					//	Valid Zero
 					if(m_Qty.doubleValue() <= 0)
 						continue;
 				}
+				//	Break when product has been delivered
+				if(m_QtyReserved.compareTo(BigDecimal.ZERO) == 0)
+					continue;
+				
 				//	Fill Row
 				Vector<Object> line = new Vector<Object>();
 				line.add(new Boolean(false));       			//  0-Selection
