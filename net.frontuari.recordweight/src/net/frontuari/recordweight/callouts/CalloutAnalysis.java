@@ -5,6 +5,7 @@ package net.frontuari.recordweight.callouts;
 
 import org.adempiere.base.annotation.Callout;
 import org.compiere.model.MDocType;
+import org.compiere.model.MProduction;
 import org.compiere.util.DB;
 import org.eevolution.model.X_PP_Order;
 
@@ -18,7 +19,8 @@ import net.frontuari.recordweight.model.X_HRS_Analysis;
  * @author Jorge Colmenarez, 2023-06-07 15:13
  */
 @Callout(tableName = I_HRS_Analysis.Table_Name, columnName = {I_HRS_Analysis.COLUMNNAME_PP_Order_ID,
-		I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID, I_HRS_Analysis.COLUMNNAME_C_DocType_ID})
+		I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID, I_HRS_Analysis.COLUMNNAME_C_DocType_ID
+		,I_HRS_Analysis.COLUMNNAME_M_Production_ID})
 public class CalloutAnalysis extends FTUCallout {
 
 	@Override
@@ -35,7 +37,20 @@ public class CalloutAnalysis extends FTUCallout {
 			if(ppOrder.getM_AttributeSetInstance_ID()>0)
 				setValue(I_HRS_Analysis.COLUMNNAME_Analysis_ID, ppOrder.getM_AttributeSetInstance_ID());
 			//	End Jorge Colmenarez
+		} 
+		if(getColumnName().equals(I_HRS_Analysis.COLUMNNAME_M_Production_ID)) {
+			Integer m_M_Production_ID = (Integer) getValue();
+			if (m_M_Production_ID == null || m_M_Production_ID.intValue() == 0)
+				return "";
 			
+			MProduction production = new MProduction(getCtx(), m_M_Production_ID, null);
+			if(production.getM_Product_ID() > 0) 
+				setValue(I_HRS_Analysis.COLUMNNAME_M_Product_ID, production.getM_Product_ID());
+			//	Added by Jorge Colmenarez, 2022-12-03 09:11
+			int asiID = DB.getSQLValue(null, "SELECT MAX(M_AttributeSetInstance_ID) FROM M_ProductionLine WHERE IsEndProduct = 'Y' AND M_Production_ID = ? AND M_Product_ID = ?", production.get_ID(),production.getM_Product_ID());
+			if(asiID>0)
+				setValue(I_HRS_Analysis.COLUMNNAME_Analysis_ID, asiID);
+			//	End Jorge Colmenarez
 		} 
 		if(getColumnName().equals(I_HRS_Analysis.COLUMNNAME_FTU_EntryTicket_ID)) {
 			Integer m_FTU_EntryTicket_ID = (Integer) getValue();
