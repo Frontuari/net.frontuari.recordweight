@@ -1,6 +1,7 @@
 package net.frontuari.recordweight.process;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -11,6 +12,7 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.AdempiereUserError;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 
 import net.frontuari.recordweight.base.FTUProcess;
 import net.frontuari.recordweight.model.MFTUShipperLiquidation;
@@ -21,6 +23,7 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 
 	private int			p_FTU_ShipperLiquidation_ID = 0;
 	private int			m_created = 0;
+	private BigDecimal	p_TaxRate = BigDecimal.ZERO;
 	
 	CLogger log = CLogger.getCLogger(CreateFromShipperLiquidation.class);
 	
@@ -32,6 +35,8 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 			String name = para[i].getParameterName();
 			if (para[i].getParameter() == null)
 				;
+			else if (name.equals("Rate"))
+				p_TaxRate = para[i].getParameterAsBigDecimal();
 			else if (name.equals("FTU_ShipperLiquidation_ID"))
 				p_FTU_ShipperLiquidation_ID = para[i].getParameterAsInt();
 			else
@@ -86,6 +91,14 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 				line.setAmount(amt);
 				line.saveEx();
 				m_created++;
+			}
+			//	Calculate TaxAmt
+			if(p_TaxRate.compareTo(BigDecimal.ZERO)>0) {
+				BigDecimal rate = p_TaxRate.divide(Env.ONEHUNDRED, 4, RoundingMode.HALF_UP);
+				BigDecimal TaxAmt = liq.getGrandTotal().multiply(rate);
+				liq.set_ValueOfColumn("TaxAmt", TaxAmt);
+				liq.setPayAmt(liq.getPayAmt().subtract(TaxAmt));
+				liq.saveEx();
 			}
 		}
 		catch (Exception e)
