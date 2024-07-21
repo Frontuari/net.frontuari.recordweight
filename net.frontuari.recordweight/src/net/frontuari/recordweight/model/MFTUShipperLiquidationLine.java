@@ -83,9 +83,11 @@ public class MFTUShipperLiquidationLine extends X_FTU_SLLine {
 					grandTotal = grandTotal.subtract(oldValue);
 					grandTotal = grandTotal.add(getAmount());
 					parent.setGrandTotal(grandTotal);
+					BigDecimal taxAmt = grandTotal.multiply((BigDecimal)parent.get_Value("Rate"));
+					parent.set_ValueOfColumn("TaxAmt", taxAmt);
 					break;
 			}
-			BigDecimal payAmt = grandTotal.subtract(discount).subtract(prepayamt).subtract((BigDecimal)get_Value("TaxAmt"));
+			BigDecimal payAmt = grandTotal.subtract(discount).subtract(prepayamt).subtract((BigDecimal)parent.get_Value("TaxAmt"));
 			parent.setPayAmt(payAmt);
 			parent.saveEx();
 		}
@@ -123,9 +125,11 @@ public class MFTUShipperLiquidationLine extends X_FTU_SLLine {
 			default:
 				grandTotal = grandTotal.subtract(oldValue);
 				parent.setGrandTotal(grandTotal);
+				BigDecimal taxAmt = grandTotal.multiply((BigDecimal)parent.get_Value("Rate"));
+				parent.set_ValueOfColumn("TaxAmt", taxAmt);
 				break;
 		}
-		BigDecimal payAmt = grandTotal.subtract(discount).subtract(prepayamt).subtract((BigDecimal)get_Value("TaxAmt"));
+		BigDecimal payAmt = grandTotal.subtract(discount).subtract(prepayamt).subtract((BigDecimal)parent.get_Value("TaxAmt"));
 		parent.setPayAmt(payAmt);
 		parent.saveEx();
 		return success;
