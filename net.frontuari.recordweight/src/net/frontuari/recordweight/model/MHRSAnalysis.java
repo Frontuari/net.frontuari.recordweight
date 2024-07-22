@@ -928,8 +928,14 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		// Valid Document Action
 		if (AD_Table_ID == Table_ID) {
 			if (docStatus.equals(DocumentEngine.STATUS_Drafted) || docStatus.equals(DocumentEngine.STATUS_InProgress)
-					|| docStatus.equals(DocumentEngine.STATUS_Invalid)) {
+					|| docStatus.equals(DocumentEngine.STATUS_Invalid )) {
 				options[index++] = DocumentEngine.ACTION_Prepare;
+				options[index++] = DocumentEngine.ACTION_Reject;
+			}
+			//	NotApproved .. NA
+			else if (docStatus.equals(DocumentEngine.STATUS_NotApproved)) {
+				options[index++] = DocumentEngine.ACTION_Prepare;
+				options[index++] = DocumentEngine.ACTION_Void;
 			}
 			// Complete .. CO
 			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {

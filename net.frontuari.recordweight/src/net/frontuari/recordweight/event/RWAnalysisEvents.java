@@ -66,11 +66,15 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 			MHRSAnalysisLine line = new MHRSAnalysisLine(ctx, 0, trxName);
 			line.setHRS_Analysis_ID(AnalysisID);
 			line.setFTU_AnalysisType_ID(qparam.getFTU_AnalysisType_ID());
-			if(!qparam.isQualitativeAnalysis())
+			if(!qparam.isQualitativeAnalysis()) {
 				line.setResult(getCondition(qparam.getFTU_AnalysisType_ID(),ProductID,LotID,trxName));
-			else
+				line.setQualitativeResult("");
+			}
+			else {
 				line.setResult(BigDecimal.ZERO);
-			line.setQualitativeResult("");
+				line.setQualitativeResult(qparam.getReferenceValue());
+			}
+			
 			line.saveEx(trxName);
 		}
 	}
