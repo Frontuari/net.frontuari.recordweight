@@ -98,7 +98,7 @@ public class CreateFromDairyShipperLiquidation extends FTUProcess {
 					BigDecimal TaxAmt = liq.getGrandTotal().multiply(rate);
 					liq.set_ValueOfColumn("Rate", rate);
 					liq.set_ValueOfColumn("TaxAmt", TaxAmt);
-					liq.setPayAmt(liq.getPayAmt().subtract(TaxAmt));
+					//liq.setPayAmt(liq.getPayAmt().subtract(TaxAmt));
 					liq.saveEx();
 				}
 			}
