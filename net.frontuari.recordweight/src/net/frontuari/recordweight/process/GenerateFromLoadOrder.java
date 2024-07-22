@@ -8,6 +8,8 @@ import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -26,6 +28,7 @@ import org.compiere.model.MMovementLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MProduct;
+import org.compiere.model.MStorageOnHand;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MUOMConversion;
@@ -1015,6 +1018,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 	 * @return String
 	 */
 	private String createMovements() {
+		MMovement tempMovement = null;
+		
+		Map<String, MMovement> movements = new HashMap<>();
 
 		MFTULoadOrder m_FTU_LoadOrder = new MFTULoadOrder(getCtx(), p_FTU_LoadOrder_ID, get_TrxName());
 
@@ -1024,7 +1030,12 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
-
+			
+			MDDOrderLine OrderLinekey = (MDDOrderLine) m_FTU_LoadOrderLine.getDD_OrderLine();
+			int locatorSource = OrderLinekey.getM_Locator_ID();
+			int locatorDest = OrderLinekey.getM_LocatorTo_ID();
+			String key = locatorSource + "_" + locatorDest;
+			
 			// Create Order
 			MDDOrder order = (MDDOrder) m_FTU_LoadOrderLine.getDD_OrderLine().getDD_Order();
 
@@ -1047,38 +1058,43 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						"@C_DocTypeMovement_ID@ @NotFound@ " + "[@C_DocType_ID@ " + m_DocType.getName() + "]");
 			}
 			//
-			if (m_Current_BPartner_ID != m_C_BPartner_ID) {
-				// Complete Previous Shipment
-				completeMovement();
-				// Initialize Order and
-				m_Current_BPartner_ID = m_C_BPartner_ID;
-				// Create Movement
-				m_Current_Movement = new MMovement(getCtx(), 0, get_TrxName());
-				//
-				m_Current_Movement.setC_DocType_ID(p_C_DocType_ID);
-				m_Current_Movement.setDateReceived(p_MovementDate);
-				// Set Organization
-				m_Current_Movement.setAD_Org_ID(order.getAD_Org_ID());
-				m_Current_Movement.setDD_Order_ID(m_DD_Order_ID);
-				if (order.getC_BPartner_ID() > 0) {
-					m_Current_Movement.setC_BPartner_ID(order.getC_BPartner_ID());
-					m_Current_Movement.setC_BPartner_Location_ID(order.getC_BPartner_Location_ID());
+			if (m_Current_BPartner_ID != m_C_BPartner_ID || !movements.containsKey(key)) {
+				
+				
+				if (!movements.containsKey(key)) {
+					// Complete Previous Shipment
+					completeMovement();
+					// Initialize Order and
+					m_Current_BPartner_ID = m_C_BPartner_ID;
+					// Create Movement
+					m_Current_Movement = new MMovement(getCtx(), 0, get_TrxName());
+					tempMovement = m_Current_Movement;
+					//
+					m_Current_Movement.setC_DocType_ID(p_C_DocType_ID);
+					m_Current_Movement.setDateReceived(p_MovementDate);
+					// Set Organization
+					m_Current_Movement.setAD_Org_ID(order.getAD_Org_ID());
+					m_Current_Movement.setDD_Order_ID(m_DD_Order_ID);
+					if (order.getC_BPartner_ID() > 0) {
+						m_Current_Movement.setC_BPartner_ID(order.getC_BPartner_ID());
+						m_Current_Movement.setC_BPartner_Location_ID(order.getC_BPartner_Location_ID());
+						m_Current_Movement.saveEx();
+					}
+					m_Current_Movement.set_ValueOfColumn("IsManual", false);
+					m_Current_Movement.setM_Warehouse_ID(order.get_ValueAsInt("M_WarehouseSource_ID"));
+					m_Current_Movement.setM_WarehouseTo_ID(order.getM_Warehouse_ID());
+					int orgID = (order.getAD_OrgTrx_ID() > 0 ? order.getAD_OrgTrx_ID() : order.getM_Warehouse().getAD_Org_ID());
+					m_Current_Movement.set_ValueOfColumn("AD_OrgTarget_ID", orgID);
 					m_Current_Movement.saveEx();
+					movements.put(key, tempMovement);
+					m_Created++;
+					// Initialize Message
+					if (msg.length() > 0)
+						msg.append(" - " + m_Current_Movement.getDocumentNo());
+					else
+						msg.append(m_Current_Movement.getDocumentNo());
+					}
 				}
-				m_Current_Movement.set_ValueOfColumn("IsManual", false);
-				m_Current_Movement.setM_Warehouse_ID(order.get_ValueAsInt("M_WarehouseSource_ID"));
-				m_Current_Movement.setM_WarehouseTo_ID(order.getM_Warehouse_ID());
-				int orgID = (order.getAD_OrgTrx_ID() > 0 ? order.getAD_OrgTrx_ID() : order.getM_Warehouse().getAD_Org_ID());
-				m_Current_Movement.set_ValueOfColumn("AD_OrgTarget_ID", orgID);
-				m_Current_Movement.saveEx();
-				//
-				m_Created++;
-				// Initialize Message
-				if (msg.length() > 0)
-					msg.append(" - " + m_Current_Movement.getDocumentNo());
-				else
-					msg.append(m_Current_Movement.getDocumentNo());
-			}
 			// Shipment Created?
 			if (m_Current_Movement != null) {
 				// Get Values from Result Set
@@ -1086,9 +1102,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				// Valid Null
 				if (m_Qty == null)
 					m_Qty = Env.ZERO;
-
+				MMovement movementkey = movements.get(key);
 				MDDOrderLine m_DD_OrderLine = (MDDOrderLine) m_FTU_LoadOrderLine.getDD_OrderLine();
-				MMovementLine m_MovementLine = new MMovementLine(m_Current_Movement);
+				MMovementLine m_MovementLine = new MMovementLine(movementkey);
 				// Reference
 				m_MovementLine.setM_Movement_ID(m_Current_Movement.getM_Movement_ID());
 				m_MovementLine.setDD_OrderLine_ID(m_DD_OrderLine.getDD_OrderLine_ID());
@@ -1140,7 +1156,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			m_Current_Movement.setDocAction(p_DocAction);
 			m_Current_Movement.processIt(p_DocAction);
 			m_Current_Movement.saveEx();
-			if (m_Current_Movement.getDocStatus() != X_M_InOut.DOCSTATUS_Completed) {
+			if (m_Current_Movement.getDocStatus() != X_M_InOut.DOCSTATUS_Completed && m_Current_Movement.getDocStatus() != X_M_InOut.DOCSTATUS_InProgress) {
 				throw new AdempiereException(m_Current_Movement.getProcessMsg());
 			}
 			// Created
@@ -1169,5 +1185,22 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		
 		return AD_Process_ID;
 	}
+	
+	/**
+	 * @author Jose Vasquez, 2024-07-22 11:34
+	 * @param productID
+	 * @param locatorID
+	 * @param qtyRequired
+	 */
+	/*
+	private BigDecimal hasEnoughInventory(int productID, int locatorID, BigDecimal qtyRequired) {
+	    MProduct product = MProduct.get(getCtx(), productID);
+	    MLocator locator = MLocator.get(getCtx(), locatorID);
+	    BigDecimal availableQty = MStorageOnHand.getQtyOnHandForLocator(product.getM_Product_ID(), locator.getM_Locator_ID(), 0, get_TrxName());
+
+	    BigDecimal qtyMissing = availableQty.subtract(qtyRequired);
+
+	    return qtyMissing;
+	}*/
 
 }
