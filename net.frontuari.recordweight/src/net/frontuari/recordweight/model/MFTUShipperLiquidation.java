@@ -707,7 +707,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	}
 	
 	public void deleteDeduction(String trxName) {
-		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NULL";
+		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NULL AND C_Order_ID IS NULL";
 		List<MFTUShipperLiquidationLine> list = new Query(getCtx(), MFTUShipperLiquidationLine.Table_Name, whereClauseFinal, trxName)
 										.setParameters(getFTU_ShipperLiquidation_ID())
 										.setOrderBy("FTU_SLLine_ID")
