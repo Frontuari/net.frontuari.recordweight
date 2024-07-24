@@ -1034,7 +1034,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			MDDOrderLine OrderLinekey = (MDDOrderLine) m_FTU_LoadOrderLine.getDD_OrderLine();
 			int locatorSource = OrderLinekey.getM_Locator_ID();
 			int locatorDest = OrderLinekey.getM_LocatorTo_ID();
-			String key = locatorSource + "_" + locatorDest;
+			int DDOrderNo = OrderLinekey.getDD_Order_ID();
+			String key = locatorSource + "_" + locatorDest+"_"+DDOrderNo;
 			
 			// Create Order
 			MDDOrder order = (MDDOrder) m_FTU_LoadOrderLine.getDD_OrderLine().getDD_Order();
