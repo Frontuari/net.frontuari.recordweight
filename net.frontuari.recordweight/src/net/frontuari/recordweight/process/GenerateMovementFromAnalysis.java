@@ -7,6 +7,8 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MMovement;
 import org.compiere.model.MMovementLine;
+import org.compiere.model.MProduction;
+import org.compiere.model.MLocator;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.Msg;
 
@@ -48,20 +50,29 @@ public class GenerateMovementFromAnalysis extends FTUProcess {
 		if(!a.isValidAnalysis())
 			throw new AdempiereException("Error: "+Msg.parseTranslation(getCtx(), "@HRS_Analysis_ID@")+" "+Msg.parseTranslation(getCtx(), "@NotValid@"));
 		
-		MInOutLine iol = new MInOutLine(getCtx(), a.get_ValueAsInt("M_InOutLine_ID"), get_TrxName());
+		/*MInOutLine iol = new MInOutLine(getCtx(), a.get_ValueAsInt("M_InOutLine_ID"), get_TrxName());
 		
 		if(p_MovementQty.compareTo(iol.getMovementQty())>0)
 			throw new AdempiereException("Error: "+Msg.parseTranslation(getCtx(), "@Parameter@")+" "+Msg.parseTranslation(getCtx(), "@MovementQty@")+" ["+p_MovementQty+"] > "+Msg.parseTranslation(getCtx(), "@MovementQty@")+" "+Msg.parseTranslation(getCtx(), "@of@")+" "+Msg.parseTranslation(getCtx(), "@M_InOutLine_ID@")+" ["+iol.getMovementQty()+"]");
+		*/
+		MProduction pr = new MProduction(getCtx(), a.get_ValueAsInt("M_Production_ID"), get_TrxName());
+		
+		if(p_MovementQty.compareTo(pr.getProductionQty())>0)
+			throw new AdempiereException("Error: "+Msg.parseTranslation(getCtx(), "@Parameter@")+" "+Msg.parseTranslation(getCtx(), "@MovementQty@")+" ["+p_MovementQty+"] > "+Msg.parseTranslation(getCtx(), "@MovementQty@")+" "+Msg.parseTranslation(getCtx(), "@of@")+" "+Msg.parseTranslation(getCtx(), "@M_Production_ID@")+" ["+pr.getProductionQty()+"]");
+		
 		
 		//	Create Movement Header
 		MMovement m = new MMovement(getCtx(), 0, get_TrxName());
-		m.setAD_Org_ID(iol.getAD_Org_ID());
+		m.setAD_Org_ID(pr.getAD_Org_ID());
 		m.setC_DocType_ID(p_C_DocTypeMovement_ID);
+		m.setM_Warehouse_ID(pr.getM_Locator().getM_Warehouse_ID());
+		MLocator locator_to = new MLocator(getCtx(), p_M_Locator_To_ID, get_TrxName());
+		m.setM_Warehouse_ID(locator_to.getM_Warehouse_ID());
 		m.saveEx(get_TrxName());
 		//	Create Movement Line
 		MMovementLine ml = new MMovementLine(m);
 		ml.setM_Product_ID(a.getM_Product_ID());
-		ml.setM_Locator_ID(a.get_ValueAsInt("M_Locator_ID"));
+		ml.setM_Locator_ID(pr.getM_Locator_ID());
 		ml.setM_LocatorTo_ID(p_M_Locator_To_ID);
 		ml.setMovementQty(p_MovementQty);
 		ml.saveEx(get_TrxName());
