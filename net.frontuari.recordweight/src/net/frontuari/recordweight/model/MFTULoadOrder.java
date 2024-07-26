@@ -1163,7 +1163,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				.append(" INNER JOIN AD_Client c ON (lo.AD_Client_ID=c.AD_Client_ID),")
 				.append(" AD_PrintFormat pf ")
 				.append("WHERE pf.AD_Client_ID IN (0,lo.AD_Client_ID)")
-				.append(" AND pf.AD_Table_ID="+Table_ID+" AND (pf.IsTableBased='N' OR pf.AD_PrintFormat_ID = dt.AD_PrintFormat_ID)")	//	from FTU_LoadOrder 
+				.append(" AND ((pf.AD_Table_ID="+Table_ID+" AND pf.IsTableBased='Y') OR pf.AD_PrintFormat_ID = dt.AD_PrintFormat_ID)")	//	from FTU_LoadOrder 
 				.append(" AND lo.FTU_LoadOrder_ID=? ")				//	Info from FTU_LoadOrder
 				.append("ORDER BY dt.AD_PrintFormat_ID, pf.AD_Client_ID DESC, pf.AD_Org_ID DESC");
 		//

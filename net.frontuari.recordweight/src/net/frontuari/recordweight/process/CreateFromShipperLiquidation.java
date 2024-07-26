@@ -96,6 +96,7 @@ public class CreateFromShipperLiquidation extends FTUProcess {
 			if(p_TaxRate.compareTo(BigDecimal.ZERO)>0) {
 				BigDecimal rate = p_TaxRate.divide(Env.ONEHUNDRED, 4, RoundingMode.HALF_UP);
 				BigDecimal TaxAmt = liq.getGrandTotal().multiply(rate);
+				liq.set_ValueOfColumn("Rate", rate);
 				liq.set_ValueOfColumn("TaxAmt", TaxAmt);
 				liq.setPayAmt(liq.getPayAmt().subtract(TaxAmt));
 				liq.saveEx();

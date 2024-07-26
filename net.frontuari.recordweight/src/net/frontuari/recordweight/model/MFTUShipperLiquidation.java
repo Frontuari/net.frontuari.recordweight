@@ -209,6 +209,8 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		createDeduction(get_TrxName());
 		//	Get Inventory of CxC
 		createInventory(get_TrxName());
+		//	Get Inventory of CxC
+		createInvoice(get_TrxName());
 		//	Get PrePayments
 		createPrepayments(get_TrxName());
 		}
@@ -625,6 +627,39 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 				d.setAD_Org_ID(getAD_Org_ID());
 				d.setFTU_ShipperLiquidation_ID(get_ID());
 				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_DeductionByAP);
+				d.setC_Invoice_ID(i.get_ID());
+				d.setDescription(i.getDocumentInfo());
+				BigDecimal grandTotal = MConversionRate.convert(getCtx(), i.getGrandTotal(), i.getC_Currency_ID()
+						, getC_Currency_ID(), i.getDateInvoiced(),getC_ConversionType_ID()
+						, getAD_Client_ID(), getAD_Org_ID());
+				if(grandTotal==null)
+					grandTotal = BigDecimal.ZERO;
+				d.setAmount(grandTotal);
+				d.saveEx(trxName);
+			}
+		}
+	}
+	
+	/****
+	 * Create Invoice of ARI
+	 */
+	private void createInvoice(String trxName) {
+		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'Y' "
+				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'ARI') "
+				+ "AND invoiceopen(C_Invoice_ID,0) > 0 "
+				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
+				+ "WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND FTU_SLLine.DeductionType='02' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO'))";
+		List<MInvoice> list = new Query(getCtx(), MInvoice.Table_Name, whereClause, trxName)
+				.setParameters(getM_Shipper_ID())
+				.setOrderBy("DateInvoiced,DocumentNo")
+				.list();
+		if(list.size()>0) {
+			MInvoice[] invoices = list.toArray(new MInvoice[list.size()]);
+			for(MInvoice i : invoices) {
+				MFTUShipperLiquidationLine d = new MFTUShipperLiquidationLine(getCtx(),0,trxName);
+				d.setAD_Org_ID(getAD_Org_ID());
+				d.setFTU_ShipperLiquidation_ID(get_ID());
+				d.setDeductionType(MFTUShipperLiquidationLine.DEDUCTIONTYPE_DeductionByAC);
 				d.setC_Invoice_ID(i.get_ID());
 				d.setDescription(i.getDocumentInfo());
 				BigDecimal grandTotal = MConversionRate.convert(getCtx(), i.getGrandTotal(), i.getC_Currency_ID()

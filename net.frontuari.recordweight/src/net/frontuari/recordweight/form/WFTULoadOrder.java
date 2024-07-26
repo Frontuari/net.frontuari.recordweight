@@ -1661,12 +1661,10 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			e.printStackTrace();
 			return;
 		} finally {
-			
 		}
 		//	Print Document
 		FDialog.ask(m_WindowNo, parameterPanel,"print.order", Msg.parseTranslation(Env.getCtx(), 
 				"@FTU_LoadOrder_ID@ " + m_FTU_LoadOrder.getDocumentNo()), new Callback<Boolean>() {
-
 			@Override
 			public void onCallback(Boolean result) 
 			{
