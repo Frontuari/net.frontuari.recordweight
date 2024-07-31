@@ -934,8 +934,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 			}
 			//	NotApproved .. NA
 			else if (docStatus.equals(DocumentEngine.STATUS_NotApproved)) {
-				options[index++] = DocumentEngine.ACTION_Prepare;
-				options[index++] = DocumentEngine.ACTION_Void;
+				options[index++] = DocumentEngine.ACTION_None;
 			}
 			// Complete .. CO
 			else if (docStatus.equals(DocumentEngine.STATUS_Completed)) {
