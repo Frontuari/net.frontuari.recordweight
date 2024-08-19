@@ -316,6 +316,10 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					throw new AdempiereException("@C_Order_ID@ @NotFound@");
 				if (m_Current_BPartner_ID == 0)
 					throw new AdempiereException("@C_BPartner_ID@ @NotFound@");
+				
+				if(p_C_DocType_ID<=0)
+					p_C_DocType_ID = order.getC_DocType().getC_DocTypeShipment_ID();
+				
 				// Create Shipment From Order
 				m_Current_Shipment = new MInOut(order, p_C_DocType_ID, p_MovementDate);
 				m_Current_Shipment.setDateAcct(p_MovementDate);
