@@ -427,9 +427,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						else
 						{
 							shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
-							shipmentLine.setQty(m_Qty);
-							shipmentLine.setQtyEntered(m_Qty);
-							shipmentLine.setMovementQty(MUOMConversion.convertProductFrom(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+							shipmentLine.setQty(MUOMConversion.convertProductTo(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+							shipmentLine.setQtyEntered(MUOMConversion.convertProductTo(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+							shipmentLine.setMovementQty(m_Qty);
 						}
 					
 						//SET WAREHOUSE AND LOCATOR FROM lineMA
@@ -545,9 +545,9 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				else
 				{
 					shipmentLine.setC_UOM_ID(oLine.getC_UOM_ID());	
-					shipmentLine.setQty(m_Qty);
-					shipmentLine.setQtyEntered(m_Qty);
-					shipmentLine.setMovementQty(MUOMConversion.convertProductFrom(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+					shipmentLine.setQty(MUOMConversion.convertProductTo(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+					shipmentLine.setQtyEntered(MUOMConversion.convertProductTo(getCtx(), product.getM_Product_ID(), oLine.getC_UOM_ID(), m_Qty));
+					shipmentLine.setMovementQty(m_Qty);
 				}
 				//	End Jorge Colmenarez
 				//	Added By Jorge Colmenarez, 2021-07-20 16:11
