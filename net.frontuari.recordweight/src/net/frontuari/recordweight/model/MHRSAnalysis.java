@@ -508,6 +508,13 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 	@Override
 	public String prepareIt() {
 		log.info(toString());
+		//	Added by Jorge Colmenarez, 2024-08-30 11:54
+		//	Validate action when status it's Not Approved
+		if(getDocStatus().equals(MHRSAnalysis.STATUS_NotApproved)) {
+			m_processMsg = "No es posible preparar un documento No Aprobado!";
+			return DocAction.STATUS_Invalid;
+		}
+		//	End Jorge Colmenarez
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
