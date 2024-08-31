@@ -113,8 +113,12 @@ public class FTUGenerateFreightCostDistribution extends FTUProcess{
 					}else {
 						line.setWeight(lo.getConfirmedWeight());
 						line.setDiscountWeight(BigDecimal.ZERO);
-						if(!pft.get_ValueAsBoolean("IsFlatFee"))
-							line.setCosts(lo.getConfirmedWeight().multiply(pft.getPriceActual()).setScale(4, RoundingMode.HALF_UP));
+						if(!pft.get_ValueAsBoolean("IsFlatFee")) {
+							BigDecimal qty = lo.getConfirmedWeight();
+							if(pft.get_ValueAsBoolean("IsUseTruckCapacity"))
+								qty = cost.getFTU_Vehicle().getLoadCapacity();
+							line.setCosts(qty.multiply(pft.getPriceActual()).setScale(4, RoundingMode.HALF_UP));
+						}
 						else
 							line.setCosts((BigDecimal)pft.get_Value("Amount"));
 					}
