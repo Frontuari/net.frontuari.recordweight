@@ -132,6 +132,8 @@ public class GenerateMovementFromAnalysis extends FTUProcess {
 				if (check.getM_AttributeSetInstance_ID() == i.getM_AttributeSetInstance_ID())
 					actualSto = check;
 			}
+			if(actualSto==null)
+				return "No encontro registros de almacenamiento para el producto "+p.getName();
 			if (actualSto.getQtyOnHand().compareTo(p_MovementQty) < 0) {
 				return "La cantidad ingresada es mayor a la disponible";
 			}
