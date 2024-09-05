@@ -198,8 +198,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
 			
-			//validate lot is ok
-			
+			//validate lot is ok			
 			boolean isOk = true;
 			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
 		

@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAttributeSet;
 import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MClient;
 import org.compiere.model.MDocType;
@@ -216,19 +217,20 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					boolean validateStock = MSysConfig.getBooleanValue("LOADORDER_VALIDATE_STOCK", true, getAD_Client_ID(), getAD_Org_ID());
 					if (!OPERATIONTYPE_MaterialOutputMovement.equals(getOperationType()) && validateStock) {
 						//	End Jorge Colmenarez
-						if (product.isASIMandatory(this.getC_DocType().isSOTrx())){
-						if (product.getAttributeSet() != null && !product.getAttributeSet().excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
-							if (line.getM_AttributeSetInstance_ID() == 0) {
-								MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
-										line.getFTU_LoadOrderLine_ID(), get_TrxName());		
+						if (product.isASIMandatoryFor(MAttributeSet.MANDATORYTYPE_WhenShipping,this.getC_DocType().isSOTrx())){
+							if (product.getAttributeSet() != null && !product.getAttributeSet()
+									.excludeTableEntry(MFTULoadOrderLine.Table_ID, this.getC_DocType().isSOTrx())) {						
+								if (line.getM_AttributeSetInstance_ID() == 0) {
+									MFTULoadOrderLineMA mas[] = MFTULoadOrderLineMA.get(getCtx(),
+									line.getFTU_LoadOrderLine_ID(), get_TrxName());		
 									if (mas.length < 1) {
-									StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
-										.append(line.getLine())
-										.append(", @M_Product_ID@=")
-										.append(product.getValue())
-										.append(")");
-									m_processMsg = msg.toString();
-									return DocAction.STATUS_Invalid;
+										StringBuilder msg = new StringBuilder("@M_AttributeSet_ID@ @IsMandatory@ (@Line@ #")
+												.append(line.getLine())
+												.append(", @M_Product_ID@=")
+												.append(product.getValue())
+												.append(")");
+										m_processMsg = msg.toString();
+										return DocAction.STATUS_Invalid;
 									}
 								}
 							}
@@ -1250,12 +1252,11 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			//line.setM_Locator_ID(line.getQty());	//	default Locator
 			needSave = true;
 		}
-
+		
 		//	Attribute Set Instance
 		//  Create an  Attribute Set Instance to any receipt FIFO/LIFO
 		if (product != null && line.getM_AttributeSetInstance_ID() == 0)
 		{
-			 
 			// Create consume the Attribute Set Instance using policy FIFO/LIFO
 			String MMPolicy = product.getMMPolicy();
 			MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), line.getM_Product_ID(), line.getM_AttributeSetInstance_ID(),
@@ -1338,7 +1339,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				//	Support for filter by Warehouse and not the same loadOrder
 				+ " AND lo.M_Warehouse_ID = ?"
 				//we add locator
-				+ " AND lol.M_Locator_ID = ?";
+				+ " AND COALESCE(lol.M_Locator_ID,ma.M_Locator_ID) = ?";
 		if(storage.getM_AttributeSetInstance_ID()==0)
 			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
 		else 
