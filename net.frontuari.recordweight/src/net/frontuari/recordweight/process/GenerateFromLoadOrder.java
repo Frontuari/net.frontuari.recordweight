@@ -723,6 +723,38 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			//	End Jorge Colmenarez
 			//
 			if (m_Current_BPartner_ID != m_C_BPartner_ID) {
+				//add charges to invoice david castillo 22/06/2021
+				if (orderWithCharges != m_Current_Order_ID) {
+					for (MOrderLine SalesOrderLine : order.getLines()) {
+						if (SalesOrderLine.getC_Charge_ID() > 0) {
+							MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
+							ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
+							ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
+							ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
+							ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
+							ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
+							BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
+									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
+											, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+							if (price != null) {			
+								ChargeInvLine.setPrice(price);
+								ChargeInvLine.setPriceEntered(price);
+							}
+							
+							BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
+									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+							 if (priceActual != null) {
+								 ChargeInvLine.setPriceActual(priceActual);
+							}
+							 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
+							 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
+							 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
+							 ChargeInvLine.saveEx();
+						}//only charges
+					}//all order lines
+					orderWithCharges = m_Current_Order_ID;
+				}
+				//end charges
 				// Complete Previous Invoice
 				completeInvoice();
 				m_Current_BPartner_ID = m_C_BPartner_ID;
@@ -761,39 +793,6 @@ public class GenerateFromLoadOrder extends FTUProcess {
 
 				MOrderLine oLine = new MOrderLine(getCtx(), m_C_OrderLine_ID, get_TrxName());
 
-				//add charges to invoice david castillo 22/06/2021
-				if (orderWithCharges != m_Current_Order_ID) {
-					for (MOrderLine SalesOrderLine : order.getLines()) {
-						if (SalesOrderLine.getC_Charge_ID() > 0) {
-							MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
-							ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
-							ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
-							ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
-							ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
-							ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
-							BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
-									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
-											, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
-							if (price != null) {			
-								ChargeInvLine.setPrice(price);
-								ChargeInvLine.setPriceEntered(price);
-							}
-							
-							BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
-									(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
-							 if (priceActual != null) {
-								 ChargeInvLine.setPriceActual(priceActual);
-							}
-							 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
-							 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
-							 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
-							 ChargeInvLine.saveEx();
-						}//only charges
-					}//all order lines
-					orderWithCharges = m_Current_Order_ID;
-				}
-				//end charges
-				
 				if (oLine.getM_Product_ID() != 0) {
 					// Rate Convert
 					rate = MUOMConversion.getProductRateTo(Env.getCtx(), product.getM_Product_ID(),
@@ -957,13 +956,46 @@ public class GenerateFromLoadOrder extends FTUProcess {
 					lo.saveEx();
 				}
 			} // End Invoice Line Created
-		} // End Invoice Generated
+		} // End Invoice Generated		
 
 		if (m_Current_Invoice != null)
 			if (m_Current_Invoice.getLines().length <=0) {
 				m_Current_Invoice.deleteEx(true);
 				m_Current_Invoice = null;
 			}
+		//add charges to invoice david castillo 22/06/2021
+		if (orderWithCharges != m_Current_Order_ID) {
+			MOrder order = (MOrder) m_Current_Invoice.getC_Order();
+			for (MOrderLine SalesOrderLine : order.getLines()) {
+				if (SalesOrderLine.getC_Charge_ID() > 0) {
+					MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
+					ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
+					ChargeInvLine.setQtyEntered(SalesOrderLine.getQtyOrdered());
+					ChargeInvLine.setQtyInvoiced(SalesOrderLine.getQtyOrdered());
+					ChargeInvLine.setC_UOM_ID(SalesOrderLine.getC_UOM_ID());
+					ChargeInvLine.setC_Invoice_ID(m_Current_Invoice.getC_Invoice_ID());
+					BigDecimal price = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceEntered(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(), p_MovementDate,//now , 
+							(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID()
+									, m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+					if (price != null) {			
+						ChargeInvLine.setPrice(price);
+						ChargeInvLine.setPriceEntered(price);
+					}
+					
+					BigDecimal priceActual = MConversionRate.convert(getCtx(), SalesOrderLine.getPriceActual(), order.getC_Currency_ID(), m_Current_Invoice.getC_Currency_ID(),p_MovementDate, //now , 
+							(p_C_ConversionType_ID > 0) ? p_C_ConversionType_ID : order.getC_ConversionType_ID(), m_Current_Invoice.getAD_Client_ID(), m_Current_Invoice.getAD_Org_ID());
+					 if (priceActual != null) {
+						 ChargeInvLine.setPriceActual(priceActual);
+					}
+					 ChargeInvLine.setC_OrderLine_ID(SalesOrderLine.getC_OrderLine_ID());
+					 ChargeInvLine.setC_Tax_ID(SalesOrderLine.getC_Tax_ID());
+					 ChargeInvLine.setAD_Org_ID(m_Current_Invoice.getAD_Org_ID());;
+					 ChargeInvLine.saveEx();
+				}//only charges
+			}//all order lines
+			orderWithCharges = m_Current_Order_ID;
+		}
+		//end charges
 		completeInvoice();
 		// Info
 		return "";
