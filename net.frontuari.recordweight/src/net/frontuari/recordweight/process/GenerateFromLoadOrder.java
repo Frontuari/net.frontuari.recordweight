@@ -357,6 +357,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 						
 						m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
 						m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
+						m_Current_Shipment.saveEx();
 						
 						// Instance MProduct
 						MProduct product = MProduct.get(getCtx(), m_FTU_LoadOrderLine.getM_Product_ID());
@@ -474,7 +475,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				
 				m_Current_Shipment.setAD_Org_ID(oLine.getM_Warehouse().getAD_Org_ID());
 				m_Current_Shipment.setM_Warehouse_ID(oLine.getM_Warehouse_ID());
-				
+				m_Current_Shipment.saveEx();				
 				// Instance MProduct
 				MProduct product = MProduct.get(getCtx(), m_FTU_LoadOrderLine.getM_Product_ID());
 				// Rate Convert
@@ -642,6 +643,7 @@ public class GenerateFromLoadOrder extends FTUProcess {
 		Boolean isCreateShipment = docTypeLoadOrder.get_ValueAsBoolean("isCreateShipment");
 		MFTULoadOrderLine[] lines = m_FTU_LoadOrder.getLines(true);
 		int orderWithCharges = 0;
+		MOrder lastOrder = null;
 		for (MFTULoadOrderLine m_FTU_LoadOrderLine : lines) {
 			boolean isOk = true;
 			if (m_FTU_LoadOrderLine.getM_AttributeSetInstance_ID() > 0) {
@@ -680,6 +682,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			}
 			
 			MOrder order = (MOrder) m_FTU_LoadOrderLine.getC_OrderLine().getC_Order();
+			if(lastOrder==null)
+				lastOrder = order;
 			//added by david castillo 20/12/2021 check if confirmedQty = 0
 			if (m_FTU_LoadOrderLine.getConfirmedQty().compareTo(Env.ZERO) <= 0)
 				continue;
@@ -713,6 +717,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			int m_C_Charge_ID = orderLine.getC_Charge_ID();
 			int m_M_Product_ID = orderLine.getM_Product_ID();
 
+			log.warning("Tercero= "+m_C_BPartner_ID+" Order="+m_C_Order_ID+" Linea="+m_C_OrderLine_ID);
+			
 			BigDecimal rate = Env.ZERO;
 			BigDecimal m_Qty = m_FTU_LoadOrderLine.getQty();
 			
@@ -724,8 +730,8 @@ public class GenerateFromLoadOrder extends FTUProcess {
 			//
 			if (m_Current_BPartner_ID != m_C_BPartner_ID) {
 				//add charges to invoice david castillo 22/06/2021
-				if (orderWithCharges != m_Current_Order_ID) {
-					for (MOrderLine SalesOrderLine : order.getLines()) {
+				if (orderWithCharges != m_Current_Order_ID && m_Current_Invoice != null) {
+					for (MOrderLine SalesOrderLine : lastOrder.getLines()) {
 						if (SalesOrderLine.getC_Charge_ID() > 0) {
 							MInvoiceLine ChargeInvLine = new MInvoiceLine(getCtx(), 0, get_TrxName());
 							ChargeInvLine.setC_Charge_ID(SalesOrderLine.getC_Charge_ID());
@@ -759,9 +765,14 @@ public class GenerateFromLoadOrder extends FTUProcess {
 				completeInvoice();
 				m_Current_BPartner_ID = m_C_BPartner_ID;
 				m_Current_Order_ID	= m_C_Order_ID;
+				orderWithCharges = 0;
+				m_Current_Invoice = null;
+				lastOrder = order;
 				// Create Invoice From Order
 				m_Current_Invoice = new MInvoice(order, p_C_DocTypeInv_ID, p_MovementDate);
 				m_Current_Invoice.setDateAcct(p_MovementDate);
+				m_Current_Invoice.setTotalLines(BigDecimal.ZERO);
+				m_Current_Invoice.setGrandTotal(BigDecimal.ZERO);
 				
 				if (p_C_Currency_ID > 0) {
 					m_Current_Invoice.setC_Currency_ID(p_C_Currency_ID);

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.exceptions.PeriodClosedException;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MDocType;
@@ -341,6 +342,19 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 				accrual = true;
 			}
 			
+			//	Added by Jorge Colmenarez, 2024-09-05 14:34
+			//	Validated that not paid
+			if(getFTU_PaymentRequest_ID()>0) {
+				int cnt = DB.getSQLValue(get_TrxName(), "SELECT COUNT(*) FROM FTU_PaymentRequest WHERE DocStatus NOT IN ('RE','VO') AND FTU_PaymentRequest_ID = ?", getFTU_PaymentRequest_ID());
+				if(cnt>0)
+					throw new AdempiereException("No es posible anular la liquidacion, porque esta asociada a una solicitud de pagos.");
+			}else {
+				int cnt = DB.getSQLValue(get_TrxName(), "SELECT COUNT(prl.*) FROM FTU_PaymentRequest pr JOIN FTU_PaymentRequestLine prl ON (pr.FTU_PaymentRequest_ID = prl.FTU_PaymentRequest_ID) WHERE pr.DocStatus NOT IN ('RE','VO') AND prl.FTU_Liquidation_ID = ?", get_ID());
+				if(cnt>0)
+					throw new AdempiereException("No es posible anular la liquidacion, porque esta asociada a una solicitud de pagos.");
+			}
+			//	End Jorge Colmenarez
+			
 			if (accrual)
 				return reverseAccrualIt();
 			else
@@ -437,6 +451,19 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 		
 		// Test period
 		MPeriod.testPeriodOpen(getCtx(), getDateTrx(), getC_DocType_ID(), getAD_Org_ID());
+		
+		//	Added by Jorge Colmenarez, 2024-09-05 14:34
+		//	Validated that not paid
+		if(getFTU_PaymentRequest_ID()>0) {
+			int cnt = DB.getSQLValue(get_TrxName(), "SELECT COUNT(*) FROM FTU_PaymentRequest WHERE DocStatus NOT IN ('RE','VO') AND FTU_PaymentRequest_ID = ?", getFTU_PaymentRequest_ID());
+			if(cnt>0)
+				throw new AdempiereException("No es posible anular la liquidacion, porque esta asociada a una solicitud de pagos.");
+		}else {
+			int cnt = DB.getSQLValue(get_TrxName(), "SELECT COUNT(prl.*) FROM FTU_PaymentRequest pr JOIN FTU_PaymentRequestLine prl ON (pr.FTU_PaymentRequest_ID = prl.FTU_PaymentRequest_ID) WHERE pr.DocStatus NOT IN ('RE','VO') AND prl.FTU_Liquidation_ID = ?", get_ID());
+			if(cnt>0)
+				throw new AdempiereException("No es posible anular la liquidacion, porque esta asociada a una solicitud de pagos.");
+		}
+		//	End Jorge Colmenarez
 
 		//	Delete Deductions
 		deleteDeduction(get_TrxName());

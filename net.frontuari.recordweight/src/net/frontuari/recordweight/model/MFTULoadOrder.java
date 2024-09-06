@@ -899,9 +899,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		}
 		List<MFTULoadOrderLine> list = new Query(getCtx(), MFTULoadOrderLine.Table_Name, "FTU_LoadOrder_ID=?"
 				+ (whereClause != null && whereClause.length() != 0? " AND " + whereClause: ""), get_TrxName())
-		.setParameters(getFTU_LoadOrder_ID())
-		.setOrderBy(MFTULoadOrderLine.COLUMNNAME_C_OrderLine_ID+","+MFTULoadOrderLine.COLUMNNAME_SeqNo)
-		.list();
+			.setParameters(getFTU_LoadOrder_ID())
+			.setOrderBy(MFTULoadOrderLine.COLUMNNAME_C_OrderLine_ID+","+MFTULoadOrderLine.COLUMNNAME_SeqNo)
+			.list();
 		
 		m_lines = new MFTULoadOrderLine[list.size ()];
 		list.toArray (m_lines);
