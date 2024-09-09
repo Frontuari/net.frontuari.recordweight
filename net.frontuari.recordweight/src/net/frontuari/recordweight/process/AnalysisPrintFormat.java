@@ -21,8 +21,6 @@ public class AnalysisPrintFormat extends FTUProcess {
 	
 	@Override
 	protected void prepare() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

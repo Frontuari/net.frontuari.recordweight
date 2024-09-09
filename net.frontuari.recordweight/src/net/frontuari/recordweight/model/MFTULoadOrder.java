@@ -1298,6 +1298,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 							storage.getM_AttributeSetInstance_ID(),
 							qtyToDeliver,storage.getDateMaterialPolicy(),true);
 					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
+					ma.set_ValueOfColumn("DateLastInventory", storage.getDateLastInventory());
 					ma.saveEx();
 					qtyToDeliver = Env.ZERO;
 				}
@@ -1307,7 +1308,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 							storage.getM_AttributeSetInstance_ID(),
 							available,storage.getDateMaterialPolicy(),true);
 					ma.set_ValueOfColumn("M_Locator_ID", storage.getM_Locator_ID());
-				
+					ma.set_ValueOfColumn("DateLastInventory", storage.getDateLastInventory());
 					ma.saveEx();
 					qtyToDeliver = qtyToDeliver.subtract(available);
 					if (log.isLoggable(Level.FINE)) log.fine( ma + ", QtyToDeliver=" + qtyToDeliver);
@@ -1327,7 +1328,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 		}
 	}	//	checkMaterialPolicy
 	
-	private BigDecimal getReservedforLoadOrder(MStorageOnHand storage) {
+	public BigDecimal getReservedforLoadOrder(MStorageOnHand storage) {
 		BigDecimal reservedForLoadOrder = BigDecimal.ZERO;
 		
 		String sql = "SELECT SUM(ma.Qty) FROM FTU_LoadOrderLineMA ma "
@@ -1347,6 +1348,12 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
 		else 
 			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
+		
+		if(storage.getDateLastInventory()!=null) {
+			sql += " AND ma.DateLastInventory = "+DB.TO_DATE(storage.getDateLastInventory(), false);
+		}else {
+			sql += " AND ma.DateLastInventory IS NULL ";
+		}
 		
 		reservedForLoadOrder = DB.getSQLValueBD(get_TrxName(), sql, 
 				new Object[] {storage.getM_Product_ID(),storage.getM_Warehouse_ID(),storage.getM_Locator_ID(),storage.getM_AttributeSetInstance_ID()});
