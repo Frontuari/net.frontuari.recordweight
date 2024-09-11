@@ -1,5 +1,6 @@
 package net.frontuari.recordweight.process;
 
+import java.lang.System;
 import java.sql.Timestamp;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MProcess;

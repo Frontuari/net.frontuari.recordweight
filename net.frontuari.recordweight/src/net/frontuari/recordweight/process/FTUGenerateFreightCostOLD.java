@@ -1,4 +1,6 @@
 package net.frontuari.recordweight.process;
+
+import java.lang.System;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;

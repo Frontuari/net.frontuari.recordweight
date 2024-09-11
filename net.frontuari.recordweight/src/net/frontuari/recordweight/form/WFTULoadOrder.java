@@ -45,7 +45,6 @@ import org.adempiere.webui.panel.StatusBarPanel;
 import org.adempiere.webui.session.SessionManager;
 import org.adempiere.webui.util.ZKUpdateUtil;
 import org.adempiere.webui.window.Dialog;
-import org.adempiere.webui.window.FDialog;
 import org.adempiere.webui.window.SimplePDFViewer;
 import org.compiere.minigrid.IMiniTable;
 import org.compiere.model.I_C_Order;
@@ -54,24 +53,20 @@ import org.compiere.model.MColumn;
 import org.compiere.model.MDocType;
 import org.compiere.model.MLookup;
 import org.compiere.model.MLookupFactory;
-import org.compiere.model.MPaySelection;
 import org.compiere.model.MProduct;
 import org.compiere.model.MQuery;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.MUOM;
 import org.compiere.model.MWindow;
-import org.compiere.model.PrintInfo;
 import org.compiere.model.X_C_Order;
 import org.compiere.print.MPrintFormat;
 import org.compiere.print.ReportCtl;
-import org.compiere.print.ReportEngine;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
 import org.compiere.util.Trx;
 import org.compiere.util.TrxRunnable;
-import org.idempiere.ui.zk.annotation.Form;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Center;
@@ -884,7 +879,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		}
 		//	
 		if(msg != null) {
-			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
+			Dialog.info(m_WindowNo, Msg.parseTranslation(Env.getCtx(), msg));
 			calculate();
 			return;
 		}
@@ -1043,7 +1038,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		}*/
 		
 		if(msg != null && MSysConfig.getBooleanValue("CALCULATE_WHEN_VALIDATIONFAIL_WLOADORDER", true, Env.getAD_Client_ID(Env.getCtx()), Env.getAD_Org_ID(Env.getCtx()))) {
-			FDialog.info(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), msg));
+			Dialog.info(m_WindowNo, Msg.parseTranslation(Env.getCtx(), msg));
 			calculate();
 			return false;
 		}
@@ -1272,7 +1267,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		 else if(arg0.getTarget().equals(gLoadOrderButton)) {
 			if(validData()) {
 				
-				FDialog.ask(m_WindowNo, form, Msg.translate(Env.getCtx(), "GenerateOrder"), new Callback<Boolean>() {
+				Dialog.ask(m_WindowNo, Msg.translate(Env.getCtx(), "GenerateOrder"), new Callback<Boolean>() {
 
 					@Override
 					public void onCallback(Boolean result) 
@@ -1283,12 +1278,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 						}
 						
 					}
-				});	
-				
-				/*if (FDialog.ask(m_WindowNo, parameterPanel, null, 
-						Msg.translate(Env.getCtx(), "GenerateOrder") + "?")) {
-					saveData();
-				}*/
+				});
 			}
 		}else if(arg0.getTarget().equals(docTypeSearch)) {
 			Object value = docTypeSearch.getValue();
@@ -1367,7 +1357,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 			if(col == SELECT
 					&& m_IsBulk
 					&& moreOneSelect(w_orderTable)) {
-				FDialog.info(m_WindowNo, parameterPanel, Msg.translate(Env.getCtx(), "IsBulkMaxOne"));
+				Dialog.info(m_WindowNo, Msg.translate(Env.getCtx(), "IsBulkMaxOne"));
 				w_orderTable.setValueAt(false, row, SELECT);
 				return;
 			}
@@ -1387,7 +1377,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				setOrderLineColumnClass(w_orderLineTable);
 				setValueFromBuffer(w_orderLineTable);	
 			} else {
-				FDialog.info(m_WindowNo, parameterPanel, "Error", Msg.parseTranslation(Env.getCtx(), "@C_UOM_ID@ @NotFound@"));
+				Dialog.info(m_WindowNo, "Error", Msg.parseTranslation(Env.getCtx(), "@C_UOM_ID@ @NotFound@"));
 				//loadOrder();
 				calculate();
 			}
@@ -1437,7 +1427,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 				}
 				//	
 				if(validError != null) {
-					FDialog.warn(m_WindowNo, parameterPanel, null, Msg.parseTranslation(Env.getCtx(), validError));
+					Dialog.warn(m_WindowNo, Msg.parseTranslation(Env.getCtx(), validError));
 					qty = qtyOrdered
 							.subtract(qtyDelivered)
 							.subtract(qtyOrderLine)
@@ -1481,7 +1471,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 						m_MaxSeqNo = seqNo;
 					}
 				} else {
-					FDialog.warn(m_WindowNo, parameterPanel, null, Msg.translate(Env.getCtx(), "SeqNoEx"));
+					Dialog.warn(m_WindowNo, Msg.translate(Env.getCtx(), "SeqNoEx"));
 					m_MaxSeqNo += 10;
 					w_orderLineTable.setValueAt(m_MaxSeqNo, row, OL_SEQNO);
 				}
@@ -1598,7 +1588,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 					"@NoDocPrintFormat@ @AD_Table_ID@=@FTU_LoadOrder@");
 			log.warning(msg);
 			//	
-			FDialog.warn(m_WindowNo, parameterPanel, "Error", msg);
+			Dialog.warn(m_WindowNo, "Error", msg);
 		}
 		//	Get Print Format
 		MPrintFormat f = MPrintFormat.get(Env.getCtx(), 
@@ -1656,14 +1646,14 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 		{
 			Trx.run(r);
 		} catch (Exception e) {
-			FDialog.error(m_WindowNo, parameterPanel, "Error", e.getLocalizedMessage());
+			Dialog.error(m_WindowNo, "Error", e.getLocalizedMessage());
 			statusBar.setStatusLine("Error: " + e.getLocalizedMessage());
 			e.printStackTrace();
 			return;
 		} finally {
 		}
 		//	Print Document
-		FDialog.ask(m_WindowNo, parameterPanel,"print.order", Msg.parseTranslation(Env.getCtx(), 
+		Dialog.ask(m_WindowNo, "print.order", Msg.parseTranslation(Env.getCtx(), 
 				"@FTU_LoadOrder_ID@ " + m_FTU_LoadOrder.getDocumentNo()), new Callback<Boolean>() {
 			@Override
 			public void onCallback(Boolean result) 
@@ -1673,7 +1663,7 @@ public class WFTULoadOrder extends FTULoadOrder implements ValueChangeListener, 
 					printDocument();
 				}
 			}
-		});	
+		});
 		
 		//	Clear
 		shipperPick.setValue(null);

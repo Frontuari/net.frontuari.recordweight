@@ -4,6 +4,7 @@
 package net.frontuari.recordweight.model;
 
 import java.io.File;
+import java.lang.System;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.PreparedStatement;
