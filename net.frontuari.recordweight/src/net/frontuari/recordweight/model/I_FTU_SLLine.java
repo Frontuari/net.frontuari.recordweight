@@ -171,6 +171,15 @@ public interface I_FTU_SLLine
 
 	public net.frontuari.recordweight.model.I_FTU_FreightCost getFTU_FreightCost() throws RuntimeException;
 
+    /** Column name FTU_PickingDairy_ID */
+    public static final String COLUMNNAME_FTU_PickingDairy_ID = "FTU_PickingDairy_ID";
+
+	/** Set Picking Dairy	  */
+	public void setFTU_PickingDairy_ID (int FTU_PickingDairy_ID);
+
+	/** Get Picking Dairy	  */
+	public int getFTU_PickingDairy_ID();
+
     /** Column name FTU_ShipperLiquidation_ID */
     public static final String COLUMNNAME_FTU_ShipperLiquidation_ID = "FTU_ShipperLiquidation_ID";
 

@@ -79,16 +79,16 @@ public interface I_FTU_ShipperLiquidation
 
 	public org.compiere.model.I_AD_User getAD_User() throws RuntimeException;
 
-    /** Column name ApprovalBy */
-    public static final String COLUMNNAME_ApprovalBy = "ApprovalBy";
+    /** Column name approvalby */
+    public static final String COLUMNNAME_approvalby = "approvalby";
 
-	/** Set Approval by	  */
-	public void setApprovalBy (int ApprovalBy);
+	/** Set approvalby	  */
+	public void setapprovalby (int approvalby);
 
-	/** Get Approval by	  */
-	public int getApprovalBy();
+	/** Get approvalby	  */
+	public int getapprovalby();
 
-	public org.compiere.model.I_AD_User getApprova() throws RuntimeException;
+	public org.compiere.model.I_AD_User getapprova() throws RuntimeException;
 
     /** Column name C_ConversionType_ID */
     public static final String COLUMNNAME_C_ConversionType_ID = "C_ConversionType_ID";
@@ -161,6 +161,19 @@ public interface I_FTU_ShipperLiquidation
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name CreateFrom */
+    public static final String COLUMNNAME_CreateFrom = "CreateFrom";
+
+	/** Set Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public void setCreateFrom (String CreateFrom);
+
+	/** Get Create lines from.
+	  * Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateFrom();
 
     /** Column name CreateLinesFrom */
     public static final String COLUMNNAME_CreateLinesFrom = "CreateLinesFrom";
@@ -349,6 +362,19 @@ public interface I_FTU_ShipperLiquidation
 	  */
 	public boolean isApproved();
 
+    /** Column name IsPrepayment */
+    public static final String COLUMNNAME_IsPrepayment = "IsPrepayment";
+
+	/** Set Prepayment.
+	  * The Payment/Receipt is a Prepayment
+	  */
+	public void setIsPrepayment (boolean IsPrepayment);
+
+	/** Get Prepayment.
+	  * The Payment/Receipt is a Prepayment
+	  */
+	public boolean isPrepayment();
+
     /** Column name M_Shipper_ID */
     public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
 
@@ -420,6 +446,32 @@ public interface I_FTU_ShipperLiquidation
 
 	/** Get Process Now	  */
 	public boolean isProcessing();
+
+    /** Column name Rate */
+    public static final String COLUMNNAME_Rate = "Rate";
+
+	/** Set Rate.
+	  * Rate or Tax or Exchange
+	  */
+	public void setRate (BigDecimal Rate);
+
+	/** Get Rate.
+	  * Rate or Tax or Exchange
+	  */
+	public BigDecimal getRate();
+
+    /** Column name TaxAmt */
+    public static final String COLUMNNAME_TaxAmt = "TaxAmt";
+
+	/** Set Tax Amount.
+	  * Tax Amount for a document
+	  */
+	public void setTaxAmt (BigDecimal TaxAmt);
+
+	/** Get Tax Amount.
+	  * Tax Amount for a document
+	  */
+	public BigDecimal getTaxAmt();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";

@@ -34,7 +34,7 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230725L;
+	private static final long serialVersionUID = 20240913L;
 
     /** Standard Constructor */
     public X_FTU_ShipperLiquidation (Properties ctx, int FTU_ShipperLiquidation_ID, String trxName)
@@ -166,25 +166,25 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 		return ii.intValue();
 	}
 
-	public org.compiere.model.I_AD_User getApprova() throws RuntimeException
+	public org.compiere.model.I_AD_User getapprova() throws RuntimeException
 	{
 		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_ID)
-			.getPO(getApprovalBy(), get_TrxName());
+			.getPO(getapprovalby(), get_TrxName());
 	}
 
-	/** Set Approval by.
-		@param ApprovalBy Approval by
+	/** Set approvalby.
+		@param approvalby approvalby
 	*/
-	public void setApprovalBy (int ApprovalBy)
+	public void setapprovalby (int approvalby)
 	{
-		set_Value (COLUMNNAME_ApprovalBy, Integer.valueOf(ApprovalBy));
+		set_Value (COLUMNNAME_approvalby, Integer.valueOf(approvalby));
 	}
 
-	/** Get Approval by.
-		@return Approval by	  */
-	public int getApprovalBy()
+	/** Get approvalby.
+		@return approvalby	  */
+	public int getapprovalby()
 	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_ApprovalBy);
+		Integer ii = (Integer)get_Value(COLUMNNAME_approvalby);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -296,6 +296,22 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Create lines from.
+		@param CreateFrom Process which will generate a new document lines based on an existing document
+	*/
+	public void setCreateFrom (String CreateFrom)
+	{
+		set_Value (COLUMNNAME_CreateFrom, CreateFrom);
+	}
+
+	/** Get Create lines from.
+		@return Process which will generate a new document lines based on an existing document
+	  */
+	public String getCreateFrom()
+	{
+		return (String)get_Value(COLUMNNAME_CreateFrom);
 	}
 
 	/** Set Create lines from.
@@ -603,6 +619,29 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 		return false;
 	}
 
+	/** Set Prepayment.
+		@param IsPrepayment The Payment/Receipt is a Prepayment
+	*/
+	public void setIsPrepayment (boolean IsPrepayment)
+	{
+		set_Value (COLUMNNAME_IsPrepayment, Boolean.valueOf(IsPrepayment));
+	}
+
+	/** Get Prepayment.
+		@return The Payment/Receipt is a Prepayment
+	  */
+	public boolean isPrepayment()
+	{
+		Object oo = get_Value(COLUMNNAME_IsPrepayment);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException
 	{
 		return (org.compiere.model.I_M_Shipper)MTable.get(getCtx(), org.compiere.model.I_M_Shipper.Table_ID)
@@ -730,5 +769,43 @@ public class X_FTU_ShipperLiquidation extends PO implements I_FTU_ShipperLiquida
 			return "Y".equals(oo);
 		}
 		return false;
+	}
+
+	/** Set Rate.
+		@param Rate Rate or Tax or Exchange
+	*/
+	public void setRate (BigDecimal Rate)
+	{
+		set_Value (COLUMNNAME_Rate, Rate);
+	}
+
+	/** Get Rate.
+		@return Rate or Tax or Exchange
+	  */
+	public BigDecimal getRate()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_Rate);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Tax Amount.
+		@param TaxAmt Tax Amount for a document
+	*/
+	public void setTaxAmt (BigDecimal TaxAmt)
+	{
+		set_Value (COLUMNNAME_TaxAmt, TaxAmt);
+	}
+
+	/** Get Tax Amount.
+		@return Tax Amount for a document
+	  */
+	public BigDecimal getTaxAmt()
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_TaxAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 }

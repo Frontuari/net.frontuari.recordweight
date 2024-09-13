@@ -61,7 +61,7 @@ public class CreateFromDairyShipperLiquidation extends FTUProcess {
 			MFTUShipperLiquidation liq = new MFTUShipperLiquidation(getCtx(), p_FTU_ShipperLiquidation_ID, get_TrxName());
 			StringBuilder sql = new StringBuilder();
 			sql.append("SELECT t.T_Selection_ID, v.GrandTotal, ");
-			sql.append("v.Description, v.C_Order_ID, v.C_Currency_ID, v.DatePromised ");
+			sql.append("v.Description, v.C_Order_ID, v.C_Currency_ID, v.DatePromised, v.FTU_PickingDairy_ID ");
 			sql.append("FROM T_Selection t, FTU_RV_PDToLiquidate v ");
 			sql.append("WHERE (t.T_Selection_ID)=(v.FTU_RV_PDToLiquidate_ID) ");
 			sql.append("AND t.AD_PInstance_ID=? AND v.M_Shipper_ID = ? ");
@@ -79,6 +79,7 @@ public class CreateFromDairyShipperLiquidation extends FTUProcess {
 				{
 					MFTUShipperLiquidationLine line = new MFTUShipperLiquidationLine(liq);
 					line.setC_Order_ID(rs.getInt("C_Order_ID"));
+					line.setFTU_PickingDairy_ID(rs.getInt("FTU_PickingDairy_ID"));
 					line.setDescription(rs.getString("Description"));
 					//line.setC_Invoice_ID(rs.getInt("C_Invoice_ID"));
 					BigDecimal amt = MConversionRate.convert(getCtx(), rs.getBigDecimal("GrandTotal"), rs.getInt("C_Currency_ID")

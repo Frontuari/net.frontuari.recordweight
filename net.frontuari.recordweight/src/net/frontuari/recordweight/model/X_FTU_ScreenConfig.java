@@ -33,7 +33,7 @@ public class X_FTU_ScreenConfig extends PO implements I_FTU_ScreenConfig, I_Pers
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230725L;
+	private static final long serialVersionUID = 20240913L;
 
     /** Standard Constructor */
     public X_FTU_ScreenConfig (Properties ctx, int FTU_ScreenConfig_ID, String trxName)

@@ -33,7 +33,7 @@ public class X_FTU_SLLine extends PO implements I_FTU_SLLine, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20240116L;
+	private static final long serialVersionUID = 20240913L;
 
     /** Standard Constructor */
     public X_FTU_SLLine (Properties ctx, int FTU_SLLine_ID, String trxName)
@@ -250,6 +250,27 @@ public class X_FTU_SLLine extends PO implements I_FTU_SLLine, I_Persistent
 	public int getFTU_FreightCost_ID()
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_FreightCost_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Picking Dairy.
+		@param FTU_PickingDairy_ID Picking Dairy
+	*/
+	public void setFTU_PickingDairy_ID (int FTU_PickingDairy_ID)
+	{
+		if (FTU_PickingDairy_ID < 1)
+			set_Value (COLUMNNAME_FTU_PickingDairy_ID, null);
+		else
+			set_Value (COLUMNNAME_FTU_PickingDairy_ID, Integer.valueOf(FTU_PickingDairy_ID));
+	}
+
+	/** Get Picking Dairy.
+		@return Picking Dairy	  */
+	public int getFTU_PickingDairy_ID()
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_FTU_PickingDairy_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
