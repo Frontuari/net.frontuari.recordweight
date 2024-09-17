@@ -404,6 +404,7 @@ public class FTULoadOrder extends FTUForm {
 			}
 			sqlWhere.append(")");
 			
+			
 			sql = new StringBuffer("SELECT alm.M_Warehouse_ID, alm.Name Warehouse, lord.DD_OrderLine_ID, ord.DocumentNo, lord.M_Product_ID, pro.Name Product, " +
 					"pro.C_UOM_ID, uomp.UOMSymbol, s.QtyOnHand, " +
 					"lord.QtyOrdered, lord.C_UOM_ID, uom.UOMSymbol, lord.QtyReserved, 0 QtyInvoiced, lord.QtyDelivered, " +
@@ -872,9 +873,11 @@ public class FTULoadOrder extends FTUForm {
 		//	Set Warehouse
 		if(m_M_Warehouse_ID != 0) {
 			m_FTU_LoadOrder.setM_Warehouse_ID(m_M_Warehouse_ID);
+			log.log(Level.SEVERE, "almacen orden de venta " + m_FTU_LoadOrder.getM_Warehouse_ID());
 		}else {
 			MWarehouse[] WH = MWarehouse.getForOrg(Env.getCtx(), m_AD_Org_ID);
 			m_FTU_LoadOrder.setM_Warehouse_ID(WH[0].getM_Warehouse_ID());
+			log.log(Level.SEVERE, "almacen orden de venta" + m_FTU_LoadOrder.getM_Warehouse_ID());
 		}
 		//	Invoice Rule
 		if(m_InvoiceRule != null
@@ -913,7 +916,7 @@ public class FTULoadOrder extends FTUForm {
 				//	New Line
 				m_FTU_LoadOrderLine = new MFTULoadOrderLine(Env.getCtx(), 0, trxName);
 				
-				if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryBulkMaterial) ||
+				/*if (m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryBulkMaterial) ||
 				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryFinishedProduct) ||
 				    m_OperationType.equals(X_FTU_LoadOrder.OPERATIONTYPE_DeliveryMultipleProducts)) {
 					MOrderLine line = new MOrderLine(Env.getCtx(), m_OrderLine_ID, trxName);
@@ -921,7 +924,7 @@ public class FTULoadOrder extends FTUForm {
 					log.log(Level.SEVERE, "almacen orden de venta" + salesOrder.getM_Warehouse_ID());
 					m_FTU_LoadOrder.setM_Warehouse_ID(salesOrder.getM_Warehouse_ID());
 					m_FTU_LoadOrder.saveEx();
-				}
+				}*/
 				
 				//	Set Values
 				m_FTU_LoadOrderLine.setAD_Org_ID(m_AD_Org_ID);
@@ -936,6 +939,7 @@ public class FTULoadOrder extends FTUForm {
 				m_FTU_LoadOrderLine.setWeight(weight);
 				m_FTU_LoadOrderLine.setVolume(volume);
 				m_FTU_LoadOrderLine.setM_Warehouse_ID(m_M_Warehouse_ID);
+				log.log(Level.SEVERE, "almacen orden de venta" + m_FTU_LoadOrderLine.getM_Warehouse_ID());
 				//	Add Weight
 				totalWeight = totalWeight.add(weight);
 				//	Add Volume
