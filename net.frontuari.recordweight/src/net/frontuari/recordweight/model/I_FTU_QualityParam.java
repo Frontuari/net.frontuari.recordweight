@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for FTU_QualityParam
  *  @author iDempiere (generated) 
- *  @version Release 10
+ *  @version Release 11
  */
 @SuppressWarnings("all")
 public interface I_FTU_QualityParam 
@@ -32,7 +32,7 @@ public interface I_FTU_QualityParam
     /** TableName=FTU_QualityParam */
     public static final String Table_Name = "FTU_QualityParam";
 
-    /** AD_Table_ID=1000480 */
+    /** AD_Table_ID=1000044 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -224,14 +224,18 @@ public interface I_FTU_QualityParam
 	  */
 	public boolean isActive();
 
-    /** Column name isQualitativeAnalysis */
-    public static final String COLUMNNAME_isQualitativeAnalysis = "isQualitativeAnalysis";
+    /** Column name IsCalculated */
+    public static final String COLUMNNAME_IsCalculated = "IsCalculated";
 
-	/** Set isQualitativeAnalysis	  */
-	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis);
+	/** Set Calculated.
+	  * The value is calculated by the system
+	  */
+	public void setIsCalculated (boolean IsCalculated);
 
-	/** Get isQualitativeAnalysis	  */
-	public boolean isQualitativeAnalysis();
+	/** Get Calculated.
+	  * The value is calculated by the system
+	  */
+	public boolean isCalculated();
 
     /** Column name IsQualityDiscount */
     public static final String COLUMNNAME_IsQualityDiscount = "IsQualityDiscount";
@@ -274,6 +278,15 @@ public interface I_FTU_QualityParam
 	public int getM_Product_ID();
 
 	public org.compiere.model.I_M_Product getM_Product() throws RuntimeException;
+
+    /** Column name MeasurementParameter */
+    public static final String COLUMNNAME_MeasurementParameter = "MeasurementParameter";
+
+	/** Set MeasurementParameter	  */
+	public void setMeasurementParameter (String MeasurementParameter);
+
+	/** Get MeasurementParameter	  */
+	public String getMeasurementParameter();
 
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
@@ -362,4 +375,13 @@ public interface I_FTU_QualityParam
 	  * Search key for the record in the format required - must be unique
 	  */
 	public String getValue();
+
+    /** Column name isQualitativeAnalysis */
+    public static final String COLUMNNAME_isQualitativeAnalysis = "isQualitativeAnalysis";
+
+	/** Set isQualitativeAnalysis	  */
+	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis);
+
+	/** Get isQualitativeAnalysis	  */
+	public boolean isQualitativeAnalysis();
 }

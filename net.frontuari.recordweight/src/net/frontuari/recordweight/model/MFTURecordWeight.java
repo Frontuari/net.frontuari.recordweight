@@ -273,6 +273,12 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			}
 		}
 		
+		MFTUEntryTicket entryTicket = (MFTUEntryTicket) getFTU_EntryTicket();
+		int p_HRS_Analysis_ID = MHRSAnalysis.getLastByEntryTicket(entryTicket.getFTU_EntryTicket_ID());
+		if(p_HRS_Analysis_ID >0) {
+			set_ValueOfColumn("HRS_LastAnalysis_ID", p_HRS_Analysis_ID);
+		}
+		
 		//	Added by Jorge Colmenarez, 2021-06-30 10:36
 		//	Support for Validate NetWeigth Tolerance
 		//David castillo 2021-08-05 added percentage tolerance
@@ -371,7 +377,8 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 			approveIt();
 
 		if ((getOperationType().equals(OPERATIONTYPE_RawMaterialReceipt)
-				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)) 
+				|| getOperationType().equals(OPERATIONTYPE_DeliveryBulkMaterial)
+				|| getOperationType().equals(OPERATIONTYPE_ProductBulkReceipt)) 
 					&& isValidWeight)
 			m_processMsg = calculatePayWeight();
 		
@@ -624,7 +631,28 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 	 * @return String
 	 */
 	private String calculatePayWeight() {
-		setPayWeight(getNetWeight());
+		BigDecimal discountWeight = BigDecimal.ZERO;
+		if(getHRS_Analysis_ID()>0) {
+			MHRSAnalysis a = new MHRSAnalysis(getCtx(), getHRS_Analysis_ID(), get_TrxName());
+			for(MHRSAnalysisValuation val : a.getValuationLines(true, " UPPER(HumanResult) NOT IN ('ACEPTAR','RECHAZAR') ")) {
+				MFTUQualityParam qp = new MFTUQualityParam(getCtx(), val.getFTU_QualityParam_ID(), get_TrxName());
+				if(qp.isQualityDiscount() && qp.get_ValueAsString("MeasurementParameter").equalsIgnoreCase("Kg")) {
+					discountWeight = discountWeight.add(new BigDecimal(val.getHumanResult()));
+				}
+			}
+		}
+		//	search on Last Analysis
+		log.warning("Analisis: "+get_ValueAsInt("HRS_LastAnalysis_ID"));
+		if(get_ValueAsInt("HRS_LastAnalysis_ID")>0) {
+			MHRSAnalysis a = new MHRSAnalysis(getCtx(), get_ValueAsInt("HRS_LastAnalysis_ID"), get_TrxName());
+			for(MHRSAnalysisValuation val : a.getValuationLines(true, " UPPER(HumanResult) NOT IN ('ACEPTAR','RECHAZAR') ")) {
+				MFTUQualityParam qp = new MFTUQualityParam(getCtx(), val.getFTU_QualityParam_ID(), get_TrxName());
+				if(qp.isQualityDiscount() && qp.get_ValueAsString("MeasurementParameter").equalsIgnoreCase("Kg")) {
+					discountWeight = discountWeight.add(new BigDecimal(val.getHumanResult()));
+				}
+			}
+		}
+		setPayWeight(getNetWeight().subtract(discountWeight));
 		return null;
 	}
 

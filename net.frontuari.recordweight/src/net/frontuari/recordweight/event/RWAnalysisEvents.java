@@ -8,6 +8,7 @@ import org.adempiere.base.annotation.ModelEventTopic;
 import org.adempiere.base.event.annotations.ModelEventDelegate;
 import org.adempiere.base.event.annotations.po.AfterChange;
 import org.adempiere.base.event.annotations.po.AfterNew;
+import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.osgi.service.event.Event;
@@ -66,10 +67,15 @@ public class RWAnalysisEvents extends ModelEventDelegate<MHRSAnalysis> {
 			MHRSAnalysisLine line = new MHRSAnalysisLine(ctx, 0, trxName);
 			line.setHRS_Analysis_ID(AnalysisID);
 			line.setFTU_AnalysisType_ID(qparam.getFTU_AnalysisType_ID());
-			if(!qparam.isQualitativeAnalysis())
+			if(!qparam.isQualitativeAnalysis()) {
 				line.setResult(getCondition(qparam.getFTU_AnalysisType_ID(),ProductID,LotID,trxName));
-			else
-				line.setResult(BigDecimal.ZERO);
+				line.setQualitativeResult("");
+			}
+			else {
+				BigDecimal resultDefault = MSysConfig.getBigDecimalValue("DEFAULT_VALUE_ANALYSIS_RESULT", null, line.getAD_Client_ID(), line.getAD_Org_ID());
+				line.setResult(resultDefault);
+				line.setQualitativeResult(qparam.getReferenceValue());
+			}
 			line.setQualitativeResult("");
 			line.saveEx(trxName);
 		}

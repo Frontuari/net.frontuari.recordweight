@@ -107,8 +107,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		String referenceNo = DB.getSQLValueString(get_TrxName()
 				, "SELECT DocumentNo FROM HRS_Analysis"
 				 + " WHERE DocStatus NOT IN ('VO','RE')"
-				 + " AND FTU_EntryTicket_ID = ? AND HRS_Analysis_ID<>?"
-				, getFTU_EntryTicket_ID(), get_ID());
+				 + " AND FTU_EntryTicket_ID = ? AND HRS_Analysis_ID<>? AND FTU_ProductAnalysis_ID = ?"
+				, getFTU_EntryTicket_ID(), get_ID(), getFTU_ProductAnalysis_ID());
 		
 		if (referenceNo != null)
 		{
@@ -390,6 +390,8 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 		{
 			String value = line.getFTU_AnalysisType().getValue();
 			String result = isQualitativeAnaysis ? line.getQualitativeResult() : line.getResult().toString();
+			if(result == null && isQualitativeAnaysis)
+				result = line.getResult().toString();
 			code=code.replaceAll("#("+value+")", result);
 		}
 		return code;
@@ -409,6 +411,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
         	int idCampo=Integer.parseInt(getIdFormula(regexMatcher.group()));
         	X_FTU_QualityParam qp = new X_FTU_QualityParam(getCtx(), idCampo, get_TrxName());
         	if(qp.get_ID()>0) {
+        		
         		contenidoFormula = qp.getCode().toLowerCase();
         		contenidoFormula = replaceBasicCode(contenidoFormula,qp.isQualitativeAnalysis());
         		if(qp.isQualitativeAnalysis())
@@ -448,6 +451,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				String code=rs.getString("Code");
 				int FTU_QualityParam_id=rs.getInt("FTU_QualityParam_ID");
 				MFTUQualityParam qparam = new MFTUQualityParam(getCtx(), FTU_QualityParam_id, get_TrxName());
+				log.warning("Parametro="+qparam.getName());
 				boolean isQualitativeAnalysis = qparam.isQualitativeAnalysis();
 				//	Replace Code
 				code = getFormulas(code);
@@ -457,7 +461,7 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 				code = cleanCode(code);
 				//	Execute Code
 				String result ;
-				if (isQualitativeAnalysis) {
+				if (isQualitativeAnalysis && !qparam.isCalculated()) {
 					result = code;
 				}else {
 					String sqlCode = "SELECT ("+code+") AS result";
@@ -471,7 +475,11 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 					String SysResult = "";
 					if (!isQualitativeAnalysis) {
 						lcr.setHumanResult(result.toUpperCase());
-						SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
+						//	Hardcode solved it!!
+						if(qparam.getResult().equals("0"))
+							SysResult = "Aceptar";
+						else
+							SysResult = (result.equalsIgnoreCase(qparam.getResult()) ? "Aceptar" : "Rechazar");
 					}else {
 						lcr.setQualitativeResult(result.toUpperCase());
 						lcr.setHumanResult("0");
@@ -946,7 +954,18 @@ public class MHRSAnalysis extends X_HRS_Analysis implements DocAction, DocOption
 
 	public static int getByEntryTicket(int p_FTU_EntryTicket_ID) {
 		String sql = "SELECT "
-				+ "HRS_AnalySis_ID "
+				+ "MIN(HRS_AnalySis_ID) "
+				+ "FROM HRS_Analysis "
+				+ "WHERE "
+				+ "FTU_EntryTicket_ID = ? "
+				+ "AND DocStatus IN ('CO', 'IP') " 
+				+ "AND (IsValidAnalysis = 'Y' OR IsApprovedAnalysis = 'Y')";
+		return DB.getSQLValue(null, sql, p_FTU_EntryTicket_ID);
+	}
+
+	public static int getLastByEntryTicket(int p_FTU_EntryTicket_ID) {
+		String sql = "SELECT "
+				+ "MAX(HRS_AnalySis_ID) "
 				+ "FROM HRS_Analysis "
 				+ "WHERE "
 				+ "FTU_EntryTicket_ID = ? "

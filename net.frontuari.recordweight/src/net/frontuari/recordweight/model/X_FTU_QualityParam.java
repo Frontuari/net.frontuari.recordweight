@@ -23,16 +23,16 @@ import java.util.Properties;
 import org.compiere.model.*;
 
 /** Generated Model for FTU_QualityParam
- *  @author iDempiere (generated) 
- *  @version Release 10 - $Id$ */
+ *  @author iDempiere (generated)
+ *  @version Release 11 - $Id$ */
 @org.adempiere.base.Model(table="FTU_QualityParam")
-public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Persistent 
+public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Persistent
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20230825L;
+	private static final long serialVersionUID = 20240917L;
 
     /** Standard Constructor */
     public X_FTU_QualityParam (Properties ctx, int FTU_QualityParam_ID, String trxName)
@@ -44,9 +44,17 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
 			setFTU_QualityParam_ID (0);
+			setIsCalculated (false);
+// N
+			setIsQualityDiscount (false);
+// N
+			setIsShowReport (true);
+// Y
 			setIsUsedFor (null);
 // BO
 			setName (null);
+			setisQualitativeAnalysis (false);
+// N
         } */
     }
 
@@ -60,9 +68,65 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
 			setFTU_QualityParam_ID (0);
+			setIsCalculated (false);
+// N
+			setIsQualityDiscount (false);
+// N
+			setIsShowReport (true);
+// Y
 			setIsUsedFor (null);
 // BO
 			setName (null);
+			setisQualitativeAnalysis (false);
+// N
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_QualityParam (Properties ctx, String FTU_QualityParam_UU, String trxName)
+    {
+      super (ctx, FTU_QualityParam_UU, trxName);
+      /** if (FTU_QualityParam_UU == null)
+        {
+			setCode (null);
+			setDateDoc (new Timestamp( System.currentTimeMillis() ));
+// @#Date@
+			setFTU_QualityParam_ID (0);
+			setIsCalculated (false);
+// N
+			setIsQualityDiscount (false);
+// N
+			setIsShowReport (true);
+// Y
+			setIsUsedFor (null);
+// BO
+			setName (null);
+			setisQualitativeAnalysis (false);
+// N
+        } */
+    }
+
+    /** Standard Constructor */
+    public X_FTU_QualityParam (Properties ctx, String FTU_QualityParam_UU, String trxName, String ... virtualColumns)
+    {
+      super (ctx, FTU_QualityParam_UU, trxName, virtualColumns);
+      /** if (FTU_QualityParam_UU == null)
+        {
+			setCode (null);
+			setDateDoc (new Timestamp( System.currentTimeMillis() ));
+// @#Date@
+			setFTU_QualityParam_ID (0);
+			setIsCalculated (false);
+// N
+			setIsQualityDiscount (false);
+// N
+			setIsShowReport (true);
+// Y
+			setIsUsedFor (null);
+// BO
+			setName (null);
+			setisQualitativeAnalysis (false);
+// N
         } */
     }
 
@@ -73,7 +137,7 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
     }
 
     /** AccessLevel
-      * @return 3 - Client - Org 
+      * @return 3 - Client - Org
       */
     protected int get_AccessLevel()
     {
@@ -275,9 +339,9 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public void setFTU_ProductAnalysis_ID (int FTU_ProductAnalysis_ID)
 	{
 		if (FTU_ProductAnalysis_ID < 1)
-			set_ValueNoCheck (COLUMNNAME_FTU_ProductAnalysis_ID, null);
+			set_Value (COLUMNNAME_FTU_ProductAnalysis_ID, null);
 		else
-			set_ValueNoCheck (COLUMNNAME_FTU_ProductAnalysis_ID, Integer.valueOf(FTU_ProductAnalysis_ID));
+			set_Value (COLUMNNAME_FTU_ProductAnalysis_ID, Integer.valueOf(FTU_ProductAnalysis_ID));
 	}
 
 	/** Get Product Analysis.
@@ -342,23 +406,24 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 		return (String)get_Value(COLUMNNAME_HumanCode);
 	}
 
-	/** Set isQualitativeAnalysis.
-		@param isQualitativeAnalysis isQualitativeAnalysis
+	/** Set Calculated.
+		@param IsCalculated The value is calculated by the system
 	*/
-	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis)
+	public void setIsCalculated (boolean IsCalculated)
 	{
-		set_Value (COLUMNNAME_isQualitativeAnalysis, Boolean.valueOf(isQualitativeAnalysis));
+		set_Value (COLUMNNAME_IsCalculated, Boolean.valueOf(IsCalculated));
 	}
 
-	/** Get isQualitativeAnalysis.
-		@return isQualitativeAnalysis	  */
-	public boolean isQualitativeAnalysis()
+	/** Get Calculated.
+		@return The value is calculated by the system
+	  */
+	public boolean isCalculated()
 	{
-		Object oo = get_Value(COLUMNNAME_isQualitativeAnalysis);
-		if (oo != null) 
+		Object oo = get_Value(COLUMNNAME_IsCalculated);
+		if (oo != null)
 		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
 			return "Y".equals(oo);
 		}
 		return false;
@@ -377,10 +442,10 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public boolean isQualityDiscount()
 	{
 		Object oo = get_Value(COLUMNNAME_IsQualityDiscount);
-		if (oo != null) 
+		if (oo != null)
 		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
 			return "Y".equals(oo);
 		}
 		return false;
@@ -399,10 +464,10 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public boolean isShowReport()
 	{
 		Object oo = get_Value(COLUMNNAME_IsShowReport);
-		if (oo != null) 
+		if (oo != null)
 		{
-			 if (oo instanceof Boolean) 
-				 return ((Boolean)oo).booleanValue(); 
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
 			return "Y".equals(oo);
 		}
 		return false;
@@ -456,6 +521,21 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set MeasurementParameter.
+		@param MeasurementParameter MeasurementParameter
+	*/
+	public void setMeasurementParameter (String MeasurementParameter)
+	{
+		set_Value (COLUMNNAME_MeasurementParameter, MeasurementParameter);
+	}
+
+	/** Get MeasurementParameter.
+		@return MeasurementParameter	  */
+	public String getMeasurementParameter()
+	{
+		return (String)get_Value(COLUMNNAME_MeasurementParameter);
 	}
 
 	/** Set Name.
@@ -553,5 +633,27 @@ public class X_FTU_QualityParam extends PO implements I_FTU_QualityParam, I_Pers
 	public String getValue()
 	{
 		return (String)get_Value(COLUMNNAME_Value);
+	}
+
+	/** Set isQualitativeAnalysis.
+		@param isQualitativeAnalysis isQualitativeAnalysis
+	*/
+	public void setisQualitativeAnalysis (boolean isQualitativeAnalysis)
+	{
+		set_Value (COLUMNNAME_isQualitativeAnalysis, Boolean.valueOf(isQualitativeAnalysis));
+	}
+
+	/** Get isQualitativeAnalysis.
+		@return isQualitativeAnalysis	  */
+	public boolean isQualitativeAnalysis()
+	{
+		Object oo = get_Value(COLUMNNAME_isQualitativeAnalysis);
+		if (oo != null)
+		{
+			 if (oo instanceof Boolean)
+				 return ((Boolean)oo).booleanValue();
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 }
