@@ -1286,7 +1286,7 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 				reserved = getReservedforLoadOrder(storage);
 				reserved = reserved.subtract(CumulatedReserved);
 				log.log(Level.SEVERE, "CANTIDAD RESERVADA DEL PRODUCTO " + product.getName() + " : " + reserved+" CANT. RESERVADA ACUMULADA: "+CumulatedReserved);
-				available = storage.getQtyOnHand().subtract(reserved.abs());
+				available = storage.getQtyOnHand().subtract(reserved);
 				log.log(Level.SEVERE, "INVENTARIO CHEQUEADO = " + storage.toString() + " disponible :" + storage.getQtyOnHand());
 				log.log(Level.SEVERE, "CANTIDAD DISPONIBLE = " + available);
 				if(available.compareTo(BigDecimal.ZERO) <= 0) {
@@ -1345,9 +1345,9 @@ public class MFTULoadOrder extends X_FTU_LoadOrder implements DocAction, DocOpti
 					sql += " AND lol.M_Locator_ID = ? ";
 				else
 					sql += " AND COALESCE(lol.M_Locator_ID,ma.M_Locator_ID) = ? ";
-		if(storage.getM_AttributeSetInstance_ID()==0)
-			sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
-		else 
+		//if(storage.getM_AttributeSetInstance_ID()==0)
+			//sql += " AND ma.M_AttributeSetInstance_ID = ? AND lo.FTU_LoadOrder_ID <> "+this.getFTU_LoadOrder_ID();
+		//else 
 			sql += " AND ma.M_AttributeSetInstance_ID = ? ";
 		
 		if(storage.getDateLastInventory()!=null) {
