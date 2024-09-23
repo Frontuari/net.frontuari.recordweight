@@ -29,10 +29,10 @@ public class OrderEvents extends ModelEventDelegate<MOrder> {
 	@BeforeVoid
 	public void onBeforeVoid(){
 		MOrder order = getModel();
-		String sqlload = "SELECT COUNT(lo.FTU_LoadOrder_ID) FROM FTU_LoadOrderLine fl JOIN FTU_LoadOrder AS lo ON lo.FTU_LoadOrder_ID = fl.FTU_LoadOrder_ID JOIN C_OrderLine co ON co.C_Orderline_ID = fl.C_OrderLine_ID WHERE lo.DocStatus IN ('CO','CL') AND co.C_Order_ID = " + order.getC_Order_ID();
+		String sqlload = "SELECT COUNT(lo.FTU_LoadOrder_ID) FROM FTU_LoadOrderLine fl JOIN FTU_LoadOrder AS lo ON lo.FTU_LoadOrder_ID = fl.FTU_LoadOrder_ID JOIN C_OrderLine co ON co.C_Orderline_ID = fl.C_OrderLine_ID WHERE lo.DocStatus  NOT IN ('RE','VO') AND co.C_Order_ID = " + order.getC_Order_ID();
 		BigDecimal qtyload = DB.getSQLValueBD(order.get_TrxName(), sqlload);
 			if (qtyload.compareTo(Env.ZERO) > 0)
-				throw new AdempiereException("La orden posee " + qtyload + " Ordenes de Carga completadas o cerradas");
+				throw new AdempiereException("La orden posee " + qtyload + " Ordenes de Carga.");
 	}
 	
 
