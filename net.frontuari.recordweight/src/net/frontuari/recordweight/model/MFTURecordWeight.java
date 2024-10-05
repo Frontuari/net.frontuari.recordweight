@@ -2009,13 +2009,15 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 				// Set Product
 				ioLine.setProduct(product);
 				
+				boolean productAutoProduce = product.isAutoProduce();
+				
 				String MMPolicy = product.getMMPolicy();
 				MStorageOnHand[] storages = getWarehouse(getCtx(), getM_Warehouse_ID(), getM_Product_ID(), 0,
 						null, MClient.MMPOLICY_FiFo.equals(MMPolicy), true, 0, get_TrxName(), false, 0);
 				BigDecimal qtyToDeliver = m_MovementQty;
 				BigDecimal available = BigDecimal.ZERO;
 				for (MStorageOnHand storage: storages)
-				{					
+				{				
 					available = storage.getQtyOnHand();	
 					log.log(Level.SEVERE, "Cantidad disponible" + storage.toString()+ " - Cantidad a entregar: " +qtyToDeliver);
 							if (available.compareTo(qtyToDeliver) >=0) {
@@ -2047,13 +2049,28 @@ public class MFTURecordWeight extends X_FTU_RecordWeight implements DocAction, D
 								ioLine2.saveEx(get_TrxName());
 								qtyToDeliver = qtyToDeliver.subtract(available);
 								ioLine = ioLine2;
-							}							
+							}						
 							
 							if (qtyToDeliver.signum() == 0)
 								break;
 				}
+				//	Support for autoproduce product	
+				if(productAutoProduce) {
+					MInOutLine ioLine3 = new MInOutLine(m_Receipt);
+					ioLine3.setProduct(product);
+					ioLine3.setC_OrderLine_ID(lol[i].getC_OrderLine_ID());
+					// Set Quantity
+					ioLine3.setC_UOM_ID(oLine.getC_UOM_ID());
+					ioLine3.setQty(getNetWeight());
+					ioLine3.setQtyEntered(getNetWeight());
+					MWarehouse w = new MWarehouse(getCtx(), getM_Warehouse_ID(), get_TrxName());
+					ioLine3.setM_Locator_ID(w.getDefaultLocator().get_ID());
+					//
+					ioLine3.saveEx(get_TrxName());
+					ioLine = ioLine3;
+				}
 				
-				if (qtyToDeliver.compareTo(Env.ZERO) == 1)
+				if (qtyToDeliver.compareTo(Env.ZERO) == 1 && !productAutoProduce)
 					throw new AdempiereException("No hay suficiente inventario disponible para despachar este producto");					
 				
 				// Manually Process Shipment
