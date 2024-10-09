@@ -317,12 +317,14 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 			m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_VOID);
 			if (m_processMsg != null)
 				return false;
-			
+			log.warning("Documento Actual="+this.getDocumentNo());
 			//	Set lines to 0
 			MFTUShipperLiquidationLine[] lines = getLines(false);
 			for (int i = 0; i < lines.length; i++)
 			{
 				MFTUShipperLiquidationLine line =  lines[i];
+				log.warning("Linea (ID)="+line.getFTU_ShipperLiquidation_ID());
+				
 				line.setAmount(BigDecimal.ZERO);
 				line.saveEx(get_TrxName());
 			}
@@ -600,9 +602,10 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 */
 	private MFTUShipperLiquidationLine[] getLines (String whereClause)
 	{
-		String whereClauseFinal = "FTU_ShipperLiquidation_ID=? AND FTU_FreightCost_ID IS NOT NULL OR C_ORDER_ID IS NOT NULL ";
+		String whereClauseFinal = " FTU_ShipperLiquidation_ID=? AND (FTU_FreightCost_ID IS NOT NULL OR C_ORDER_ID IS NOT NULL) ";
 		if (whereClause != null)
 			whereClauseFinal += whereClause;
+		log.warning("Documento Actual="+getFTU_ShipperLiquidation_ID());
 		List<MFTUShipperLiquidationLine> list = new Query(getCtx(), I_FTU_SLLine.Table_Name, whereClauseFinal, get_TrxName())
 										.setParameters(getFTU_ShipperLiquidation_ID())
 										.setOrderBy("FTU_SLLine_ID")
