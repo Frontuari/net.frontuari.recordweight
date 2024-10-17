@@ -5,25 +5,24 @@ import java.math.BigDecimal;
 import org.adempiere.base.annotation.EventTopicDelegate;
 import org.adempiere.base.annotation.ModelEventTopic;
 import org.adempiere.base.event.annotations.ModelEventDelegate;
-import org.adempiere.base.event.annotations.doc.BeforeComplete;
 import org.adempiere.base.event.annotations.doc.BeforeVoid;
-import org.adempiere.base.event.annotations.po.BeforeDelete;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MOrder;
-import org.compiere.model.MOrderLine;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.osgi.service.event.Event;
 
-import net.frontuari.custom.base.CustomEvent;
-
 @EventTopicDelegate
 @ModelEventTopic(modelClass = MOrder.class)
-public class OrderEvents extends ModelEventDelegate<MOrder> {
+public class RWOrderEvents extends ModelEventDelegate<MOrder> {
 
-	public OrderEvents(MOrder po, Event event) {
+	/**	Logger			*/
+	private static CLogger log = CLogger.getCLogger(RWOrderEvents.class);
+	
+	public RWOrderEvents(MOrder po, Event event) {
 		super(po, event);
+		log.warning("Load Event for Order from recordweight plugins");
 	}
 	
 	@BeforeVoid
@@ -34,8 +33,4 @@ public class OrderEvents extends ModelEventDelegate<MOrder> {
 			if (qtyload.compareTo(Env.ZERO) > 0)
 				throw new AdempiereException("La orden posee " + qtyload + " Ordenes de Carga.");
 	}
-	
-
-	/**	Logger			*/
-	private static CLogger log = CLogger.getCLogger(OrderEvents.class);
 }

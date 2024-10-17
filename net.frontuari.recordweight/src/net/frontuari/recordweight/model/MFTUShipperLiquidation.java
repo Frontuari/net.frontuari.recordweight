@@ -642,7 +642,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 */
 	private void createDeduction(String trxName) {
 		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'N' "
-				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'APC') "
+				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'APC' AND IsFarmerLiquidation = 'N') "
 				+ "AND invoiceopen(C_Invoice_ID,0) < 0 "
 				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
 				+ "WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND FTU_SLLine.DeductionType='01' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO'))";
@@ -675,7 +675,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 */
 	private void createInvoice(String trxName) {
 		String whereClause = "C_BPartner_ID = (SELECT C_BPartner_ID FROM M_Shipper WHERE M_Shipper_ID = ?) AND DocStatus = 'CO' AND IsSOTrx = 'Y' "
-				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'ARI') "
+				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE IsAffectedBook = 'N' AND DocBaseType = 'ARI' AND IsFarmerLiquidation = 'N') "
 				+ "AND invoiceopen(C_Invoice_ID,0) > 0 "
 				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
 				+ "WHERE FTU_SLLine.C_Invoice_ID = C_Invoice.C_Invoice_ID AND FTU_SLLine.DeductionType='02' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO'))";
@@ -708,7 +708,7 @@ public class MFTUShipperLiquidation extends X_FTU_ShipperLiquidation implements 
 	 */
 	private void createInventory(String trxName) {
 		String whereClause = "M_Shipper_ID = ? AND DocStatus = 'CO' AND IsInternal = 'Y' "
-				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'MMI' AND DocSubTypeInv = 'IU') "
+				+ "AND C_DocType_ID IN (SELECT C_DocType_ID FROM C_DocType WHERE DocBaseType = 'MMI' AND DocSubTypeInv = 'IU' AND IsFarmerLiquidation = 'N') "
 				+ "AND NOT EXISTS (SELECT 1 FROM FTU_SLLine JOIN FTU_ShipperLiquidation ON (FTU_ShipperLiquidation.FTU_ShipperLiquidation_ID = FTU_SLLine.FTU_ShipperLiquidation_ID) "
 				+ "WHERE FTU_SLLine.M_Inventory_ID = M_Inventory.M_Inventory_ID AND FTU_SLLine.DeductionType = '02' AND FTU_ShipperLiquidation.DocStatus NOT IN ('RE','VO')) ";
 		List<MInventory> list = new Query(getCtx(), MInventory.Table_Name, whereClause, trxName)
